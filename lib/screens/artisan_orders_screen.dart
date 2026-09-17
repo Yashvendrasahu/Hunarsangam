@@ -3,6 +3,9 @@
 // Artisan Orders & Production Management Hub
 
 import 'package:flutter/material.dart';
+import '../services/order_service.dart';
+import '../services/production_service.dart';
+import '../services/collaboration_service.dart';
 
 /// Screen representing the Artisan Orders Hub (matching 'o1- order first page.png')
 /// Includes 2x2 production metrics, cluster capacity alert, filter tabs,
@@ -138,6 +141,12 @@ class _ArtisanOrdersScreenState extends State<ArtisanOrdersScreen> {
                         setState(() {
                           _bambooPcsCompleted = currentProgress;
                         });
+                        ProductionService().logMilestone(
+                          orderId: '44444444-4444-4444-4444-444444444441',
+                          milestone: 'Lattice Weaving & Progress Update',
+                          description: 'Updated artisan workshop progress to $_bambooPcsCompleted/$_bambooPcsTotal units.',
+                          unitsMilestone: _bambooPcsCompleted,
+                        );
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
@@ -261,6 +270,7 @@ class _ArtisanOrdersScreenState extends State<ArtisanOrdersScreen> {
               setState(() {
                 _isBombayStoreAccepted = true;
               });
+              OrderService().updateOrderStatus('44444444-4444-4444-4444-444444444442', 'accepted');
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('✅ Accepted PO #PO-TBS-4419! 40% advance released to escrow.'),

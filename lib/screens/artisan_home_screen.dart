@@ -2,6 +2,13 @@
 
 import 'package:flutter/material.dart';
 import '../models/onboarding_state.dart';
+import '../models/notification_model.dart';
+import '../services/notification_service.dart';
+import '../services/auth_service.dart';
+import '../services/product_service.dart';
+import '../services/order_service.dart';
+import '../services/production_service.dart';
+import '../services/collaboration_service.dart';
 import '../add_product/add_product_flow.dart';
 import 'artisan_orders_screen.dart';
 
@@ -99,6 +106,119 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showNotificationsSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => FutureBuilder<List<NotificationModel>>(
+        future: NotificationService().getNotifications(),
+        builder: (context, snapshot) {
+          final notifs = snapshot.data ?? [];
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.65,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFFDFB),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+            ),
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40.0,
+                    height: 4.0,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE5D5CB),
+                      borderRadius: BorderRadius.circular(2.0),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Notifications & Alerts',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF2D2421),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        NotificationService().markAllAsRead();
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Mark all read', style: TextStyle(color: Color(0xFFA84318), fontSize: 13.0)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12.0),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: notifs.length,
+                    separatorBuilder: (_, __) => const Divider(height: 16.0, color: Color(0xFFF3E7DF)),
+                    itemBuilder: (context, i) {
+                      final item = notifs[i];
+                      return ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: CircleAvatar(
+                          backgroundColor: item.type == 'order'
+                              ? const Color(0xFFFFF2EC)
+                              : item.type == 'payment'
+                                  ? const Color(0xFFE8F5E9)
+                                  : const Color(0xFFEDE7F6),
+                          child: Icon(
+                            item.type == 'order'
+                                ? Icons.shopping_bag_outlined
+                                : item.type == 'payment'
+                                    ? Icons.account_balance_wallet_outlined
+                                    : Icons.info_outline_rounded,
+                            color: item.type == 'order'
+                                ? const Color(0xFFA84318)
+                                : item.type == 'payment'
+                                    ? const Color(0xFF2E7D32)
+                                    : const Color(0xFF512DA8),
+                            size: 20.0,
+                          ),
+                        ),
+                        title: Text(
+                          item.title,
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: item.isRead ? FontWeight.w600 : FontWeight.w800,
+                            color: const Color(0xFF2D2421),
+                          ),
+                        ),
+                        subtitle: Text(
+                          item.message,
+                          style: const TextStyle(fontSize: 12.5, color: Color(0xFF7A685F)),
+                        ),
+                        trailing: !item.isRead
+                            ? Container(
+                                width: 8.0,
+                                height: 8.0,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFC53030),
+                                  shape: BoxShape.circle,
+                                ),
+                              )
+                            : null,
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -356,34 +476,38 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
               const SizedBox(width: 8.0),
 
               // Notification bell with red dot
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(7.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFAF2EC),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: const Color(0xFFE5D5CB)),
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded,
-                      size: 20.0,
-                      color: Color(0xFF4A372D),
-                    ),
-                  ),
-                  Positioned(
-                    top: 5.0,
-                    right: 6.0,
-                    child: Container(
-                      width: 8.0,
-                      height: 8.0,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFC53030),
+              InkWell(
+                onTap: _showNotificationsSheet,
+                borderRadius: BorderRadius.circular(20.0),
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7.0),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFAF2EC),
                         shape: BoxShape.circle,
+                        border: Border.all(color: const Color(0xFFE5D5CB)),
+                      ),
+                      child: const Icon(
+                        Icons.notifications_none_rounded,
+                        size: 20.0,
+                        color: Color(0xFF4A372D),
                       ),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 5.0,
+                      right: 6.0,
+                      child: Container(
+                        width: 8.0,
+                        height: 8.0,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFC53030),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(width: 10.0),
 

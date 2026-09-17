@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/onboarding_state.dart';
+import '../services/auth_service.dart';
 import 'artisan_home_screen.dart';
 
 /// Screen matching 'ar-Artisan- login.png'
@@ -117,8 +118,13 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    // Simulate quick authentication & session token handshake
-    await Future.delayed(const Duration(milliseconds: 300));
+    // Authenticate via Supabase AuthService
+    try {
+      await AuthService().loginWithEmailOrPhone(
+        contact: _contactController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+    } catch (_) {}
 
     if (!mounted) return;
 

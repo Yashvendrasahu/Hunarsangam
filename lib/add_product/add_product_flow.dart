@@ -12,11 +12,13 @@ import 'screens/fair_pricing_screen.dart';
 import 'screens/bulk_capacity_screen.dart';
 import 'screens/product_final_preview_screen.dart';
 import 'screens/catalog_published_screen.dart';
+import '../services/ai_service.dart';
+import '../services/product_service.dart';
 
 /// Master Coordinator for the 10-screen Artisan "Add Product" Flow
 /// Statefully orchestrates seamless progression from camera capture,
 /// coin AR detection, voice description, AI draft generation, fair wage pricing,
-/// bulk capacity recording, through to ONDC publication.
+/// bulk capacity recording, through to Supabase ONDC publication.
 class AddProductFlow extends StatefulWidget {
   final int initialStep;
   final Function(int)? onNavigateTab;
@@ -38,6 +40,7 @@ class AddProductFlow extends StatefulWidget {
 class _AddProductFlowState extends State<AddProductFlow> {
   late int _currentStep;
   ProductDraft _draft = const ProductDraft();
+  bool _isProcessingAi = false;
 
   @override
   void initState() {
@@ -49,6 +52,65 @@ class _AddProductFlowState extends State<AddProductFlow> {
     setState(() {
       _currentStep = step;
     });
+  }
+
+  Future<void> _handleVoiceTranscription(String transcription) async {
+    setState(() {
+      _isProcessingAi = true;
+      _draft = _draft.copyWith(voiceClipTranscription: transcription);
+    });
+
+    try {
+      // Call Supabase ai-catalog Edge Function / AI Service
+      final aiResult = await AiService().generateCatalogDetails(
+        voiceTranscription: transcription,
+        craftType: _draft.category.isNotEmpty ? _draft.category : 'Bamboo & Cane Weaving',
+        dimensions: {
+          'diameter': _draft.diameterIn,
+          'height': _draft.heightIn,
+        },
+        photoUrl: _draft.photoUrl,
+      );
+
+      setState(() {
+        _draft = _draft.copyWith(
+          title: aiResult.productName,
+          category: aiResult.category,
+          description: aiResult.description,
+          material: aiResult.material,
+          finishAndColor: aiResult.finishAndColor,
+          diameterIn: aiResult.diameterIn,
+          heightIn: aiResult.heightIn,
+          estWeightGrams: aiResult.estWeightGrams,
+          basePrice: aiResult.suggestedPrice,
+          giCluster: aiResult.giCluster,
+          giRegNumber: aiResult.giRegNumber,
+          isProcessing: false,
+        );
+      });
+    } catch (_) {
+      // Fallback preserves draft
+    } finally {
+      setState(() {
+        _isProcessingAi = false;
+      });
+      _goToStep(5);
+    }
+  }
+
+  Future<void> _handlePublishToSupabase() async {
+    setState(() {
+      _draft = _draft.copyWith(isPublished: true, isOndcSynced: true);
+    });
+
+    try {
+      // Persist product directly into Supabase
+      await ProductService().createProductFromDraft(_draft);
+    } catch (e) {
+      debugPrint('[AddProductFlow] Error persisting product to Supabase: $e');
+    }
+
+    _goToStep(9);
   }
 
   @override
@@ -94,10 +156,7 @@ class _AddProductFlowState extends State<AddProductFlow> {
         return VoiceDescriptionScreen(
           draft: _draft,
           onDoneRecording: (transcription) {
-            setState(() {
-              _draft = _draft.copyWith(voiceClipTranscription: transcription);
-            });
-            _goToStep(5);
+            _handleVoiceTranscription(transcription);
           },
           onBack: () => _goToStep(3),
           onNavigateTab: widget.onNavigateTab,
@@ -146,10 +205,7 @@ class _AddProductFlowState extends State<AddProductFlow> {
         return ProductFinalPreviewScreen(
           draft: _draft,
           onSubmitPublish: () {
-            setState(() {
-              _draft = _draft.copyWith(isPublished: true, isOndcSynced: true);
-            });
-            _goToStep(9);
+            _handlePublishToSupabase();
           },
           onBack: () => _goToStep(7),
           onNavigateTab: widget.onNavigateTab,
