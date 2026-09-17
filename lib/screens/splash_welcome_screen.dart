@@ -15,7 +15,7 @@ class SplashWelcomeScreen extends StatefulWidget {
   const SplashWelcomeScreen({
     super.key,
     this.onGetStarted,
-    this.autoAdvanceDuration = const Duration(seconds: 2),
+    this.autoAdvanceDuration = const Duration(seconds: 5),
   });
 
   @override

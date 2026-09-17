@@ -9,6 +9,7 @@ import {
   Palette,
   ShieldCheck,
   ChevronsUpDown,
+  ChevronDown,
   Copy,
   Check,
   Code2,
@@ -517,6 +518,11 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
     language: 'dart',
     content: `// lib/main.dart - Orchestrates Splash, Onboarding Steps 1-5, Login Screen, and Artisan Home Dashboard`,
   },
+  'craft_story_screen.dart': {
+    path: 'lib/screens/craft_story_screen.dart',
+    language: 'dart',
+    content: `// lib/screens/craft_story_screen.dart - My Craft Story with AI Voice-to-Text & B2B Buyer Story Structuring`,
+  },
   'splash_welcome_screen.dart': {
     path: 'lib/screens/splash_welcome_screen.dart',
     language: 'dart',
@@ -531,9 +537,9 @@ export default function App() {
   const [selectedFile, setSelectedFile] = useState<string>('login_screen.dart');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
-  // 2-Second Timer State for Splash Screen
+  // 5-Second Timer State for Splash Screen
   const [isTimerActive, setIsTimerActive] = useState<boolean>(true);
-  const [timeLeftMs, setTimeLeftMs] = useState<number>(2000);
+  const [timeLeftMs, setTimeLeftMs] = useState<number>(5000);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // User State
@@ -571,18 +577,21 @@ export default function App() {
   const [isArActive, setIsArActive] = useState<boolean>(false);
   const [activeLangTab, setActiveLangTab] = useState<'en' | 'hi' | 'as'>('en');
   const [selectedCardTemplate, setSelectedCardTemplate] = useState<'phone' | 'standee' | 'hangtag'>('phone');
+  const [isCraftStoryRecording, setIsCraftStoryRecording] = useState<boolean>(false);
+  const [isPlayingCraftVoiceNote, setIsPlayingCraftVoiceNote] = useState<boolean>(false);
+  const [isCraftStoryAudioGuidePlaying, setIsCraftStoryAudioGuidePlaying] = useState<boolean>(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
   };
 
-  // Splash 2-second timer effect
+  // Splash 5-second timer effect
   useEffect(() => {
     if (activeScreenIndex === 0 && isTimerActive) {
-      setTimeLeftMs(2000);
+      setTimeLeftMs(5000);
       const interval = 50;
-      let remaining = 2000;
+      let remaining = 5000;
 
       timerRef.current = setInterval(() => {
         remaining -= interval;
@@ -604,7 +613,7 @@ export default function App() {
   const restartTimer = () => {
     setActiveScreenIndex(0);
     setIsTimerActive(true);
-    setTimeLeftMs(2000);
+    setTimeLeftMs(5000);
   };
 
   const handleCopy = (text: string, key: string) => {
@@ -635,6 +644,7 @@ export default function App() {
     { idx: 18, label: '👓 18. Preview Product' },
     { idx: 19, label: '🎉 19. Catalog Published' },
     { idx: 20, label: '🪪 20. Profile (Visiting Card)' },
+    { idx: 21, label: '🎙️ 21. My Craft Story' },
   ];
 
   return (
@@ -690,7 +700,7 @@ export default function App() {
                     key={pill.idx}
                     onClick={() => {
                       setActiveScreenIndex(pill.idx);
-                      if (pill.idx === 0) setTimeLeftMs(2000);
+                      if (pill.idx === 0) setTimeLeftMs(5000);
                     }}
                     className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                       activeScreenIndex === pill.idx
@@ -744,57 +754,154 @@ export default function App() {
                   </div>
                 )}
 
-                {/* 1. SCREEN 0: SPLASH */}
+                {/* 1. SCREEN 0: SPLASH (100% Match to Splash or Start or Entry Point.png) */}
                 {activeScreenIndex === 0 && (
-                  <div className="flex-1 flex flex-col bg-[#FBF2EE] relative overflow-hidden">
+                  <div
+                    onClick={() => {
+                      // Allow tap anywhere to proceed immediately
+                      setActiveScreenIndex(1);
+                      showToast('🚀 Welcome to HunarSangam');
+                    }}
+                    className="flex-1 flex flex-col bg-[#FDFBF9] relative overflow-hidden cursor-pointer select-none"
+                  >
+                    {/* 5-Second Timer Progress Bar */}
                     {isTimerActive && (
-                      <div className="w-full bg-[#EADFD6] h-1.5 relative overflow-hidden">
+                      <div className="w-full bg-[#EADFD6] h-1.5 relative overflow-hidden z-20 shrink-0">
                         <div
-                          className="h-full bg-[#A84318] transition-all duration-75 ease-linear"
-                          style={{ width: `${((2000 - timeLeftMs) / 2000) * 100}%` }}
+                          className="h-full bg-[#8C2E18] transition-all duration-75 ease-linear"
+                          style={{ width: `${((5000 - timeLeftMs) / 5000) * 100}%` }}
                         />
                       </div>
                     )}
 
-                    <div className="px-5 pt-2 flex items-center justify-between z-10">
-                      <div className="flex items-center gap-1.5 px-3 py-1 bg-[#F3E7DF] border border-[#E5D5CB] rounded-full shadow-xs">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
-                        <span className="text-[10px] font-bold tracking-wider text-[#4A3B32]">SIH INITIATIVE</span>
-                      </div>
-                      <span className="text-xs font-semibold text-[#8C3A16] flex items-center gap-1">
-                        <Timer className="w-3.5 h-3.5" /> {(timeLeftMs / 1000).toFixed(1)}s
-                      </span>
+                    {/* Subtle Rotating Mandala Watermark in Background */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-40 overflow-hidden">
+                      <svg
+                        className="w-[420px] h-[420px] text-[#EAD8CC] animate-[spin_60s_linear_infinite]"
+                        viewBox="0 0 200 200"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="0.75" strokeDasharray="3 3" />
+                        <circle cx="100" cy="100" r="72" stroke="currentColor" strokeWidth="0.75" />
+                        <circle cx="100" cy="100" r="54" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 2" />
+                        <circle cx="100" cy="100" r="36" stroke="currentColor" strokeWidth="0.75" />
+                        {/* 12 Floral Petals */}
+                        {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
+                          <g key={deg} transform={`rotate(${deg} 100 100)`}>
+                            <path
+                              d="M 100,28 C 108,50 115,70 100,100 C 85,70 92,50 100,28 Z"
+                              stroke="currentColor"
+                              strokeWidth="0.8"
+                              fill="currentColor"
+                              fillOpacity="0.06"
+                            />
+                            <circle cx="100" cy="22" r="2.5" fill="currentColor" fillOpacity="0.3" />
+                          </g>
+                        ))}
+                      </svg>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center justify-center px-6 text-center z-10">
-                      <div className="relative w-30 h-30 bg-[#FFFBF9] rounded-[28px] border-[3.5px] border-[#B85324] shadow-lg flex flex-col items-center justify-center p-3 mb-4">
-                        <span className="font-serif font-black text-base text-[#7C3F24]">हुनर संगम</span>
-                        <span className="text-[7px] font-bold text-[#8C5338] tracking-widest mt-1">कला • शिल्प • एकता</span>
+                    {/* Top Header Row (SIH INITIATIVE & AI Helped craft) */}
+                    <div className="px-5 pt-3 pb-1 flex items-center justify-between z-10 shrink-0">
+                      {/* Left: SIH Initiative Pill Badge */}
+                      <div className="flex items-center gap-1.5 px-3 py-1 bg-[#F6EDE7] border border-[#ECD9CE] rounded-full shadow-2xs">
+                        <span className="w-2 h-2 rounded-full bg-[#1B803A] animate-pulse" />
+                        <span className="text-[10px] font-black tracking-wider text-[#35251E]">SIH INITIATIVE</span>
                       </div>
 
-                      <h2 className="text-2xl font-black text-[#7C3F24] mb-1">HunarSangam</h2>
-                      <p className="text-sm font-bold text-[#2D2421] mb-2 max-w-[240px] leading-snug">
+                      {/* Right: AI Helped craft Badge + Timer Indicator */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-[#35251E]">
+                          <Palette className="w-3.5 h-3.5 text-[#35251E]" />
+                          <span className="text-[11px] font-bold text-[#35251E]">AI Helped craft</span>
+                        </div>
+                        {isTimerActive && (
+                          <span className="text-[10px] font-bold text-[#8C3A16] bg-[#FDF2EB] px-1.5 py-0.5 rounded-md border border-[#F3DFD5]">
+                            {(timeLeftMs / 1000).toFixed(1)}s
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Central Content Area */}
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 text-center z-10 -mt-2">
+                      {/* Logo Emblem Container with Halo Glow */}
+                      <div className="relative mb-5 group">
+                        {/* Outer Soft Halo Glow */}
+                        <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#FCECE3] via-[#F8DFD2] to-[#FCECE3] blur-xs opacity-80 animate-pulse" />
+
+                        {/* Outer Circular Ring Border */}
+                        <div className="relative w-32 h-32 rounded-full p-2 bg-[#FCECE3] flex items-center justify-center border border-[#F5D8CA] shadow-md">
+                          {/* Inner Squircle Badge with Terracotta Border */}
+                          <div className="w-26 h-26 bg-white rounded-[24px] border-[3.5px] border-[#9E3E1A] shadow-inner flex flex-col items-center justify-center p-2 transition-transform duration-300 group-hover:scale-105">
+                            {/* Artistic Motif (Artisan silhouette & colorful palette) */}
+                            <div className="w-10 h-10 mb-1 relative flex items-center justify-center">
+                              {/* Peacock/Craft Multi-Color Brushstrokes */}
+                              <svg className="w-9 h-9" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="18" cy="18" r="16" fill="#FDF7F3" />
+                                {/* Colorful arcs: saffron, teal, gold, terracotta */}
+                                <path d="M18 6C13 6 8 11 8 18C8 22 11 25 15 27" stroke="#167873" strokeWidth="2.5" strokeLinecap="round" />
+                                <path d="M18 6C23 6 28 11 28 18C28 22 25 25 21 27" stroke="#E67E22" strokeWidth="2.5" strokeLinecap="round" />
+                                <path d="M18 10C14.5 10 11 13.5 11 18" stroke="#D35400" strokeWidth="2" strokeLinecap="round" />
+                                <path d="M18 10C21.5 10 25 13.5 25 18" stroke="#F39C12" strokeWidth="2" strokeLinecap="round" />
+                                {/* Artisan silhouette with brush */}
+                                <path d="M18 12C16.3 12 15 13.3 15 15C15 16.5 16 17.7 17.4 18V24H18.6V18C20 17.7 21 16.5 21 15C21 13.3 19.7 12 18 12Z" fill="#3D2418" />
+                                <circle cx="18" cy="14" r="1.5" fill="#E67E22" />
+                              </svg>
+                            </div>
+
+                            {/* Hindi Text: हुनर संगम */}
+                            <span className="font-serif font-black text-sm text-[#2D1C15] tracking-tight leading-none">
+                              हुनर संगम
+                            </span>
+
+                            {/* Subtitle Underline */}
+                            <div className="w-16 h-px bg-[#D9C4B8] my-0.5" />
+                            <span className="text-[6.5px] font-bold text-[#8C5338] tracking-wider leading-none">
+                              Inspire • Craft • Connect
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                        {/* Main Brand Title */}
+                      <h2 className="text-[26px] font-black text-[#9E3E1A] tracking-tight mb-1 leading-none">
+                        HunarSangam
+                      </h2>
+
+                      {/* Subtitle */}
+                      <p className="text-[13.5px] font-black text-[#221C19] mb-3 max-w-[240px] leading-snug">
                         Where Artisans Connect, Collaborate &amp; Grow
                       </p>
 
-                      <div className="flex items-center gap-2 text-xs font-semibold text-[#7B665C] mb-6">
+                      {/* Keywords with Separator Dots */}
+                      <div className="flex items-center justify-center gap-2 text-xs font-bold text-[#6B584E] mb-3.5">
                         <span>Connect</span>
-                        <span className="w-1 h-1 rounded-full bg-[#B85324]" />
+                        <span className="w-1 h-1 rounded-full bg-[#9E3E1A]" />
                         <span>Collaborate</span>
-                        <span className="w-1 h-1 rounded-full bg-[#B85324]" />
+                        <span className="w-1 h-1 rounded-full bg-[#9E3E1A]" />
                         <span>Create</span>
                       </div>
 
+                      {/* Language Selector Pill Button */}
                       <button
-                        onClick={() => setActiveScreenIndex(1)}
-                        className="w-full py-3 bg-[#A84318] hover:bg-[#923712] text-white rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2 mb-3 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveScreenIndex(1);
+                        }}
+                        className="px-3.5 py-1.5 bg-[#FFFDFB] border border-[#E5D5CB] rounded-full flex items-center gap-1.5 text-xs font-bold text-[#221C19] shadow-2xs hover:bg-[#FDF3ED] active:scale-95 transition-all mb-4"
                       >
-                        <span>Get Started • शुरू करें</span>
-                        <ArrowRight className="w-4 h-4" />
+                        <Globe className="w-3.5 h-3.5 text-[#221C19]" />
+                        <span>English</span>
+                        <span className="text-[10px] text-[#221C19]">▯</span>
                       </button>
 
-                      <div className="flex items-center justify-center gap-1 text-[11px] font-semibold text-[#5A483E]">
-                        <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
+                      {/* Bottom Verified Trust Seal */}
+                      <div className="flex items-center justify-center gap-1.5 text-[11.5px] font-bold text-[#55433A]">
+                        <div className="w-4 h-4 rounded-full bg-[#E8F5E9] border border-[#C8E6C9] flex items-center justify-center shrink-0">
+                          <Check className="w-2.5 h-2.5 text-[#2E7D32] stroke-[3]" />
+                        </div>
                         <span>Crafted with pride in India</span>
                       </div>
                     </div>
@@ -4497,8 +4604,8 @@ export default function App() {
                       {/* Add Your Craft Story by Voice CTA */}
                       <button
                         onClick={() => {
-                          setActiveScreenIndex(4);
-                          showToast('🎙️ Voice Assistant ready to record your craft story');
+                          setActiveScreenIndex(21);
+                          showToast('🎙️ Opened My Craft Story screen');
                         }}
                         className="w-full py-3 px-4 bg-[#8C140E] hover:bg-[#78100B] text-white rounded-2xl flex items-center justify-center gap-2.5 shadow-md active:scale-98 transition-all"
                       >
@@ -4854,6 +4961,362 @@ export default function App() {
                           </button>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {/* 22. SCREEN 21: MY CRAFT STORY (100% matching — Digital Craft Story add from profile section.png) */}
+                {activeScreenIndex === 21 && (
+                  <div className="flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
+                    {/* Top App Bar */}
+                    <div className="bg-[#FFFDFB] border-b border-[#EADFD6] px-4 py-2.5 flex items-center justify-between z-10 shrink-0">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => setActiveScreenIndex(20)}
+                          className="p-1 rounded-full text-[#221C19] hover:bg-[#F3E7DF] active:scale-95 transition-all"
+                        >
+                          <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <h2 className="text-base font-black text-[#221C19] leading-tight">My Craft Story</h2>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Audio Guide Pill */}
+                        <button
+                          onClick={() => {
+                            setIsCraftStoryAudioGuidePlaying(!isCraftStoryAudioGuidePlaying);
+                            showToast(
+                              isCraftStoryAudioGuidePlaying
+                                ? 'Audio Guide stopped'
+                                : '🎙️ Playing Audio Guide: How to record your artisan heritage craft story'
+                            );
+                          }}
+                          className="px-2.5 py-1 bg-[#FDF2EB] border border-[#F3DFD5] text-[#8C3A16] rounded-full flex items-center gap-1.5 text-xs font-bold shadow-2xs hover:bg-[#F8E5D8] active:scale-95 transition-all"
+                        >
+                          <Volume2 className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <div className="text-left leading-none">
+                            <span className="text-[9.5px] block font-bold text-[#8C3A16]">Audio</span>
+                            <span className="text-[9px] block font-bold text-[#8C3A16]">Guide</span>
+                          </div>
+                        </button>
+
+                        {/* Language Dropdown */}
+                        <button
+                          onClick={() => showToast('Language: English (Tap to change)')}
+                          className="flex items-center gap-0.5 text-xs font-bold text-[#4A3228] hover:text-[#8C3A16] px-1 py-0.5"
+                        >
+                          <span>English</span>
+                          <span className="text-[9px]">▾</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+                      {/* Artisan Profile Header Card */}
+                      <div className="bg-[#FFFDFB] rounded-3xl border border-[#EADFD6] p-3.5 space-y-3 shadow-2xs">
+                        <div className="flex items-center gap-3">
+                          <div className="relative shrink-0">
+                            <img
+                              src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&auto=format&fit=crop&q=80"
+                              alt="Ramu Kumar"
+                              className="w-14 h-14 rounded-2xl object-cover border border-[#E8DDD5]"
+                              onError={(e) => {
+                                (e.target as HTMLElement).style.display = 'none';
+                              }}
+                            />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#8C2E18] rounded-full flex items-center justify-center text-white ring-2 ring-white">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-base font-black text-[#221C19] leading-tight">Ramu Kumar</h3>
+                            <p className="text-xs font-bold text-[#8C2E18] mt-0.5">
+                              National Merit Handicraft Awardee
+                            </p>
+                            <p className="text-[11px] text-[#6B584E] flex items-center gap-1 mt-0.5 font-medium truncate">
+                              <MapPin className="w-3 h-3 text-[#8C3A16] shrink-0" />
+                              <span>Bamboo &amp; Cane Plaiting • Assam &amp; Barabanki</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Badges Row */}
+                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                          <span className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <Check className="w-3 h-3 stroke-[2.5]" /> GI Registered #431
+                          </span>
+                          <span className="bg-[#F7EFE9] border border-[#E8DDD5] text-[#4A3228] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <span>🎖️</span> Master Craftsman
+                          </span>
+                          <span className="bg-[#FDF2EB] border border-[#F5D8CA] text-[#8C3A16] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <span>🌱</span> 3rd Gen Weaver
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Tell Your Story in Your Voice Card */}
+                      <div className="bg-[#FFF8F5] border border-[#F6E1D7] rounded-3xl p-4 space-y-3.5 shadow-2xs">
+                        <div className="flex items-start gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-[#FCEFE8] text-[#8C2E18] flex items-center justify-center shrink-0 mt-0.5">
+                            <Mic className="w-4 h-4 text-[#8C2E18]" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-black text-[#221C19] leading-tight">
+                              Tell Your Story in Your Voice
+                            </h3>
+                            <p className="text-[10.5px] font-bold text-[#8C2E18] mt-0.5">
+                              Zero Typing Needed • Native Dialects Supported
+                            </p>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-[#6B584E] leading-relaxed">
+                          Speak naturally in Hindi, Assamese, or your mother tongue. Describe your family roots, cane
+                          seasoning secrets, and cluster weavers. AI translates and refines it for global B2B buyers.
+                        </p>
+
+                        {/* Prompt Suggestion Box */}
+                        <div className="bg-[#FFF0E7] border border-[#FCDCCE] rounded-xl p-2 flex items-center gap-2">
+                          <div className="w-5 h-5 rounded-full bg-[#8C2E18] text-white flex items-center justify-center shrink-0">
+                            <Play className="w-2.5 h-2.5 fill-white ml-0.5" />
+                          </div>
+                          <p className="text-[11px] text-[#6B584E] italic truncate">
+                            Prompt: &quot;I learned cane weaving from my father...&quot;
+                          </p>
+                        </div>
+
+                        {/* Big Central Record Button */}
+                        <div className="flex flex-col items-center justify-center py-1">
+                          <button
+                            onClick={() => {
+                              setIsCraftStoryRecording(!isCraftStoryRecording);
+                              showToast(
+                                isCraftStoryRecording
+                                  ? '✅ Recording saved & AI structured your story'
+                                  : '🎙️ Recording voice note in Hindi/Assamese... Speak freely'
+                              );
+                            }}
+                            className="w-16 h-16 rounded-full bg-[#FCE2D5] flex items-center justify-center active:scale-95 transition-all shadow-inner relative group"
+                          >
+                            <div className="w-12 h-12 rounded-full bg-[#8C2E18] hover:bg-[#782310] text-white flex items-center justify-center shadow-md transition-all">
+                              {isCraftStoryRecording ? (
+                                <span className="w-4 h-4 bg-white rounded-xs animate-pulse" />
+                              ) : (
+                                <Mic className="w-5 h-5 text-white" />
+                              )}
+                            </div>
+                            {isCraftStoryRecording && (
+                              <span className="absolute -inset-1 rounded-full border-2 border-[#8C2E18] animate-ping opacity-50" />
+                            )}
+                          </button>
+                          <p className="text-xs font-black text-[#221C19] mt-2">Tap to Record New Note</p>
+                          <p className="text-[10px] text-[#7A685F] font-medium">Recommended: 1 to 2 minutes</p>
+                        </div>
+
+                        {/* Active Voice Note Player Bar */}
+                        <div className="bg-white border border-[#EBDCD2] rounded-2xl p-3 space-y-2 shadow-2xs">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full bg-[#2E7D32] animate-pulse" />
+                              <span className="text-xs font-black text-[#221C19]">Artisan Voice Note (0:48)</span>
+                            </div>
+                            <span className="text-[10.5px] font-medium text-[#7A685F]">Recorded Today</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <button
+                              onClick={() => {
+                                setIsPlayingCraftVoiceNote(!isPlayingCraftVoiceNote);
+                                showToast(
+                                  isPlayingCraftVoiceNote
+                                    ? 'Audio paused'
+                                    : '▶️ Playing original artisan audio recording'
+                                );
+                              }}
+                              className="w-7 h-7 rounded-full bg-[#8C2E18] text-white flex items-center justify-center shrink-0 hover:bg-[#782310] active:scale-95 shadow-2xs"
+                            >
+                              {isPlayingCraftVoiceNote ? (
+                                <Pause className="w-3.5 h-3.5 fill-white" />
+                              ) : (
+                                <Play className="w-3.5 h-3.5 fill-white translate-x-0.5" />
+                              )}
+                            </button>
+
+                            {/* Waveform Bars */}
+                            <div className="flex-1 flex items-center justify-between gap-1 px-1 h-6">
+                              {[
+                                8, 14, 20, 12, 18, 24, 16, 10, 22, 18, 12, 20, 16, 10, 18, 14, 8, 16, 12, 6,
+                              ].map((h, i) => {
+                                const isHighlighted = isPlayingCraftVoiceNote ? i < 12 : i % 3 === 0;
+                                return (
+                                  <div
+                                    key={i}
+                                    style={{ height: `${h}px` }}
+                                    className={`w-1 rounded-full transition-all ${
+                                      isHighlighted ? 'bg-[#A84318]' : 'bg-[#F5C7B2]'
+                                    }`}
+                                  />
+                                );
+                              })}
+                            </div>
+
+                            <button
+                              onClick={() => showToast('🎙️ Ready to re-record voice note')}
+                              className="p-1 rounded-full text-[#7A685F] hover:text-[#8C2E18] active:scale-90 transition-all"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* AI-Crafted Buyer Story Section */}
+                      <div className="bg-[#FFFDFB] rounded-3xl border border-[#EADFD6] p-4 space-y-3.5 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-sm font-black text-[#221C19]">AI-Crafted Buyer Story</h3>
+                          <div className="bg-[#FDF2EB] text-[#8C3A16] border border-[#F5D8CA] text-[9.5px] font-black px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-[#8C3A16]" />
+                            <span>Voice-Preserved</span>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-[#6B584E] leading-relaxed">
+                          Summarized and structured automatically for international buyers, retail brands, and craft
+                          exhibitions.
+                        </p>
+
+                        {/* Subsection 1 */}
+                        <div className="bg-[#FFF8F4] border-l-4 border-l-[#8C2E18] border border-[#F2DFD4] rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#8C2E18] text-xs">📜</span>
+                            <h4 className="text-xs font-black text-[#221C19]">
+                              3 Generations of Sustainable Cane Weaving
+                            </h4>
+                          </div>
+                          <p className="text-[11px] text-[#523E34] leading-relaxed">
+                            Rooted in the rich artisan traditions of Northeast India, our family has practiced
+                            sustainable bamboo plaiting for over 45 years. Passed down through three generations in
+                            Assam and Barabanki, every warp and weft honors timeless tribal interlocking practices.
+                          </p>
+                        </div>
+
+                        {/* Subsection 2 */}
+                        <div className="bg-[#F8FAF7] border-l-4 border-l-[#2E7D32] border border-[#E0EBE1] rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#2E7D32] text-xs">🌱</span>
+                            <h4 className="text-xs font-black text-[#221C19]">Zero-Chemical, Food-Safe Craft</h4>
+                          </div>
+                          <p className="text-[11px] text-[#523E34] leading-relaxed">
+                            Each piece is hand-harvested from mature riverbed bamboo, seasoned in natural pit smoke, and
+                            treated with an organic mustard-seed oil finish. Designed for conscious contemporary
+                            spaces—entirely biodegradable, food-safe, and chemical-free.
+                          </p>
+                        </div>
+
+                        {/* Subsection 3 */}
+                        <div className="bg-[#FAF7F5] border-l-4 border-l-[#7A4A28] border border-[#EFE5DC] rounded-2xl p-3.5 space-y-1.5 shadow-2xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[#7A4A28] text-xs">👥</span>
+                            <h4 className="text-xs font-black text-[#221C19]">Empowering 14 Cluster Weavers</h4>
+                          </div>
+                          <p className="text-[11px] text-[#523E34] leading-relaxed">
+                            Today Ramu leads a decentralized guild of 14 rural artisans, including 9 women master
+                            weavers. This collective fulfills export-grade wholesale contracts while funding apprentice
+                            workshops for young village artisans.
+                          </p>
+                        </div>
+
+                        {/* Tap to edit with voice */}
+                        <button
+                          onClick={() => showToast('🎙️ Voice Assistant ready: Speak to edit or add details...')}
+                          className="w-full py-2.5 px-3 bg-[#FFF8F5] border border-[#E2D2C7] rounded-xl text-[#8C2E18] text-xs font-black flex items-center justify-center gap-1.5 hover:bg-[#FDF0E9] active:scale-98 transition-all"
+                        >
+                          <Mic className="w-3.5 h-3.5 text-[#8C2E18]" />
+                          <span>Tap to edit or add details with voice</span>
+                        </button>
+                      </div>
+
+                      {/* Where Your Story Appears Card */}
+                      <div className="bg-[#FFFDFB] rounded-3xl border border-[#EADFD6] p-4 space-y-3 shadow-2xs">
+                        <div className="flex items-center gap-2">
+                          <Store className="w-4 h-4 text-[#8C2E18]" />
+                          <h3 className="text-xs font-black text-[#221C19]">Where Your Story Appears</h3>
+                        </div>
+
+                        <div className="space-y-2">
+                          {/* Item 1 */}
+                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-[#FDECE2] text-[#8C2E18] flex items-center justify-center shrink-0">
+                              <FileText className="w-4 h-4 text-[#8C2E18]" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-[#221C19]">Attached to B2B Quotations</p>
+                              <p className="text-[10px] text-[#6B584E]">Improves wholesale order acceptance by 68%</p>
+                            </div>
+                          </div>
+
+                          {/* Item 2 */}
+                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
+                              <Tag className="w-4 h-4 text-[#2E7D32]" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-[#221C19]">ONDC &amp; Shilp Samagam Tags</p>
+                              <p className="text-[10px] text-[#6B584E]">Printed on certified GI craft labels</p>
+                            </div>
+                          </div>
+
+                          {/* Item 3 */}
+                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-[#FDF0E5] text-[#A84318] flex items-center justify-center shrink-0">
+                              <QrCode className="w-4 h-4 text-[#A84318]" />
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-[#221C19]">Digital Visiting Card (Screen 20)</p>
+                              <p className="text-[10px] text-[#6B584E]">
+                                Instant QR code for buyer WhatsApp &amp; trade fairs
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom Action Footer */}
+                    <div className="bg-[#FFFDFB] border-t border-[#EADFD6] p-3 space-y-2 z-10 shrink-0">
+                      {/* Save & Publish */}
+                      <button
+                        onClick={() => {
+                          setActiveScreenIndex(20);
+                          showToast('🎉 Craft Story saved and published to your Digital Visiting Card & B2B profile!');
+                        }}
+                        className="w-full py-3.5 bg-[#8C2E18] hover:bg-[#782310] text-white rounded-2xl text-xs font-black shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all"
+                      >
+                        <span>Save &amp; Publish Craft Story</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+
+                      {/* Secondary buttons */}
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          onClick={() => showToast('🎙️ Re-recording voice story... Speak naturally')}
+                          className="py-2.5 bg-[#FFF5EE] border border-[#EADFD6] hover:bg-[#FBEBE0] text-[#4A3228] font-bold text-[11px] rounded-2xl flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all"
+                        >
+                          <Mic className="w-3.5 h-3.5 text-[#8C2E18]" />
+                          <span>Re-Tell With Voice</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(20);
+                            showToast('👀 Showing how buyers see your verified craft story on your profile card');
+                          }}
+                          className="py-2.5 bg-[#FFF5EE] border border-[#EADFD6] hover:bg-[#FBEBE0] text-[#4A3228] font-bold text-[11px] rounded-2xl flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-[#8C2E18]" />
+                          <span>Preview Buyer View</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
