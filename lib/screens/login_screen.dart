@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../models/onboarding_state.dart';
 import '../services/auth_service.dart';
+import '../widgets/brand_logo_card.dart';
 import 'artisan_home_screen.dart';
 
 /// Screen matching 'ar-Artisan- login.png'
@@ -216,40 +217,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   // Center brand logo + title
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 32.0,
-                        height: 32.0,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFFBF9),
-                          borderRadius: BorderRadius.circular(9.0),
-                          border: Border.all(color: const Color(0xFFE5D5CB), width: 1.0),
-                        ),
-                        padding: const EdgeInsets.all(3.0),
-                        child: const Center(
-                          child: Text(
-                            'हुनर',
-                            style: TextStyle(
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w900,
-                              color: Color(0xFF7C3F24),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8.0),
-                      const Text(
-                        'HunarSangam',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w800,
-                          color: Color(0xFF7C3F24),
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ],
+                  const HunarSangamLogoBadge(
+                    size: 34.0,
+                    showText: true,
                   ),
 
                   // Language dropdown pill

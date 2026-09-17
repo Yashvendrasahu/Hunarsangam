@@ -10,6 +10,7 @@ import '../services/order_service.dart';
 import '../services/production_service.dart';
 import '../services/collaboration_service.dart';
 import '../add_product/add_product_flow.dart';
+import '../widgets/brand_logo_card.dart';
 import 'artisan_orders_screen.dart';
 
 /// Primary Artisan Home Dashboard matching 'Artisan Home section.png'
@@ -353,39 +354,9 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Logo + HunarSangam
-          Row(
-            children: [
-              Container(
-                width: 32.0,
-                height: 32.0,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFBF9),
-                  borderRadius: BorderRadius.circular(8.0),
-                  border: Border.all(color: const Color(0xFFE5D5CB), width: 1.0),
-                ),
-                padding: const EdgeInsets.all(3.0),
-                child: const Center(
-                  child: Text(
-                    'हुनर',
-                    style: TextStyle(
-                      fontSize: 9.5,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xFF7C3F24),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8.0),
-              const Text(
-                'HunarSangam',
-                style: TextStyle(
-                  fontSize: 18.0,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF7C3F24),
-                  letterSpacing: -0.3,
-                ),
-              ),
-            ],
+          const HunarSangamLogoBadge(
+            size: 34.0,
+            showText: true,
           ),
 
           // Right Icons: Language, Notification Bell, Avatar

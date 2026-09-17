@@ -86,6 +86,7 @@ import {
   Inbox,
 } from 'lucide-react';
 import { t, getLangCode } from './translations';
+import { HunarSangamLogo } from './components/HunarSangamLogo';
 
 const DART_FILES: Record<string, { path: string; language: string; content: string }> = {
   'artisan_orders_screen.dart': {
@@ -832,12 +833,17 @@ export default function App() {
       {/* Top Header */}
       <header className="w-full bg-[#FAF5F0] border-b border-[#E8DDD5] px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#A84318] text-white flex items-center justify-center font-bold shadow-xs">
-            HS
+          <div className="w-10 h-10 rounded-xl bg-white border border-[#E8DDD5] p-1 flex items-center justify-center shadow-xs shrink-0">
+            <img
+              src="/Logo.png"
+              alt="HunarSangam Logo"
+              referrerPolicy="no-referrer"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
-            <h1 className="text-base font-bold text-[#4A3228] leading-tight">HunarSangam Mobile App</h1>
-            <p className="text-xs text-[#8A756C]">Login &amp; Home Screen Integration • SIH Initiative</p>
+            <h1 className="text-base font-extrabold text-[#4A3228] leading-tight">HunarSangam Mobile App</h1>
+            <p className="text-xs text-[#8A756C]">Artisan Platform • SIH Initiative</p>
           </div>
         </div>
 
@@ -1009,39 +1015,17 @@ export default function App() {
                       {/* Logo Emblem Container with Halo Glow */}
                       <div className="relative mb-5 group">
                         {/* Outer Soft Halo Glow */}
-                        <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#FCECE3] via-[#F8DFD2] to-[#FCECE3] blur-xs opacity-80 animate-pulse" />
+                        <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-[#FF9800]/25 via-[#E91E63]/25 to-[#1565C0]/25 blur-md opacity-80 animate-pulse" />
 
                         {/* Outer Circular Ring Border */}
-                        <div className="relative w-32 h-32 rounded-full p-2 bg-[#FCECE3] flex items-center justify-center border border-[#F5D8CA] shadow-md">
-                          {/* Inner Squircle Badge with Terracotta Border */}
-                          <div className="w-26 h-26 bg-white rounded-[24px] border-[3.5px] border-[#9E3E1A] shadow-inner flex flex-col items-center justify-center p-2 transition-transform duration-300 group-hover:scale-105">
-                            {/* Artistic Motif (Artisan silhouette & colorful palette) */}
-                            <div className="w-10 h-10 mb-1 relative flex items-center justify-center">
-                              {/* Peacock/Craft Multi-Color Brushstrokes */}
-                              <svg className="w-9 h-9" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="18" cy="18" r="16" fill="#FDF7F3" />
-                                {/* Colorful arcs: saffron, teal, gold, terracotta */}
-                                <path d="M18 6C13 6 8 11 8 18C8 22 11 25 15 27" stroke="#167873" strokeWidth="2.5" strokeLinecap="round" />
-                                <path d="M18 6C23 6 28 11 28 18C28 22 25 25 21 27" stroke="#E67E22" strokeWidth="2.5" strokeLinecap="round" />
-                                <path d="M18 10C14.5 10 11 13.5 11 18" stroke="#D35400" strokeWidth="2" strokeLinecap="round" />
-                                <path d="M18 10C21.5 10 25 13.5 25 18" stroke="#F39C12" strokeWidth="2" strokeLinecap="round" />
-                                {/* Artisan silhouette with brush */}
-                                <path d="M18 12C16.3 12 15 13.3 15 15C15 16.5 16 17.7 17.4 18V24H18.6V18C20 17.7 21 16.5 21 15C21 13.3 19.7 12 18 12Z" fill="#3D2418" />
-                                <circle cx="18" cy="14" r="1.5" fill="#E67E22" />
-                              </svg>
-                            </div>
-
-                            {/* Hindi Text: हुनर संगम */}
-                            <span className="font-serif font-black text-sm text-[#2D1C15] tracking-tight leading-none">
-                              हुनर संगम
-                            </span>
-
-                            {/* Subtitle Underline */}
-                            <div className="w-16 h-px bg-[#D9C4B8] my-0.5" />
-                            <span className="text-[6.5px] font-bold text-[#8C5338] tracking-wider leading-none">
-                              Inspire • Craft • Connect
-                            </span>
-                          </div>
+                        <div className="relative w-36 h-36 rounded-full p-2.5 bg-[#FFFDFB] flex items-center justify-center border-2 border-[#F0D5C7] shadow-xl transition-transform duration-300 group-hover:scale-105">
+                          {/* Official HunarSangam Logo Asset */}
+                          <img
+                            src="/Logo.png"
+                            alt="HunarSangam Official Logo"
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-contain filter drop-shadow-md select-none"
+                          />
                         </div>
                       </div>
 
@@ -1163,12 +1147,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col bg-[#FDFBF9] overflow-y-auto">
                     {/* Top Bar with Brand Logo & Help Icon */}
                     <div className="px-5 pt-4 pb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-xl bg-[#FCEEE6] border border-[#E8DDD5] flex items-center justify-center">
-                          <span className="text-xs font-black text-[#8C3A16]">हुनर</span>
-                        </div>
-                        <span className="font-extrabold text-[#7C3F24] text-base tracking-tight">HunarSangam</span>
-                      </div>
+                      <HunarSangamLogo size={32} showText={true} />
                       <button className="w-7 h-7 rounded-full border border-[#D5C5BA] flex items-center justify-center text-[#7C3F24] hover:bg-[#F3E7DF]">
                         <HelpCircle className="w-4 h-4" />
                       </button>
@@ -1432,12 +1411,7 @@ export default function App() {
                         <ArrowLeft className="w-5 h-5" />
                       </button>
 
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-[#FFFBF9] border border-[#E5D5CB] flex items-center justify-center">
-                          <span className="font-serif font-black text-[9px] text-[#7C3F24]">हुनर</span>
-                        </div>
-                        <span className="text-base font-extrabold text-[#7C3F24]">HunarSangam</span>
-                      </div>
+                      <HunarSangamLogo size={30} showText={true} />
 
                       <div className="px-2.5 py-1 bg-white border border-[#E5D5CB] rounded-full text-xs font-semibold text-[#4A372D] flex items-center gap-1">
                         <span>{selectedLanguage.split('/')[0].trim()}</span>
@@ -2130,12 +2104,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col bg-[#FDFBF9] overflow-hidden relative">
                     {/* Top Bar with Quick-Switch Language Toggle */}
                     <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#F0E6DE] bg-white/80 backdrop-blur-xs sticky top-0 z-10">
-                      <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-[#FFFBF9] border border-[#E5D5CB] flex items-center justify-center shadow-2xs">
-                          <span className="font-serif font-black text-[9px] text-[#7C3F24]">हुनर</span>
-                        </div>
-                        <span className="text-base font-extrabold text-[#7C3F24] tracking-tight">HunarSangam</span>
-                      </div>
+                      <HunarSangamLogo size={30} showText={true} />
 
                       <div className="flex items-center gap-2">
                         {/* Quick-Switch Language Toggle (English <-> Hindi) */}
@@ -2564,12 +2533,7 @@ export default function App() {
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden relative">
                     {/* Top App Bar with Branding, Language, Notification & Avatar */}
                     <div className="px-3.5 pt-1.5 pb-2 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0 z-10">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-md bg-[#8C3A16] text-white flex items-center justify-center font-black text-[9px] shadow-xs">
-                          हुनर
-                        </div>
-                        <span className="text-sm font-extrabold text-[#7C3F24] tracking-tight">HunarSangam</span>
-                      </div>
+                      <HunarSangamLogo size={28} showText={true} />
 
                       <div className="flex items-center gap-2">
                         {/* Quick-Switch Language Toggle (English <-> Hindi) */}
@@ -4810,7 +4774,7 @@ export default function App() {
                           {/* Top Brand & GI Badge */}
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-base font-black text-[#8C3A16] tracking-tight">HunarSangam</span>
+                              <HunarSangamLogo size={26} showText={true} />
                               <span className="text-[9.5px] font-bold text-[#7A5A4A] bg-[#F7EFE9] px-2 py-0.5 rounded-md">
                                 Artisan
                               </span>
@@ -5516,8 +5480,8 @@ export default function App() {
 
                       {/* Center-left: Logo + Artisan Badge + Cluster Location */}
                       <div className="flex-1 ml-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-base font-black text-[#7C3F24] tracking-tight">HunarSangam</span>
+                        <div className="flex items-center gap-2">
+                          <HunarSangamLogo size={26} showText={true} />
                           <span className="bg-[#EFEBE9] text-[#5D4037] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#E0D7D2]">
                             Artisan
                           </span>
@@ -6460,7 +6424,7 @@ export default function App() {
                           <ChevronLeft className="w-5 h-5 text-[#2D2421]" />
                         </button>
                         <div>
-                          <span className="font-extrabold text-[#8C3A16] text-base tracking-tight">HunarSangam</span>
+                          <HunarSangamLogo size={28} showText={true} />
                         </div>
                       </div>
 
