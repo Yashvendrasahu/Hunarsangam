@@ -1,0 +1,6 @@
+{
+  "name": "HunarSangam Artisan Platform",
+  "description": "Production-ready Flutter & Dart application for HunarSangam artisan platform featuring Splash, Onboarding, Login, and Artisan Home Dashboard with B2B order tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
