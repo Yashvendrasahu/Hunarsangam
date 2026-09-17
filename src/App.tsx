@@ -73,9 +73,99 @@ import {
   Link,
   Tag,
   Shield,
+  Menu,
+  Receipt,
+  Minus,
+  Wrench,
+  ChevronLeft,
+  ChevronRight,
+  UserPlus,
+  PlayCircle,
+  Sprout,
+  LayoutGrid,
+  Inbox,
 } from 'lucide-react';
+import { t, getLangCode } from './translations';
 
 const DART_FILES: Record<string, { path: string; language: string; content: string }> = {
+  'artisan_orders_screen.dart': {
+    path: 'lib/screens/artisan_orders_screen.dart',
+    language: 'dart',
+    content: `// lib/screens/artisan_orders_screen.dart
+// Production-grade Flutter screen matching 'o1- order first page.png'
+// Artisan Orders & Production Management Hub
+
+import 'package:flutter/material.dart';
+
+class ArtisanOrdersScreen extends StatefulWidget {
+  final VoidCallback? onBack;
+  final Function(int)? onNavigateTab;
+  final VoidCallback? onCollaborateTap;
+  final String artisanName;
+  final String clusterName;
+
+  const ArtisanOrdersScreen({
+    super.key,
+    this.onBack,
+    this.onNavigateTab,
+    this.onCollaborateTap,
+    this.artisanName = 'Ramu Kumar',
+    this.clusterName = 'Assam Cane & Bamboo',
+  });
+
+  @override
+  State<ArtisanOrdersScreen> createState() => _ArtisanOrdersScreenState();
+}
+
+class _ArtisanOrdersScreenState extends State<ArtisanOrdersScreen> {
+  int _selectedFilterIndex = 0; // 0: All (3), 1: In Production (2), 2: Payment Due (1)
+  int _bambooPcsCompleted = 75;
+  final int _bambooPcsTotal = 120;
+  bool _isBombayStoreAccepted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFFDFBF9),
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopAppBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader(),
+                    const SizedBox(height: 14.0),
+                    _buildMetricsGrid(),
+                    const SizedBox(height: 16.0),
+                    _buildClusterAlertCard(),
+                    const SizedBox(height: 16.0),
+                    _buildFilterTabs(),
+                    const SizedBox(height: 16.0),
+                    if (_selectedFilterIndex == 0 || _selectedFilterIndex == 1)
+                      _buildFabIndiaOrderCard(),
+                    if (_selectedFilterIndex == 0 || _selectedFilterIndex == 1)
+                      const SizedBox(height: 14.0),
+                    if (_selectedFilterIndex == 0 || _selectedFilterIndex == 2)
+                      _buildBombayStoreOrderCard(),
+                    const SizedBox(height: 24.0),
+                  ],
+                ),
+              ),
+            ),
+            _buildBottomNavigationBar(),
+          ],
+        ),
+      ),
+    );
+  }
+  // [Full Material 3 responsive cards, PO specs modal, dispatch scheduler, and progress slider]
+}`,
+  },
   'digital_visiting_card_screen.dart': {
     path: 'lib/screens/digital_visiting_card_screen.dart',
     language: 'dart',
@@ -544,6 +634,7 @@ export default function App() {
 
   // User State
   const [selectedLanguage, setSelectedLanguage] = useState<string>('हिंदी / Hindi');
+  const [showSplashLanguageModal, setShowSplashLanguageModal] = useState<boolean>(false);
   const [userRole, setUserRole] = useState<'artisan' | 'buyer'>('artisan');
   const [artisanName, setArtisanName] = useState<string>('Ramu Kumar');
   const [phoneNumber, setPhoneNumber] = useState<string>('+91 98765 43210');
@@ -581,9 +672,94 @@ export default function App() {
   const [isPlayingCraftVoiceNote, setIsPlayingCraftVoiceNote] = useState<boolean>(false);
   const [isCraftStoryAudioGuidePlaying, setIsCraftStoryAudioGuidePlaying] = useState<boolean>(false);
 
+  // Screen 22: Artisan Orders (PO Hub) States
+  const [ordersFilterTab, setOrdersFilterTab] = useState<number>(0); // 0: All Orders (3), 1: In Production (2), 2: Payment Due (1)
+  const [fabIndiaProgress, setFabIndiaProgress] = useState<number>(75);
+  const [isBombayStoreAccepted, setIsBombayStoreAccepted] = useState<boolean>(false);
+  const [showOrderProgressModal, setShowOrderProgressModal] = useState<boolean>(false);
+  const [showDispatchModal, setShowDispatchModal] = useState<boolean>(false);
+  const [showPoSpecsModal, setShowPoSpecsModal] = useState<boolean>(false);
+  const [showCollaborateModal, setShowCollaborateModal] = useState<boolean>(false);
+  const [selectedLogistics, setSelectedLogistics] = useState<'delhivery' | 'indiapost' | 'ondc'>('delhivery');
+
+  // Screen 23: Order Updation & Details (matching 'o2- order updation page.png')
+  const [orderHS1048Count, setOrderHS1048Count] = useState<number>(30);
+  const [isHS1048AudioPlaying, setIsHS1048AudioPlaying] = useState<boolean>(false);
+  const [showHS1048HelpModal, setShowHS1048HelpModal] = useState<boolean>(false);
+
+  // Screen 24: Order Request & Specs (matching 'o3 - order requset - reject page.png')
+  const [isOrderRequestAudioPlaying, setIsOrderRequestAudioPlaying] = useState<boolean>(false);
+  const [orderRequestAccepted, setOrderRequestAccepted] = useState<boolean>(false);
+  const [showDeclineConfirmModal, setShowDeclineConfirmModal] = useState<boolean>(false);
+  const [showHeritageCraftSpecsModal, setShowHeritageCraftSpecsModal] = useState<boolean>(false);
+  const [showHeritageCollaborateModal, setShowHeritageCollaborateModal] = useState<boolean>(false);
+
+  // Screen 25: Form Artisan Collective (matching 'o4- collaboration from oreder page with other artisan.png')
+  const [isCollectiveAudioPlaying, setIsCollectiveAudioPlaying] = useState<boolean>(false);
+  const [isSunitaAudioPlaying, setIsSunitaAudioPlaying] = useState<boolean>(false);
+  const [sunitaAllocated, setSunitaAllocated] = useState<boolean>(true);
+  const [birenAllocated, setBirenAllocated] = useState<boolean>(true);
+  const [collectiveLocked, setCollectiveLocked] = useState<boolean>(false);
+  const [voiceRebalanceTriggered, setVoiceRebalanceTriggered] = useState<boolean>(false);
+
+  // Universal Modals & Interactive Drawers
+  const [showNotificationsModal, setShowNotificationsModal] = useState<boolean>(false);
+  const [showEscrowDetailsModal, setShowEscrowDetailsModal] = useState<boolean>(false);
+  const [showCapacityPlannerModal, setShowCapacityPlannerModal] = useState<boolean>(false);
+  const [showSlaHealthModal, setShowSlaHealthModal] = useState<boolean>(false);
+  const [showScoreBreakdownModal, setShowScoreBreakdownModal] = useState<boolean>(false);
+  const [showCompletedOrdersModal, setShowCompletedOrdersModal] = useState<boolean>(false);
+  const [showQuickDrawer, setShowQuickDrawer] = useState<boolean>(false);
+  const [showShareWhatsAppModal, setShowShareWhatsAppModal] = useState<boolean>(false);
+  const [showCardPrintModal, setShowCardPrintModal] = useState<boolean>(false);
+  const [showWalletPassModal, setShowWalletPassModal] = useState<boolean>(false);
+  const [showQrEnlargedModal, setShowQrEnlargedModal] = useState<boolean>(false);
+  const [showBuyerAnalyticsModal, setShowBuyerAnalyticsModal] = useState<boolean>(false);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 2500);
+  };
+
+  // Translation helper function that re-evaluates reactively when selectedLanguage changes
+  const tr = (key: string) => t(key, selectedLanguage);
+  const langCode = getLangCode(selectedLanguage);
+
+  // Uniform Bottom Navigation Bar across all pages matching Home page archetype
+  const renderUnifiedBottomNav = (activeTabKey: 'home' | 'products' | 'orders' | 'collaborate' | 'profile') => {
+    const navItems = [
+      { key: 'home' as const, label: tr('navHome') || 'Home', icon: Store, screenIdx: 9, tabIdx: 0 },
+      { key: 'products' as const, label: tr('navProducts') || 'Products', icon: Palette, screenIdx: 10, tabIdx: 1 },
+      { key: 'orders' as const, label: tr('navOrders') || 'Orders', icon: FileText, screenIdx: 22, tabIdx: 2 },
+      { key: 'collaborate' as const, label: tr('navCollaborate') || 'Collaborate', icon: Users, screenIdx: 25, tabIdx: 3 },
+      { key: 'profile' as const, label: tr('navProfile') || 'Profile', icon: User, screenIdx: 20, tabIdx: 4 },
+    ];
+
+    return (
+      <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+        {navItems.map((item) => {
+          const IconComp = item.icon;
+          const isSel = activeTabKey === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => {
+                setHomeBottomTab(item.tabIdx);
+                setActiveScreenIndex(item.screenIdx);
+              }}
+              className={`flex flex-col items-center px-3 py-1 rounded-2xl transition-all cursor-pointer ${
+                isSel
+                  ? 'bg-[#FCECE3] text-[#8C3A16] font-extrabold shadow-2xs'
+                  : 'text-[#6D4C41] hover:text-[#8C3A16]'
+              }`}
+            >
+              <IconComp className={`w-4 h-4 mb-0.5 ${isSel ? 'text-[#8C3A16]' : 'text-[#6D4C41]'}`} />
+              <span className="text-[10px] tracking-tight">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   // Splash 5-second timer effect
@@ -645,6 +821,10 @@ export default function App() {
     { idx: 19, label: '🎉 19. Catalog Published' },
     { idx: 20, label: '🪪 20. Profile (Visiting Card)' },
     { idx: 21, label: '🎙️ 21. My Craft Story' },
+    { idx: 22, label: '📋 22. Artisan Orders' },
+    { idx: 23, label: '📝 23. Order Updation' },
+    { idx: 24, label: '📩 24. Order Request' },
+    { idx: 25, label: '🤝 25. Form Collective' },
   ];
 
   return (
@@ -884,17 +1064,18 @@ export default function App() {
                         <span>Create</span>
                       </div>
 
-                      {/* Language Selector Pill Button */}
+                      {/* Language Selector Pill Button with Dropdown Action */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveScreenIndex(1);
+                          setShowSplashLanguageModal(true);
                         }}
-                        className="px-3.5 py-1.5 bg-[#FFFDFB] border border-[#E5D5CB] rounded-full flex items-center gap-1.5 text-xs font-bold text-[#221C19] shadow-2xs hover:bg-[#FDF3ED] active:scale-95 transition-all mb-4"
+                        className="px-3.5 py-1.5 bg-[#FFFDFB] border border-[#E5D5CB] rounded-full flex items-center gap-1.5 text-xs font-bold text-[#221C19] shadow-2xs hover:bg-[#FDF3ED] active:scale-95 transition-all mb-4 cursor-pointer"
+                        title="Click to select language"
                       >
-                        <Globe className="w-3.5 h-3.5 text-[#221C19]" />
-                        <span>English</span>
-                        <span className="text-[10px] text-[#221C19]">▯</span>
+                        <Globe className="w-3.5 h-3.5 text-[#9E3E1A]" />
+                        <span>{selectedLanguage.split('/')[0].trim()}</span>
+                        <ChevronDown className="w-3 h-3 text-[#6B584E]" />
                       </button>
 
                       {/* Bottom Verified Trust Seal */}
@@ -905,6 +1086,75 @@ export default function App() {
                         <span>Crafted with pride in India</span>
                       </div>
                     </div>
+
+                    {/* Quick Language Selection Bottom Sheet Modal on Splash */}
+                    {showSplashLanguageModal && (
+                      <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="absolute inset-0 bg-black/40 z-50 flex flex-col justify-end animate-in fade-in"
+                      >
+                        <div className="bg-[#FFFDFB] rounded-t-3xl border-t border-[#E8DDD5] p-5 shadow-2xl animate-in slide-in-from-bottom-5 max-h-[70%] flex flex-col">
+                          <div className="flex items-center justify-between pb-3 border-b border-[#F0E4DC]">
+                            <div className="flex items-center gap-2">
+                              <Globe className="w-4 h-4 text-[#9E3E1A]" />
+                              <span className="font-extrabold text-sm text-[#2D2421]">Select Language / भाषा चुनें</span>
+                            </div>
+                            <button
+                              onClick={() => setShowSplashLanguageModal(false)}
+                              className="p-1 rounded-full text-[#6B584E] hover:bg-[#F4ECE5]"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="py-2 overflow-y-auto space-y-1.5 flex-1 pr-1">
+                            {[
+                              { label: 'English', sub: 'English' },
+                              { label: 'हिंदी / Hindi', sub: 'Hindi' },
+                              { label: 'বাংলা / Bengali', sub: 'Bengali' },
+                              { label: 'ગુજરાતી / Gujarati', sub: 'Gujarati' },
+                              { label: 'मराठी / Marathi', sub: 'Marathi' },
+                              { label: 'தமிழ் / Tamil', sub: 'Tamil' },
+                              { label: 'తెలుగు / Telugu', sub: 'Telugu' },
+                              { label: 'ಕನ್ನಡ / Kannada', sub: 'Kannada' },
+                              { label: 'অসমীয়া / Assamese', sub: 'Assamese' },
+                              { label: 'ଓଡ଼ିଆ / Odia', sub: 'Odia' },
+                              { label: 'ਪੰਜਾਬੀ / Punjabi', sub: 'Punjabi' },
+                            ].map((lang) => (
+                              <button
+                                key={lang.label}
+                                onClick={() => {
+                                  setSelectedLanguage(lang.label);
+                                  setShowSplashLanguageModal(false);
+                                  showToast(`🌐 Language set to ${lang.label}`);
+                                }}
+                                className={`w-full p-2.5 rounded-xl text-left flex items-center justify-between transition-all ${
+                                  selectedLanguage === lang.label
+                                    ? 'bg-[#FBEBE2] text-[#9E3E1A] font-bold border border-[#EAC5B3]'
+                                    : 'hover:bg-[#F8EFEA] text-[#4A3B32] font-semibold'
+                                }`}
+                              >
+                                <span className="text-xs">{lang.label}</span>
+                                {selectedLanguage === lang.label && (
+                                  <Check className="w-4 h-4 text-[#9E3E1A]" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setShowSplashLanguageModal(false);
+                              setActiveScreenIndex(1);
+                            }}
+                            className="w-full mt-3 py-2.5 bg-[#9E3E1A] hover:bg-[#882F0F] text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5"
+                          >
+                            <span>Open Full Language Screen</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -1038,11 +1288,11 @@ export default function App() {
                       <button onClick={() => setActiveScreenIndex(1)} className="p-1 text-[#4A3228] hover:bg-[#F3E7DF] rounded-lg">
                         <ArrowLeft className="w-5 h-5" />
                       </button>
-                      <span className="text-xs font-bold text-[#A84318]">Step 2 / 7</span>
+                      <span className="text-xs font-bold text-[#A84318]">{tr('step')} 2 / 7</span>
                     </div>
 
-                    <h2 className="text-lg font-black text-[#2D2421] mb-1">आपकी भूमिका क्या है?</h2>
-                    <p className="text-xs text-[#6B5A51] mb-4">Select your primary role on HunarSangam</p>
+                    <h2 className="text-lg font-black text-[#2D2421] mb-1">{tr('whatIsYourRole')}</h2>
+                    <p className="text-xs text-[#6B5A51] mb-4">{tr('roleSubtitle')}</p>
 
                     <div className="space-y-3 flex-1">
                       <button
@@ -1058,8 +1308,8 @@ export default function App() {
                             <Palette className="w-5 h-5" />
                           </div>
                           <div>
-                            <h3 className="text-sm font-bold text-[#2D2421]">कारीगर / शिल्पकार (Artisan)</h3>
-                            <p className="text-[11px] text-[#7B665C]">I create and sell handmade crafts</p>
+                            <h3 className="text-sm font-bold text-[#2D2421]">{tr('artisanRoleTitle')}</h3>
+                            <p className="text-[11px] text-[#7B665C]">{tr('artisanRoleDesc')}</p>
                           </div>
                         </div>
                       </button>
@@ -1077,8 +1327,8 @@ export default function App() {
                             <ShoppingBag className="w-5 h-5" />
                           </div>
                           <div>
-                            <h3 className="text-sm font-bold text-[#2D2421]">खरीदार (Craft Buyer)</h3>
-                            <p className="text-[11px] text-[#7B665C]">I want to purchase authentic handicrafts</p>
+                            <h3 className="text-sm font-bold text-[#2D2421]">{tr('buyerRoleTitle')}</h3>
+                            <p className="text-[11px] text-[#7B665C]">{tr('buyerRoleDesc')}</p>
                           </div>
                         </div>
                       </button>
@@ -1088,7 +1338,7 @@ export default function App() {
                       onClick={() => setActiveScreenIndex(3)}
                       className="w-full py-3 bg-[#A84318] text-white rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2 mt-4 cursor-pointer"
                     >
-                      <span>Continue as Artisan →</span>
+                      <span>{userRole === 'artisan' ? tr('continueAsArtisan') : tr('continueAsBuyer')}</span>
                     </button>
                   </div>
                 )}
@@ -1100,7 +1350,7 @@ export default function App() {
                       <button onClick={() => setActiveScreenIndex(2)} className="p-1 text-[#4A3228] hover:bg-[#F3E7DF] rounded-lg">
                         <ArrowLeft className="w-5 h-5" />
                       </button>
-                      <span className="text-xs font-bold text-[#A84318]">Step 3 / 7 • Step 1 of 5</span>
+                      <span className="text-xs font-bold text-[#A84318]">{tr('step')} 3 / 7 • {tr('step')} 1 of 5</span>
                     </div>
 
                     <div className="flex items-center gap-1.5 mb-2">
@@ -1109,40 +1359,40 @@ export default function App() {
                       <span className="w-2 h-2 rounded-full bg-[#B85324]" />
                     </div>
 
-                    <h2 className="text-xl font-black text-[#2D2421] mb-1">Create Your Account</h2>
-                    <p className="text-xs text-[#6B5A51] mb-4">Enter your artisan registration details</p>
+                    <h2 className="text-xl font-black text-[#2D2421] mb-1">{tr('createAccountTitle')}</h2>
+                    <p className="text-xs text-[#6B5A51] mb-4">{tr('createAccountSubtitle')}</p>
 
                     <div className="space-y-3 flex-1">
                       <div>
-                        <label className="text-xs font-bold text-[#4A3228] block mb-1">Artisan Full Name</label>
+                        <label className="text-xs font-bold text-[#4A3228] block mb-1">{tr('artisanFullName')}</label>
                         <input
                           type="text"
                           value={artisanName}
                           onChange={(e) => setArtisanName(e.target.value)}
                           className="w-full p-2.5 bg-[#F6ECE5] border border-[#E5D5CB] rounded-xl text-xs font-semibold text-[#2D2421] outline-none"
-                          placeholder="e.g. Ramu Kumar"
+                          placeholder={tr('artisanNamePlaceholder')}
                         />
                       </div>
 
                       <div>
-                        <label className="text-xs font-bold text-[#4A3228] block mb-1">Mobile Number / WhatsApp</label>
+                        <label className="text-xs font-bold text-[#4A3228] block mb-1">{tr('mobileNumber')}</label>
                         <input
                           type="text"
                           value={phoneNumber}
                           onChange={(e) => setPhoneNumber(e.target.value)}
                           className="w-full p-2.5 bg-[#F6ECE5] border border-[#E5D5CB] rounded-xl text-xs font-semibold text-[#2D2421] outline-none"
-                          placeholder="+91 98765 43210"
+                          placeholder={tr('mobilePlaceholder')}
                         />
                       </div>
 
                       <div>
-                        <label className="text-xs font-bold text-[#4A3228] block mb-1">Workshop Location / City</label>
+                        <label className="text-xs font-bold text-[#4A3228] block mb-1">{tr('workshopLocation')}</label>
                         <input
                           type="text"
                           value={location}
                           onChange={(e) => setLocation(e.target.value)}
                           className="w-full p-2.5 bg-[#F6ECE5] border border-[#E5D5CB] rounded-xl text-xs font-semibold text-[#2D2421] outline-none"
-                          placeholder="Barabanki, Uttar Pradesh"
+                          placeholder={tr('locationPlaceholder')}
                         />
                       </div>
                     </div>
@@ -1152,18 +1402,18 @@ export default function App() {
                         onClick={() => setActiveScreenIndex(4)}
                         className="w-full py-3 bg-[#E66B38] text-white rounded-2xl font-bold text-sm shadow-md flex items-center justify-center gap-2 cursor-pointer mb-3"
                       >
-                        <span>Continue</span>
+                        <span>{tr('continue')}</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
 
                       {/* ALREADY HAVE AN ACCOUNT? LOGIN LINK */}
                       <div className="text-center text-xs text-[#6B584E]">
-                        <span>Already have an account? </span>
+                        <span>{tr('alreadyHaveAccount')} </span>
                         <button
                           onClick={() => setActiveScreenIndex(8)}
                           className="font-bold text-[#E66B38] underline hover:text-[#C84F1D] cursor-pointer"
                         >
-                          Login
+                          {tr('loginHere')}
                         </button>
                       </div>
                     </div>
@@ -1190,8 +1440,7 @@ export default function App() {
                       </div>
 
                       <div className="px-2.5 py-1 bg-white border border-[#E5D5CB] rounded-full text-xs font-semibold text-[#4A372D] flex items-center gap-1">
-                        <span>English</span>
-                        <span className="text-[10px]">▼</span>
+                        <span>{selectedLanguage.split('/')[0].trim()}</span>
                       </div>
                     </div>
 
@@ -1204,10 +1453,10 @@ export default function App() {
 
                     {/* Title & Subtitle */}
                     <h1 className="text-2xl font-black text-[#221C19] mb-1 leading-tight">
-                      Login Your Account
+                      {tr('loginTitle')}
                     </h1>
                     <p className="text-xs text-[#7A685F] mb-6">
-                      Enter your contact details to login.
+                      {tr('loginSubtitle')}
                     </p>
 
                     {/* Form Fields */}
@@ -1215,7 +1464,7 @@ export default function App() {
                       {/* Field 1: Email Address / Phone number */}
                       <div>
                         <label className="text-xs font-bold text-[#2D2421] block mb-1.5">
-                          Email Address / Phone number
+                          {tr('emailOrPhone')}
                         </label>
                         <div className="flex items-center gap-2.5 bg-[#F5EBE1] border border-[#E8DDD5] rounded-2xl px-3.5 py-3">
                           <Mail className="w-4 h-4 text-[#8A776D] shrink-0" />
@@ -1223,7 +1472,7 @@ export default function App() {
                             type="text"
                             value={loginContact}
                             onChange={(e) => setLoginContact(e.target.value)}
-                            placeholder="Enter your email address / phone number"
+                            placeholder={tr('emailOrPhonePlaceholder')}
                             className="w-full bg-transparent text-xs text-[#2D2421] font-medium outline-none placeholder-[#9E8D84]"
                           />
                         </div>
@@ -1232,7 +1481,7 @@ export default function App() {
                       {/* Field 2: Create Password */}
                       <div>
                         <label className="text-xs font-bold text-[#2D2421] block mb-1.5">
-                          Create Password
+                          {tr('password')}
                         </label>
                         <div className="flex items-center gap-2.5 bg-[#F5EBE1] border border-[#E8DDD5] rounded-2xl px-3.5 py-3">
                           <Lock className="w-4 h-4 text-[#8A776D] shrink-0" />
@@ -1240,7 +1489,7 @@ export default function App() {
                             type={showPassword ? 'text' : 'password'}
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
-                            placeholder="Enter a password"
+                            placeholder={tr('passwordPlaceholder')}
                             className="w-full bg-transparent text-xs text-[#2D2421] font-medium outline-none placeholder-[#9E8D84]"
                           />
                           <button
@@ -1251,7 +1500,7 @@ export default function App() {
                             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
-                        <p className="text-[11px] text-[#7A685F] mt-1.5">Use at least 8 characters</p>
+                        <p className="text-[11px] text-[#7A685F] mt-1.5">{tr('passwordHint')}</p>
                       </div>
                     </div>
 
@@ -1260,31 +1509,31 @@ export default function App() {
                       <button
                         onClick={() => {
                           if (!loginContact.trim()) {
-                            showToast('⚠️ Please enter your email address or phone number');
+                            showToast(tr('emailOrPhonePlaceholder'));
                             return;
                           }
                           if (!loginPassword.trim() || loginPassword.length < 6) {
-                            showToast('⚠️ Please enter a valid password (at least 6 characters)');
+                            showToast(tr('passwordHint'));
                             return;
                           }
                           if (!artisanName) {
                             setArtisanName('Ramu Kumar');
                           }
-                          showToast(`✅ Welcome back, ${artisanName || 'Ramu Kumar'}! Redirecting to Dashboard...`);
+                          showToast(`✅ Welcome, ${artisanName || 'Ramu Kumar'}!`);
                           setActiveScreenIndex(9); // Direct to Artisan Home Dashboard Screen!
                         }}
                         className="w-full py-3.5 bg-[#E87338] hover:bg-[#D56228] text-white rounded-2xl font-bold text-sm shadow-md transition-all cursor-pointer mb-4 active:scale-98"
                       >
-                        login
+                        {tr('login')}
                       </button>
 
                       <div className="text-center text-xs text-[#2D2421]">
-                        <span>New here , create account </span>
+                        <span>{tr('dontHaveAccount')} </span>
                         <button
                           onClick={() => setActiveScreenIndex(3)}
                           className="text-[#2563EB] font-bold underline cursor-pointer"
                         >
-                          Here
+                          {tr('createOne')}
                         </button>
                       </div>
                     </div>
@@ -1876,29 +2125,71 @@ export default function App() {
                 )}
 
                 {/* 10. SCREEN 9: ARTISAN HOME DASHBOARD (Exact Match to Artisan Home section.png) */}
+                {/* 10. SCREEN 9: ARTISAN HOME (matching Artisan Home section.png) */}
                 {activeScreenIndex === 9 && (
                   <div className="flex-1 flex flex-col bg-[#FDFBF9] overflow-hidden relative">
-                    {/* Top Bar */}
-                    <div className="px-4 py-2.5 flex items-center justify-between border-b border-[#F0E6DE] bg-white/60">
+                    {/* Top Bar with Quick-Switch Language Toggle */}
+                    <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-[#F0E6DE] bg-white/80 backdrop-blur-xs sticky top-0 z-10">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-[#FFFBF9] border border-[#E5D5CB] flex items-center justify-center">
+                        <div className="w-7 h-7 rounded-lg bg-[#FFFBF9] border border-[#E5D5CB] flex items-center justify-center shadow-2xs">
                           <span className="font-serif font-black text-[9px] text-[#7C3F24]">हुनर</span>
                         </div>
-                        <span className="text-base font-extrabold text-[#7C3F24]">HunarSangam</span>
+                        <span className="text-base font-extrabold text-[#7C3F24] tracking-tight">HunarSangam</span>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <div className="px-2 py-0.5 bg-[#F3E7DF] border border-[#E5D5CB] rounded-full text-[11px] font-semibold text-[#4A372D] flex items-center gap-0.5">
-                          <span>English</span>
-                          <span className="text-[9px]">▼</span>
+                        {/* Quick-Switch Language Toggle (English <-> Hindi) */}
+                        <div
+                          className="flex items-center bg-[#F3E7DF] p-0.5 rounded-full border border-[#E5D5CB] shadow-2xs"
+                          title="Quick switch language between English and Hindi"
+                        >
+                          <button
+                            onClick={() => {
+                              setSelectedLanguage('English');
+                              showToast('🌐 Switched language to English');
+                            }}
+                            className={`px-2 py-0.5 rounded-full text-[10.5px] font-black transition-all cursor-pointer ${
+                              !selectedLanguage.toLowerCase().includes('हिंदी') && !selectedLanguage.toLowerCase().includes('hindi')
+                                ? 'bg-[#8C3A16] text-white shadow-2xs scale-102'
+                                : 'text-[#6B584E] hover:text-[#2D2421]'
+                            }`}
+                          >
+                            EN
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedLanguage('हिंदी / Hindi');
+                              showToast('🌐 भाषा बदलकर हिंदी कर दी गई');
+                            }}
+                            className={`px-2 py-0.5 rounded-full text-[10.5px] font-black transition-all cursor-pointer ${
+                              selectedLanguage.toLowerCase().includes('हिंदी') || selectedLanguage.toLowerCase().includes('hindi')
+                                ? 'bg-[#8C3A16] text-white shadow-2xs scale-102'
+                                : 'text-[#6B584E] hover:text-[#2D2421]'
+                            }`}
+                          >
+                            हिं
+                          </button>
                         </div>
 
-                        <div className="relative p-1.5 bg-[#FAF2EC] border border-[#E5D5CB] rounded-full text-[#4A372D]">
+                        {/* Notification Bell */}
+                        <div
+                          onClick={() => setShowNotificationsModal(true)}
+                          className="relative p-1.5 bg-[#FAF2EC] border border-[#E5D5CB] rounded-full text-[#4A372D] hover:bg-[#F5ECE5] active:scale-95 transition-all cursor-pointer"
+                          title="Notifications"
+                        >
                           <Bell className="w-3.5 h-3.5" />
                           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#C53030]" />
                         </div>
 
-                        <div className="relative w-7 h-7 rounded-full bg-[#EADFD6] border border-[#D5C4B8] flex items-center justify-center text-[#7C3F24]">
+                        {/* User Avatar */}
+                        <div
+                          onClick={() => {
+                            setActiveScreenIndex(20);
+                            showToast('Opening Artisan Profile & Visiting Card (Screen 20)');
+                          }}
+                          className="relative w-7 h-7 rounded-full bg-[#EADFD6] border border-[#D5C4B8] flex items-center justify-center text-[#7C3F24] cursor-pointer hover:ring-2 hover:ring-[#8C3A16] active:scale-95 transition-all"
+                          title="Artisan Profile"
+                        >
                           <User className="w-4 h-4" />
                           <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-[#2E7D32] ring-1 ring-white" />
                         </div>
@@ -1910,21 +2201,25 @@ export default function App() {
                       {/* Good morning header */}
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <h2 className="text-xl font-black text-[#221C19]">Good morning, {artisanName.split(' ')[0]}</h2>
+                          <h2 className="text-xl font-black text-[#221C19]">
+                            {`${tr('goodMorning')}, ${artisanName.split(' ')[0] || 'Ramu'}`}
+                          </h2>
                           <span className="text-lg">👋</span>
                         </div>
-                        <p className="text-xs text-[#6B584E] font-medium">Ready to create something beautiful today?</p>
+                        <p className="text-xs text-[#6B584E] font-medium">
+                          {tr('readyToCreate')}
+                        </p>
                       </div>
 
                       {/* AI Voice Command Bar */}
                       <div className="bg-[#FFFBF8] border border-[#EADFD6] rounded-2xl p-2 px-3 flex items-center justify-between shadow-xs">
                         <div className="flex items-center gap-2 text-xs text-[#7A685F]">
                           <Radio className="w-4 h-4 text-[#A84318] animate-pulse" />
-                          <span>Tap to speak or ask Hunar Assistant...</span>
+                          <span>{tr('tapToSpeakOrAsk')}</span>
                         </div>
                         <button
-                          onClick={() => showToast('🎙️ Voice Assistant listening...')}
-                          className="w-8 h-8 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs"
+                          onClick={() => showToast(`🎙️ ${tr('tapToSpeakOrAsk')}`)}
+                          className="w-8 h-8 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs hover:bg-[#772F10] active:scale-95 transition-all cursor-pointer"
                         >
                           <Mic className="w-4 h-4" />
                         </button>
@@ -1933,23 +2228,49 @@ export default function App() {
                       {/* 3 Metric Cards */}
                       <div className="grid grid-cols-3 gap-2">
                         {/* New Orders */}
-                        <div className="bg-[#FBF4EE] border border-[#EADFD6] rounded-2xl p-2.5">
+                        <div
+                          onClick={() => {
+                            setOrdersFilterTab(2);
+                            setActiveScreenIndex(22);
+                            showToast('Navigating to New Orders Hub');
+                          }}
+                          className="bg-[#FBF4EE] hover:bg-[#F5ECE3] active:scale-98 transition-all border border-[#EADFD6] hover:border-[#8C3A16] rounded-2xl p-2.5 cursor-pointer shadow-2xs group"
+                          title="Click to view New Orders"
+                        >
                           <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-semibold text-[#4A372D] leading-tight">New<br />Orders</span>
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#C53030]" />
+                            <span className="text-[11px] font-semibold text-[#4A372D] leading-tight group-hover:text-[#8C3A16]">
+                              {tr('newOrders')}
+                            </span>
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C53030] animate-ping" />
                           </div>
                           <span className="text-2xl font-black text-[#221C19] block mt-1">2</span>
                         </div>
 
                         {/* In Progress */}
-                        <div className="bg-[#FBF4EE] border border-[#EADFD6] rounded-2xl p-2.5">
-                          <span className="text-[11px] font-semibold text-[#4A372D] leading-tight block">In<br />Progress</span>
+                        <div
+                          onClick={() => {
+                            setOrdersFilterTab(1);
+                            setActiveScreenIndex(22);
+                            showToast('Navigating to In-Progress Orders');
+                          }}
+                          className="bg-[#FBF4EE] hover:bg-[#F5ECE3] active:scale-98 transition-all border border-[#EADFD6] hover:border-[#8C3A16] rounded-2xl p-2.5 cursor-pointer shadow-2xs group"
+                          title="Click to view In-Progress Orders"
+                        >
+                          <span className="text-[11px] font-semibold text-[#4A372D] leading-tight block group-hover:text-[#8C3A16]">
+                            {tr('inProgress')}
+                          </span>
                           <span className="text-2xl font-black text-[#221C19] block mt-1">1</span>
                         </div>
 
                         {/* Completed */}
-                        <div className="bg-[#FBF4EE] border border-[#EADFD6] rounded-2xl p-2.5">
-                          <span className="text-[11px] font-semibold text-[#4A372D] leading-tight block">Completed</span>
+                        <div
+                          onClick={() => setShowCompletedOrdersModal(true)}
+                          className="bg-[#FBF4EE] hover:bg-[#F5ECE3] active:scale-98 transition-all border border-[#EADFD6] hover:border-[#8C3A16] rounded-2xl p-2.5 cursor-pointer shadow-2xs group"
+                          title="Click to view Completed Orders history"
+                        >
+                          <span className="text-[11px] font-semibold text-[#4A372D] leading-tight block group-hover:text-[#8C3A16]">
+                            {tr('completed')}
+                          </span>
                           <span className="text-2xl font-black text-[#221C19] block mt-1">28</span>
                         </div>
                       </div>
@@ -1959,24 +2280,28 @@ export default function App() {
                         <div className="flex items-center justify-between">
                           <div className="bg-[#FDECE8] border border-[#F5C6BC] text-[#C53030] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                             <AlertTriangle className="w-3 h-3" />
-                            <span>Needs Attention • Due in 6 days</span>
+                            <span>{tr('needsAttention')}</span>
                           </div>
-                          <span className="text-[11px] font-semibold text-[#6B584E]">B2B Bulk</span>
+                          <span className="text-[11px] font-semibold text-[#6B584E]">{tr('b2bBulk')}</span>
                         </div>
 
                         <div>
-                          <h3 className="text-sm font-extrabold text-[#221C19]">50 Handmade Bamboo Baskets</h3>
+                          <h3 className="text-sm font-extrabold text-[#221C19]">
+                            {tr('handmadeBambooBaskets')}
+                          </h3>
                           <div className="flex items-center gap-1 text-[11px] text-[#6B584E] mt-0.5">
                             <Building2 className="w-3.5 h-3.5" />
-                            <span>FabIndia Sourcing Hub (B2B Buyer)</span>
+                            <span>{tr('fabIndiaSourcing')}</span>
                           </div>
                         </div>
 
                         {/* Progress */}
                         <div className="bg-[#FBF4EE] p-2.5 rounded-xl space-y-1.5">
                           <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-semibold text-[#4A372D]">Craft Production Progress</span>
-                            <span className="font-bold text-[#A84318]">{bambooProgress} / 50 completed ({((bambooProgress / 50) * 100).toFixed(0)}%)</span>
+                            <span className="font-semibold text-[#4A372D]">{tr('craftProgress')}</span>
+                            <span className="font-bold text-[#A84318]">
+                              {bambooProgress} / 50 {tr('unitsCompleted')} ({((bambooProgress / 50) * 100).toFixed(0)}%)
+                            </span>
                           </div>
                           <div className="w-full bg-[#E5D5CB] h-2 rounded-full overflow-hidden">
                             <div
@@ -1989,17 +2314,23 @@ export default function App() {
                         {/* Action Buttons */}
                         <div className="flex gap-2">
                           <button
-                            onClick={() => setShowProgressModal(true)}
-                            className="flex-1 py-2 border border-[#E5D5CB] bg-white rounded-xl text-xs font-bold text-[#4A372D] flex items-center justify-center gap-1.5 hover:bg-[#FAF5F0]"
+                            onClick={() => {
+                              setActiveScreenIndex(23);
+                              showToast('Opening Order Progress Updation (Screen 23)');
+                            }}
+                            className="flex-1 py-2 border border-[#E5D5CB] bg-white rounded-xl text-xs font-bold text-[#4A372D] flex items-center justify-center gap-1.5 hover:bg-[#FAF5F0] active:scale-98 transition-all cursor-pointer"
                           >
                             <RefreshCw className="w-3.5 h-3.5" />
-                            <span>Update Progress</span>
+                            <span>{tr('updateProgress')}</span>
                           </button>
                           <button
-                            onClick={() => showToast('Opening Purchase Order #FB-89412 details...')}
-                            className="flex-1 py-2 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1"
+                            onClick={() => {
+                              setActiveScreenIndex(24);
+                              showToast('Viewing Order Request & Details (Screen 24)');
+                            }}
+                            className="flex-1 py-2 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 active:scale-98 transition-all cursor-pointer"
                           >
-                            <span>View Order</span>
+                            <span>{tr('viewOrder')}</span>
                             <ArrowRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
@@ -2009,57 +2340,73 @@ export default function App() {
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
-                            <h3 className="text-sm font-extrabold text-[#221C19]">My Products</h3>
+                            <h3 className="text-sm font-extrabold text-[#221C19]">{tr('myProducts')}</h3>
                             <span className="text-xs font-semibold text-[#7A685F]">(6)</span>
                           </div>
                           <button
                             onClick={() => {
                               setActiveScreenIndex(11);
-                              showToast('Starting Camera-First Product Capture Flow');
+                              showToast(tr('addProduct'));
                             }}
                             className="text-xs font-bold text-[#A84318] flex items-center gap-0.5 hover:underline cursor-pointer"
                           >
-                            <Plus className="w-3 h-3" /> Add Product
+                            <Plus className="w-3 h-3" /> {tr('addProduct')}
                           </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-2.5">
                           {/* Product 1 */}
-                          <div className="bg-white border border-[#EADFD6] rounded-2xl overflow-hidden shadow-xs">
-                            <div className="h-24 bg-[#F5EBE1] relative flex items-center justify-center">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(18);
+                              showToast('Viewing Woven Fruit Basket details');
+                            }}
+                            className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl overflow-hidden shadow-xs cursor-pointer group"
+                          >
+                            <div className="h-24 bg-[#F5EBE1] relative flex items-center justify-center group-hover:scale-102 transition-transform">
                               <ShoppingBag className="w-8 h-8 text-[#B85324]" />
                               <span className="absolute top-1.5 left-1.5 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                                Published
+                                {tr('published')}
                               </span>
                             </div>
                             <div className="p-2 space-y-1">
-                              <h4 className="text-xs font-extrabold text-[#221C19] truncate">Woven Fruit Basket</h4>
+                              <h4 className="text-xs font-extrabold text-[#221C19] truncate group-hover:text-[#8C3A16]">
+                                {tr('wovenFruitBasket')}
+                              </h4>
                               <div className="text-[11px]">
                                 <span className="font-extrabold text-[#A84318]">₹340</span>
-                                <span className="text-[#7A685F]"> • 42 Orders</span>
+                                <span className="text-[#7A685F]"> • 42 {tr('navOrders')}</span>
                               </div>
                               <span className="inline-block text-[9.5px] font-semibold text-[#6B584E] bg-[#FBF4EE] px-1.5 py-0.5 rounded">
-                                Wholesale MOQ: 25
+                                {tr('wholesaleMoq')}: 25
                               </span>
                             </div>
                           </div>
 
                           {/* Product 2 */}
-                          <div className="bg-white border border-[#EADFD6] rounded-2xl overflow-hidden shadow-xs">
-                            <div className="h-24 bg-[#F5EBE1] relative flex items-center justify-center">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(18);
+                              showToast('Viewing Cane Indoor Planter details');
+                            }}
+                            className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl overflow-hidden shadow-xs cursor-pointer group"
+                          >
+                            <div className="h-24 bg-[#F5EBE1] relative flex items-center justify-center group-hover:scale-102 transition-transform">
                               <Package className="w-8 h-8 text-[#B85324]" />
                               <span className="absolute top-1.5 left-1.5 bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[9px] font-bold px-1.5 py-0.5 rounded-md">
-                                Published
+                                {tr('published')}
                               </span>
                             </div>
                             <div className="p-2 space-y-1">
-                              <h4 className="text-xs font-extrabold text-[#221C19] truncate">Cane Indoor Planter</h4>
+                              <h4 className="text-xs font-extrabold text-[#221C19] truncate group-hover:text-[#8C3A16]">
+                                {tr('caneIndoorPlanter')}
+                              </h4>
                               <div className="text-[11px]">
                                 <span className="font-extrabold text-[#A84318]">₹520</span>
-                                <span className="text-[#7A685F]"> • 18 Orders</span>
+                                <span className="text-[#7A685F]"> • 18 {tr('navOrders')}</span>
                               </div>
                               <span className="inline-block text-[9.5px] font-semibold text-[#6B584E] bg-[#FBF4EE] px-1.5 py-0.5 rounded">
-                                Wholesale MOQ: 15
+                                {tr('wholesaleMoq')}: 15
                               </span>
                             </div>
                           </div>
@@ -2067,29 +2414,33 @@ export default function App() {
                       </div>
 
                       {/* Artisan Score & Reliability */}
-                      <div className="bg-[#FDF6F0] border border-[#EADFD6] rounded-2xl p-3 space-y-2">
+                      <div
+                        onClick={() => setShowScoreBreakdownModal(true)}
+                        className="bg-[#FDF6F0] hover:bg-[#F9ECE1] active:scale-98 transition-all border border-[#EADFD6] hover:border-[#8C3A16] rounded-2xl p-3 space-y-2 cursor-pointer shadow-2xs"
+                        title="Click to view detailed Artisan Score breakdown"
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#221C19]">
                             <ShieldCheck className="w-4 h-4 text-[#2E7D32]" />
-                            <span>Artisan Score &amp; Reliability</span>
+                            <span>{tr('artisanScore')}</span>
                           </div>
                           <span className="text-[10px] font-bold bg-[#EAE3DC] text-[#5D483E] px-2 py-0.5 rounded-md">
-                            Top Tier
+                            {tr('topTier')}
                           </span>
                         </div>
 
                         <div className="grid grid-cols-3 divide-x divide-[#E5D5CB] pt-1 text-center">
                           <div>
                             <span className="text-sm font-extrabold text-[#221C19] block">96%</span>
-                            <span className="text-[9.5px] text-[#7A685F]">On-Time Delivery</span>
+                            <span className="text-[9.5px] text-[#7A685F]">{tr('onTimeDelivery')}</span>
                           </div>
                           <div>
                             <span className="text-sm font-extrabold text-[#221C19] block">★ 4.9</span>
-                            <span className="text-[9.5px] text-[#7A685F]">34 reviews</span>
+                            <span className="text-[9.5px] text-[#7A685F]">34 {tr('reviews')}</span>
                           </div>
                           <div>
-                            <span className="text-xs font-extrabold text-[#A84318] block">Artisan</span>
-                            <span className="text-[9.5px] text-[#7A685F]">Barabanki Cluster</span>
+                            <span className="text-xs font-extrabold text-[#A84318] block">{tr('cluster')}</span>
+                            <span className="text-[9.5px] text-[#7A685F]">Barabanki</span>
                           </div>
                         </div>
                       </div>
@@ -2097,26 +2448,39 @@ export default function App() {
                       {/* Opportunities for you */}
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-extrabold text-[#221C19]">🔥 Opportunities for you</h3>
+                          <h3 className="text-sm font-extrabold text-[#221C19]">
+                            {`🔥 ${tr('opportunitiesForYou')}`}
+                          </h3>
                           <button
-                            onClick={() => showToast('Opening all 12 B2B Leads...')}
-                            className="text-xs font-bold text-[#8C3A16] hover:underline"
+                            onClick={() => {
+                              setActiveScreenIndex(22);
+                              showToast('Viewing All Bulk Opportunities (Screen 22)');
+                            }}
+                            className="text-xs font-bold text-[#8C3A16] hover:underline cursor-pointer"
                           >
-                            View All (12)&gt;
+                            {`${tr('viewAll')} (12) >`}
                           </button>
                         </div>
 
                         {/* Opportunity 1 */}
-                        <div className="bg-white border border-[#EADFD6] rounded-2xl p-3 shadow-xs space-y-2">
+                        <div
+                          onClick={() => {
+                            setActiveScreenIndex(24);
+                            showToast('Viewing FabIndia B2B Bulk Order (Screen 24)');
+                          }}
+                          className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl p-3 shadow-xs space-y-2 cursor-pointer"
+                        >
                           <div className="flex items-center justify-between">
                             <span className="bg-[#FFF3E0] border border-[#FFE0B2] text-[#E65100] text-[10px] font-bold px-2 py-0.5 rounded-md">
-                              Bulk B2B Order
+                              {tr('bulkB2bOrder')}
                             </span>
                             <span className="text-base font-black text-[#221C19]">₹45,000</span>
                           </div>
 
                           <div>
-                            <h4 className="text-xs font-extrabold text-[#221C19]">Bulk Order: 100 Terracotta Planters</h4>
+                            <h4 className="text-xs font-extrabold text-[#221C19]">
+                              {tr('terracottaPlantersOrder')}
+                            </h4>
                             <p className="text-[11px] text-[#7A685F] flex items-center gap-1 mt-0.5">
                               <Store className="w-3 h-3" /> FabIndia Curated Home
                             </p>
@@ -2124,42 +2488,58 @@ export default function App() {
 
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-[10px] text-[#7A685F] flex items-center gap-1">
-                              <Calendar className="w-3 h-3" /> Estimated: 10–14 days
+                              <Calendar className="w-3 h-3" /> {tr('estimatedDays')}
                             </span>
                             <button
-                              onClick={() => showToast('Submitted proposal for 100 Terracotta Planters!')}
-                              className="bg-[#8C3A16] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveScreenIndex(24);
+                                showToast('Viewing FabIndia B2B Order Specs (Screen 24)');
+                              }}
+                              className="bg-[#8C3A16] hover:bg-[#772F10] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer"
                             >
-                              View Opportunity
+                              {tr('viewOpportunity')}
                             </button>
                           </div>
                         </div>
 
                         {/* Opportunity 2 */}
-                        <div className="bg-white border border-[#EADFD6] rounded-2xl p-3 shadow-xs space-y-2">
+                        <div
+                          onClick={() => {
+                            setActiveScreenIndex(25);
+                            showToast('Opening Form Artisan Collective (Screen 25)');
+                          }}
+                          className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl p-3 shadow-xs space-y-2 cursor-pointer"
+                        >
                           <div className="flex items-center justify-between">
                             <span className="bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
-                              <Users className="w-3 h-3" /> Guild Collaboration
+                              <Users className="w-3 h-3" /> {tr('guildCollaboration')}
                             </span>
-                            <span className="text-[10px] font-semibold text-[#C53030]">Deadline: 20 Oct</span>
+                            <span className="text-[10px] font-semibold text-[#C53030]">
+                              {tr('deadline')}
+                            </span>
                           </div>
 
                           <div>
                             <h4 className="text-xs font-extrabold text-[#221C19] leading-snug">
-                              Collaboration Request:<br />Handcrafted Brass &amp; Clay Lamps
+                              {tr('collaborationRequest')}
                             </h4>
                             <p className="text-[11px] text-[#6B584E] mt-0.5">
-                              Looking for 1 Potter partner by Kishore Potter Guild
+                              Kishore Potter Guild • Looking for 1 partner
                             </p>
                           </div>
 
                           <div className="flex items-center justify-between pt-1">
-                            <span className="text-[11px] font-semibold text-[#4A372D]">Shared Payout • 50/50</span>
+                            <span className="text-[11px] font-semibold text-[#4A372D]">{tr('sharedPayout')}</span>
                             <button
-                              onClick={() => showToast('Joined Brass & Clay Lamp Collaboration!')}
-                              className="bg-[#F3E7DF] text-[#8C3A16] text-[11px] font-bold px-3 py-1.5 rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveScreenIndex(25);
+                                showToast('Opening Form Artisan Collective (Screen 25)');
+                              }}
+                              className="bg-[#8C3A16] hover:bg-[#772F10] text-white text-[11px] font-bold px-3 py-1.5 rounded-lg cursor-pointer"
                             >
-                              Join Collaboration
+                              {tr('joinCollaboration')}
                             </button>
                           </div>
                         </div>
@@ -2168,46 +2548,14 @@ export default function App() {
 
                     {/* Floating Mic Button */}
                     <button
-                      onClick={() => showToast('🎙️ Listening to artisan voice command...')}
-                      className="absolute right-4 bottom-16 w-12 h-12 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-20"
+                      onClick={() => showToast(`🎙️ ${tr('tapToSpeakOrAsk')}`)}
+                      className="absolute right-4 bottom-16 w-12 h-12 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-20 cursor-pointer"
                     >
                       <Mic className="w-6 h-6" />
                     </button>
 
-                    {/* Bottom Navigation Bar (5 tabs) */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0 },
-                        { label: 'Products', icon: Palette, tabIdx: 1 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3 },
-                        { label: 'Profile', icon: User, tabIdx: 4 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = homeBottomTab === tab.tabIdx;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              setHomeBottomTab(tab.tabIdx);
-                              if (tab.tabIdx === 1) {
-                                setActiveScreenIndex(10);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(20);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('home')}
                   </div>
                 )}
 
@@ -2224,20 +2572,58 @@ export default function App() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {/* Language Selector */}
-                        <div className="flex items-center gap-1 bg-white border border-[#E5D5CB] rounded-full px-2 py-0.5 shadow-2xs">
-                          <span className="text-[11px] font-bold text-[#4A3228]">English</span>
-                          <ChevronsUpDown className="w-2.5 h-2.5 text-[#8A756C]" />
+                        {/* Quick-Switch Language Toggle (English <-> Hindi) */}
+                        <div
+                          className="flex items-center bg-[#F3E7DF] p-0.5 rounded-full border border-[#E5D5CB] shadow-2xs"
+                          title="Quick switch language between English and Hindi"
+                        >
+                          <button
+                            onClick={() => {
+                              setSelectedLanguage('English');
+                              showToast('🌐 Switched language to English');
+                            }}
+                            className={`px-2 py-0.5 rounded-full text-[10.5px] font-black transition-all cursor-pointer ${
+                              !selectedLanguage.toLowerCase().includes('हिंदी') && !selectedLanguage.toLowerCase().includes('hindi')
+                                ? 'bg-[#8C3A16] text-white shadow-2xs scale-102'
+                                : 'text-[#6B584E] hover:text-[#2D2421]'
+                            }`}
+                          >
+                            EN
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedLanguage('हिंदी / Hindi');
+                              showToast('🌐 भाषा बदलकर हिंदी कर दी गई');
+                            }}
+                            className={`px-2 py-0.5 rounded-full text-[10.5px] font-black transition-all cursor-pointer ${
+                              selectedLanguage.toLowerCase().includes('हिंदी') || selectedLanguage.toLowerCase().includes('hindi')
+                                ? 'bg-[#8C3A16] text-white shadow-2xs scale-102'
+                                : 'text-[#6B584E] hover:text-[#2D2421]'
+                            }`}
+                          >
+                            हिं
+                          </button>
                         </div>
 
                         {/* Notification Bell */}
-                        <div className="relative p-1 rounded-full bg-white border border-[#E5D5CB] text-[#4A3228]">
+                        <div
+                          onClick={() => setShowNotificationsModal(true)}
+                          className="relative p-1 rounded-full bg-white border border-[#E5D5CB] text-[#4A372D] hover:bg-[#F5ECE5] active:scale-95 transition-all cursor-pointer"
+                          title="Notifications"
+                        >
                           <Bell className="w-3.5 h-3.5" />
                           <span className="absolute 0 top-0.5 right-0.5 w-1.5 h-1.5 bg-rose-500 rounded-full" />
                         </div>
 
                         {/* User Avatar with Online Dot */}
-                        <div className="relative w-6 h-6 rounded-full bg-[#E5D5CB] border border-[#8C3A16]/30 overflow-hidden flex items-center justify-center">
+                        <div
+                          onClick={() => {
+                            setActiveScreenIndex(20);
+                            showToast('Opening Artisan Profile & Visiting Card (Screen 20)');
+                          }}
+                          className="relative w-6 h-6 rounded-full bg-[#E5D5CB] border border-[#8C3A16]/30 overflow-hidden flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-[#8C3A16] active:scale-95 transition-all"
+                          title="Artisan Profile"
+                        >
                           <span className="text-[10px] font-bold text-[#8C3A16]">RK</span>
                           <span className="absolute bottom-0 right-0 w-1.5 h-1.5 bg-emerald-500 rounded-full ring-1 ring-white" />
                         </div>
@@ -2267,7 +2653,14 @@ export default function App() {
 
                         {/* 4 Metric Stats Grid (2x2) */}
                         <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-[#FAF4F0] rounded-xl p-2 border border-[#EADFD6]/80 flex items-center gap-2">
+                          <div
+                            onClick={() => {
+                              setSelectedProductFilter(0);
+                              showToast('Showing all 8 crafts in catalog');
+                            }}
+                            className="bg-[#FAF4F0] hover:bg-[#F3E6DC] active:scale-98 transition-all rounded-xl p-2 border border-[#EADFD6]/80 hover:border-[#8C3A16] flex items-center gap-2 cursor-pointer shadow-2xs"
+                            title="Click to view all 8 crafts"
+                          >
                             <div className="w-7 h-7 rounded-lg bg-[#F0DDD0] flex items-center justify-center text-[#8C3A16]">
                               <Package className="w-4 h-4" />
                             </div>
@@ -2277,7 +2670,14 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="bg-[#EDF7ED] rounded-xl p-2 border border-[#C8E6C9] flex items-center gap-2">
+                          <div
+                            onClick={() => {
+                              setSelectedProductFilter(2);
+                              showToast('Showing 5 ONDC-synced crafts');
+                            }}
+                            className="bg-[#EDF7ED] hover:bg-[#DCF0DD] active:scale-98 transition-all rounded-xl p-2 border border-[#C8E6C9] hover:border-emerald-600 flex items-center gap-2 cursor-pointer shadow-2xs"
+                            title="Click to view 5 ONDC Live crafts"
+                          >
                             <div className="w-7 h-7 rounded-lg bg-[#C8E6C9] flex items-center justify-center text-emerald-800">
                               <Store className="w-4 h-4" />
                             </div>
@@ -2287,7 +2687,11 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="bg-[#F6F8FA] rounded-xl p-2 border border-[#DFE3E8] flex items-center gap-2">
+                          <div
+                            onClick={() => setShowBuyerAnalyticsModal(true)}
+                            className="bg-[#F6F8FA] hover:bg-[#EAEFF5] active:scale-98 transition-all rounded-xl p-2 border border-[#DFE3E8] hover:border-slate-500 flex items-center gap-2 cursor-pointer shadow-2xs"
+                            title="Click to view buyer views analytics"
+                          >
                             <div className="w-7 h-7 rounded-lg bg-[#E1E6EB] flex items-center justify-center text-slate-700">
                               <Eye className="w-4 h-4" />
                             </div>
@@ -2297,7 +2701,14 @@ export default function App() {
                             </div>
                           </div>
 
-                          <div className="bg-[#FFF9E6] rounded-xl p-2 border border-[#FFE082] flex items-center gap-2">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(22);
+                              showToast('Viewing 18 Bulk Inquiries in Orders Hub');
+                            }}
+                            className="bg-[#FFF9E6] hover:bg-[#FFF0C2] active:scale-98 transition-all rounded-xl p-2 border border-[#FFE082] hover:border-amber-600 flex items-center gap-2 cursor-pointer shadow-2xs"
+                            title="Click to view Bulk Inquiries in Orders Hub"
+                          >
                             <div className="w-7 h-7 rounded-lg bg-[#FFE082]/70 flex items-center justify-center text-amber-900">
                               <Truck className="w-4 h-4" />
                             </div>
@@ -2427,14 +2838,20 @@ export default function App() {
 
                           <div className="flex gap-2">
                             <button
-                              onClick={() => showToast('🎙️ Speak changes for "Handmade Woven Bamboo Fruit Basket"')}
-                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5]"
+                              onClick={() => {
+                                setActiveScreenIndex(14);
+                                showToast('Opening Voice Edit & Fair Price for Fruit Basket');
+                              }}
+                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] active:scale-98 text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5] transition-all cursor-pointer"
                             >
                               <Mic className="w-3 h-3" /> Edit (Voice)
                             </button>
                             <button
-                              onClick={() => showToast('Opening details for Fruit Basket')}
-                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-xl text-[10.5px] font-extrabold"
+                              onClick={() => {
+                                setActiveScreenIndex(18);
+                                showToast('Opening details for Fruit Basket (Screen 18)');
+                              }}
+                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] active:scale-98 text-white rounded-xl text-[10.5px] font-extrabold transition-all cursor-pointer"
                             >
                               View Details
                             </button>
@@ -2500,14 +2917,20 @@ export default function App() {
 
                           <div className="flex gap-2">
                             <button
-                              onClick={() => showToast('🎙️ Speak changes for "Assam Golden Cane Planter Basket"')}
-                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5]"
+                              onClick={() => {
+                                setActiveScreenIndex(14);
+                                showToast('Opening Voice Edit & Fair Price for Planter Basket');
+                              }}
+                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] active:scale-98 text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5] transition-all cursor-pointer"
                             >
                               <Mic className="w-3 h-3" /> Edit (Voice)
                             </button>
                             <button
-                              onClick={() => showToast('Opening details for Planter Basket')}
-                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-xl text-[10.5px] font-extrabold"
+                              onClick={() => {
+                                setActiveScreenIndex(18);
+                                showToast('Opening details for Planter Basket (Screen 18)');
+                              }}
+                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] active:scale-98 text-white rounded-xl text-[10.5px] font-extrabold transition-all cursor-pointer"
                             >
                               View Details
                             </button>
@@ -2573,14 +2996,20 @@ export default function App() {
 
                           <div className="flex gap-2">
                             <button
-                              onClick={() => showToast('🎙️ Speak changes for "Bamboo Storage Box"')}
-                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5]"
+                              onClick={() => {
+                                setActiveScreenIndex(14);
+                                showToast('Opening Voice Edit & Fair Price for Storage Box');
+                              }}
+                              className="flex-1 py-1.5 bg-[#FAF3EE] hover:bg-[#F2E5DC] active:scale-98 text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1 border border-[#E8DDD5] transition-all cursor-pointer"
                             >
                               <Mic className="w-3 h-3" /> Edit (Voice)
                             </button>
                             <button
-                              onClick={() => showToast('Opening details for Storage Box')}
-                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-xl text-[10.5px] font-extrabold"
+                              onClick={() => {
+                                setActiveScreenIndex(18);
+                                showToast('Opening details for Storage Box (Screen 18)');
+                              }}
+                              className="px-3 py-1.5 bg-[#8C3A16] hover:bg-[#783011] active:scale-98 text-white rounded-xl text-[10.5px] font-extrabold transition-all cursor-pointer"
                             >
                               View Details
                             </button>
@@ -2628,14 +3057,20 @@ export default function App() {
 
                           <div className="flex gap-2">
                             <button
-                              onClick={() => showToast('✨ AI Photo Background Remover applied!')}
-                              className="flex-1 py-2 bg-[#E87338] hover:bg-[#D46026] text-white rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1.5 shadow-2xs"
+                              onClick={() => {
+                                setActiveScreenIndex(12);
+                                showToast('Opening AI Photo Enhancer for Tea Coasters (Screen 12)');
+                              }}
+                              className="flex-1 py-2 bg-[#E87338] hover:bg-[#D46026] active:scale-98 text-white rounded-xl text-[10.5px] font-extrabold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
                             >
                               <Sparkles className="w-3.5 h-3.5" /> Enhance Photo with AI
                             </button>
                             <button
-                              onClick={() => showToast('🎙️ Speak changes for "Tea Coasters"')}
-                              className="p-2 bg-[#FAF3EE] hover:bg-[#F2E5DC] text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold border border-[#E8DDD5]"
+                              onClick={() => {
+                                setActiveScreenIndex(14);
+                                showToast('Opening Voice Edit for Tea Coasters (Screen 14)');
+                              }}
+                              className="p-2 bg-[#FAF3EE] hover:bg-[#F2E5DC] active:scale-98 text-[#8C3A16] rounded-xl text-[10.5px] font-extrabold flex items-center justify-center border border-[#E8DDD5] transition-all cursor-pointer"
                             >
                               <Mic className="w-3.5 h-3.5" />
                             </button>
@@ -2656,40 +3091,8 @@ export default function App() {
                       <span>Add Product (Voice-First)</span>
                     </button>
 
-                    {/* Bottom Navigation Bar (5 tabs) */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                                setHomeBottomTab(0);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(20);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -2774,6 +3177,9 @@ export default function App() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -2847,6 +3253,9 @@ export default function App() {
                         Auto
                       </button>
                     </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -3022,39 +3431,8 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Bottom Navigation Bar */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -3191,39 +3569,8 @@ export default function App() {
                       </p>
                     </div>
 
-                    {/* Bottom Navigation Bar */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -3493,39 +3840,8 @@ export default function App() {
                       </p>
                     </div>
 
-                    {/* Bottom Navigation Bar */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -3838,39 +4154,8 @@ export default function App() {
                       </p>
                     </div>
 
-                    {/* Bottom Navigation Bar (5 tabs) */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -4035,39 +4320,8 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Bottom Navigation Bar (5 tabs) */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -4230,42 +4484,8 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Bottom Navigation Bar */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                                setHomeBottomTab(0);
-                              } else if (tab.tabIdx === 1) {
-                                setActiveScreenIndex(10);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(20);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -4489,42 +4709,8 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* Bottom Navigation Bar */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 1;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                                setHomeBottomTab(0);
-                              } else if (tab.tabIdx === 1) {
-                                setActiveScreenIndex(10);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(20);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('products')}
                   </div>
                 )}
 
@@ -4926,42 +5112,8 @@ export default function App() {
                       </button>
                     </div>
 
-                    {/* Bottom Navigation Bar (5 tabs matching Home & Products sections) */}
-                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
-                      {[
-                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
-                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
-                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
-                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
-                      ].map((tab) => {
-                        const IconComp = tab.icon;
-                        const isSel = tab.tabIdx === 4;
-                        return (
-                          <button
-                            key={tab.label}
-                            onClick={() => {
-                              if (tab.tabIdx === 0) {
-                                setActiveScreenIndex(9);
-                                setHomeBottomTab(0);
-                              } else if (tab.tabIdx === 1) {
-                                setActiveScreenIndex(10);
-                              } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(20);
-                              } else {
-                                showToast(`Switched to ${tab.label} tab`);
-                              }
-                            }}
-                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
-                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
-                            }`}
-                          >
-                            <IconComp className="w-4 h-4 mb-0.5" />
-                            <span className="text-[9.5px]">{tab.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('profile')}
                   </div>
                 )}
 
@@ -5246,38 +5398,62 @@ export default function App() {
 
                         <div className="space-y-2">
                           {/* Item 1 */}
-                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(22);
+                              showToast('Opening B2B Quotations & Orders Hub (Screen 22)');
+                            }}
+                            className="p-2.5 bg-[#FFFBF8] hover:bg-[#FAF0E6] active:scale-98 transition-all rounded-2xl border border-[#F0E4DA] flex items-center gap-3 cursor-pointer shadow-2xs"
+                            title="Click to view B2B Quotations & Orders"
+                          >
                             <div className="w-8 h-8 rounded-xl bg-[#FDECE2] text-[#8C2E18] flex items-center justify-center shrink-0">
                               <FileText className="w-4 h-4 text-[#8C2E18]" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <p className="text-xs font-black text-[#221C19]">Attached to B2B Quotations</p>
                               <p className="text-[10px] text-[#6B584E]">Improves wholesale order acceptance by 68%</p>
                             </div>
+                            <ChevronRight className="w-4 h-4 text-[#8C2E18]" />
                           </div>
 
                           {/* Item 2 */}
-                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(10);
+                              showToast('Opening ONDC & Craft Catalog (Screen 10)');
+                            }}
+                            className="p-2.5 bg-[#FFFBF8] hover:bg-[#FAF0E6] active:scale-98 transition-all rounded-2xl border border-[#F0E4DA] flex items-center gap-3 cursor-pointer shadow-2xs"
+                            title="Click to view ONDC & Craft Catalog"
+                          >
                             <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] text-[#2E7D32] flex items-center justify-center shrink-0">
                               <Tag className="w-4 h-4 text-[#2E7D32]" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <p className="text-xs font-black text-[#221C19]">ONDC &amp; Shilp Samagam Tags</p>
                               <p className="text-[10px] text-[#6B584E]">Printed on certified GI craft labels</p>
                             </div>
+                            <ChevronRight className="w-4 h-4 text-[#2E7D32]" />
                           </div>
 
                           {/* Item 3 */}
-                          <div className="p-2.5 bg-[#FFFBF8] rounded-2xl border border-[#F0E4DA] flex items-center gap-3">
+                          <div
+                            onClick={() => {
+                              setActiveScreenIndex(20);
+                              showToast('Opening Digital Visiting Card (Screen 20)');
+                            }}
+                            className="p-2.5 bg-[#FFFBF8] hover:bg-[#FAF0E6] active:scale-98 transition-all rounded-2xl border border-[#F0E4DA] flex items-center gap-3 cursor-pointer shadow-2xs"
+                            title="Click to view Digital Visiting Card"
+                          >
                             <div className="w-8 h-8 rounded-xl bg-[#FDF0E5] text-[#A84318] flex items-center justify-center shrink-0">
                               <QrCode className="w-4 h-4 text-[#A84318]" />
                             </div>
-                            <div>
+                            <div className="flex-1">
                               <p className="text-xs font-black text-[#221C19]">Digital Visiting Card (Screen 20)</p>
                               <p className="text-[10px] text-[#6B584E]">
                                 Instant QR code for buyer WhatsApp &amp; trade fairs
                               </p>
                             </div>
+                            <ChevronRight className="w-4 h-4 text-[#A84318]" />
                           </div>
                         </div>
                       </div>
@@ -5316,6 +5492,2198 @@ export default function App() {
                           <Eye className="w-3.5 h-3.5 text-[#8C2E18]" />
                           <span>Preview Buyer View</span>
                         </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('profile')}
+                  </div>
+                )}
+
+                {/* 23. SCREEN 22: ARTISAN ORDERS (matching o1- order first page.png) */}
+                {activeScreenIndex === 22 && (
+                  <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden relative">
+                    {/* Top App Bar matching 'o1- order first page.png' */}
+                    <div className="px-3.5 pt-2 pb-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0 z-10">
+                      {/* Left: Menu Hamburger */}
+                      <button
+                        onClick={() => showToast('☰ HunarSangam Artisan Hub Menu')}
+                        className="p-1 -ml-1 text-[#2D2421] hover:bg-[#F3EAE3] rounded-lg transition-colors cursor-pointer"
+                        title="Open Menu"
+                      >
+                        <Menu className="w-5 h-5 text-[#2D2421]" />
+                      </button>
+
+                      {/* Center-left: Logo + Artisan Badge + Cluster Location */}
+                      <div className="flex-1 ml-2.5">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-base font-black text-[#7C3F24] tracking-tight">HunarSangam</span>
+                          <span className="bg-[#EFEBE9] text-[#5D4037] text-[10px] font-bold px-2 py-0.5 rounded-full border border-[#E0D7D2]">
+                            Artisan
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 text-[11px] font-semibold text-[#4E342E]">
+                          <MapPin className="w-3 h-3 text-[#2E7D32]" />
+                          <span>Assam Cane &amp; Bamboo</span>
+                        </div>
+                      </div>
+
+                      {/* Right: Audio Ear Assist + Language Selector */}
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => showToast('🎙️ Audio assistance active: Reading order details aloud')}
+                          className="w-7 h-7 rounded-full border border-[#D7CCC8] bg-[#FFFDFB] flex items-center justify-center text-[#8C3A16] hover:bg-[#FAF3EE] transition-colors cursor-pointer"
+                          title="Audio Readout Assistance"
+                        >
+                          <Ear className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            const nextLang = selectedLanguage.toLowerCase().includes('hindi') ? 'English' : 'Hindi (हिंदी)';
+                            setSelectedLanguage(nextLang);
+                            showToast(`Language switched to ${nextLang}`);
+                          }}
+                          className="border border-[#3E2723] rounded-md px-2 py-0.5 flex items-center gap-1 text-[11px] font-bold text-[#2D2421] bg-white hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <span>{selectedLanguage.toLowerCase().includes('hindi') ? 'हिंदी' : 'English'}</span>
+                          <ChevronsUpDown className="w-3 h-3 text-[#3E2723]" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Orders Dashboard Content */}
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3 pb-16">
+                      {/* Section Title & Live Hub Header */}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h1 className="text-2xl font-black text-[#1F1612] tracking-tight leading-tight">Artisan Orders</h1>
+                          <p className="text-xs font-medium text-[#5D4037]">Production management for {artisanName}</p>
+                        </div>
+                        <div className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
+                          <span className="w-2 h-2 rounded-full bg-[#2E7D32] animate-pulse" />
+                          <span>Live Hub</span>
+                        </div>
+                      </div>
+
+                      {/* 2x2 Key Metrics Cards */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {/* Card 1: Total Active */}
+                        <div
+                          onClick={() => setShowEscrowDetailsModal(true)}
+                          className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl p-3 shadow-2xs flex flex-col justify-between cursor-pointer"
+                          title="Click to view Escrow & Payment details"
+                        >
+                          <div className="flex items-center justify-between text-[#4E342E]">
+                            <span className="text-xs font-bold">Total Active</span>
+                            <Wallet className="w-4 h-4 text-[#A84318]" />
+                          </div>
+                          <div className="my-1.5">
+                            <span className="text-2xl font-black text-[#1F1612] tracking-tight">₹1,42,000</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-[10.5px] font-bold text-[#2E7D32]">
+                            <Lock className="w-3 h-3 text-[#2E7D32]" />
+                            <span>₹56,800 Escrow Advance</span>
+                          </div>
+                        </div>
+
+                        {/* Card 2: Bulk Orders */}
+                        <div
+                          onClick={() => {
+                            setOrdersFilterTab(0);
+                            showToast('Showing all 3 Active Bulk POs');
+                          }}
+                          className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl p-3 shadow-2xs flex flex-col justify-between cursor-pointer"
+                          title="Click to view Active Orders"
+                        >
+                          <div className="flex items-center justify-between text-[#4E342E]">
+                            <span className="text-xs font-bold">Bulk Orders</span>
+                            <Receipt className="w-4 h-4 text-[#A84318]" />
+                          </div>
+                          <div className="my-1.5">
+                            <span className="text-2xl font-black text-[#1F1612] tracking-tight">3 Active POs</span>
+                          </div>
+                          <div className="text-[10.5px] font-medium text-[#6D4C41]">
+                            2 Producing • 1 Sample
+                          </div>
+                        </div>
+
+                        {/* Card 3: March Capacity */}
+                        <div
+                          onClick={() => setShowCapacityPlannerModal(true)}
+                          className="bg-white border border-[#EADFD6] hover:border-[#8C3A16] active:scale-98 transition-all rounded-2xl p-3 shadow-2xs flex flex-col justify-between cursor-pointer"
+                          title="Click to view March Capacity Planner"
+                        >
+                          <div className="flex items-center justify-between text-[#4E342E]">
+                            <span className="text-xs font-bold">March Capacity</span>
+                            <RefreshCw className="w-3.5 h-3.5 text-[#A84318]" />
+                          </div>
+                          <div className="my-1 flex items-baseline">
+                            <span className="text-2xl font-black text-[#B85324] tracking-tight">92%</span>
+                            <span className="text-xs font-semibold text-[#6D4C41] ml-1.5">Utilized</span>
+                          </div>
+                          <div className="w-full bg-[#EFEBE9] h-2 rounded-full overflow-hidden my-1">
+                            <div className="bg-[#8C3A16] h-full rounded-full w-[92%]" />
+                          </div>
+                          <div className="text-[10px] font-medium text-[#6D4C41]">
+                            230 / 250 pcs booked
+                          </div>
+                        </div>
+
+                        {/* Card 4: SLA Health */}
+                        <div
+                          onClick={() => setShowScoreBreakdownModal(true)}
+                          className="bg-white border border-[#EADFD6] hover:border-emerald-600 active:scale-98 transition-all rounded-2xl p-3 shadow-2xs flex flex-col justify-between cursor-pointer"
+                          title="Click to view Artisan Score & SLA breakdown"
+                        >
+                          <div className="flex items-center justify-between text-[#4E342E]">
+                            <span className="text-xs font-bold">SLA Health</span>
+                            <ShieldCheck className="w-4 h-4 text-[#2E7D32]" />
+                          </div>
+                          <div className="my-1.5">
+                            <span className="text-2xl font-black text-[#2E7D32] tracking-tight">0 Delayed</span>
+                          </div>
+                          <div className="text-[10.5px] font-medium text-[#6D4C41]">
+                            100% On-Time Record
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cluster Capacity Alert (Peach card with alert banner) */}
+                      <div className="bg-[#FFF5EE] border border-[#F3DFD5] rounded-2xl p-3.5 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-lg bg-[#FDECE8] flex items-center justify-center text-[#C53030]">
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                            </div>
+                            <span className="text-xs font-extrabold text-[#8C3A16]">Cluster Capacity Alert</span>
+                          </div>
+                          <span className="bg-[#A84318] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            New B2B Lead
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-[#4E342E] leading-relaxed">
+                          New FabIndia Inquiry (400 pcs) exceeds your single capacity of 250 pcs. Team up with 2 cluster artisans to accept this order!
+                        </p>
+
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(25);
+                            showToast('Opening Form Artisan Collective (Screen 25)');
+                          }}
+                          className="w-full py-2.5 bg-[#8C3A16] hover:bg-[#772F10] active:scale-98 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                        >
+                          <Users className="w-3.5 h-3.5 text-white" />
+                          <span>Find Artisan to Collaborate (Screen 25)</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Filter Tabs */}
+                      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                        {[
+                          { label: 'All Orders (3)', idx: 0 },
+                          { label: 'In Production (2)', idx: 1 },
+                          { label: 'Payment Due (1)', idx: 2 },
+                        ].map((filter) => (
+                          <button
+                            key={filter.idx}
+                            onClick={() => setOrdersFilterTab(filter.idx)}
+                            className={`px-4 py-1.5 rounded-full text-xs transition-all cursor-pointer whitespace-nowrap ${
+                              ordersFilterTab === filter.idx
+                                ? 'bg-[#8C3A16] text-white font-bold shadow-xs'
+                                : 'bg-white border border-[#D7CCC8] text-[#5D4037] font-semibold hover:bg-[#FAF5F0]'
+                            }`}
+                          >
+                            {filter.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* NEW INCOMING ORDER REQUEST CARD: Heritage Handcrafts Pvt. Ltd. */}
+                      {(ordersFilterTab === 0 || ordersFilterTab === 2) && (
+                        <div
+                          onClick={() => {
+                            setActiveScreenIndex(24);
+                            showToast('Opening Order Request & Details');
+                          }}
+                          className="bg-white border-2 border-[#EADFD6] hover:border-[#8C3A16] transition-all rounded-2xl p-3.5 shadow-xs space-y-3 cursor-pointer group"
+                        >
+                          {/* Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-9 h-9 rounded-full bg-[#FCECE3] text-[#8C3A16] font-black text-xs flex items-center justify-center shrink-0">
+                                HH
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-sm font-black text-[#1F1612]">Heritage Handcrafts Pvt. Ltd.</span>
+                                </div>
+                                <p className="text-[11px] text-[#6D4C41]">B2B Buyer • New Delhi • 14 Bulk Orders</p>
+                              </div>
+                            </div>
+                            <span className="bg-[#FFF0E6] text-[#8C3A16] border border-[#F5D8C7] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#8C3A16] animate-pulse" />
+                              New Request
+                            </span>
+                          </div>
+
+                          {/* Product & PO Info */}
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="text-[10.5px] text-[#8D6E63] font-mono font-medium">#REQ-HH-1048</span>
+                              <h3 className="text-xs font-black text-[#1F1612] leading-snug">
+                                50 × Bamboo Handwoven Basket
+                              </h3>
+                              <span className="text-[10.5px] text-[#6D4C41]">Assam Style Fine Split Bamboo</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-base font-black text-[#8C3A16]">₹22,500</span>
+                              <span className="text-[10px] font-semibold text-[#2E7D32] block leading-tight">
+                                ₹450 / pc • Escrow
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Capacity Indicator Banner */}
+                          <div className="bg-[#FFF8F4] border border-[#F3E5DC] rounded-xl p-2 flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5 font-semibold text-[#4E342E]">
+                              <Sparkles className="w-3.5 h-3.5 text-[#8C3A16]" />
+                              <span>Your Capacity: 30 / 50 pcs (Gap: 20)</span>
+                            </div>
+                            <span className="text-[10.5px] text-[#C53030] font-bold">Due: 28 Sept</span>
+                          </div>
+
+                          {/* Action Row */}
+                          <div className="flex items-center justify-between pt-0.5" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={() => {
+                                setActiveScreenIndex(24);
+                                showToast('Opening Order Request Details');
+                              }}
+                              className="flex items-center gap-1 text-xs font-bold text-[#8C3A16] hover:underline cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#8C3A16]" />
+                              <span>View Specs &amp; Audio</span>
+                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setActiveScreenIndex(24);
+                                  showToast('Opening Order Request Details');
+                                }}
+                                className="bg-[#8C3A16] hover:bg-[#772F10] text-white text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors shadow-2xs"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setOrderRequestAccepted(true);
+                                  showToast('✅ Order Request Accepted! ₹22,500 secured in Escrow.');
+                                }}
+                                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                                  orderRequestAccepted
+                                    ? 'bg-[#2E7D32] text-white'
+                                    : 'bg-[#8C3A16] hover:bg-[#772F10] text-white'
+                                }`}
+                              >
+                                {orderRequestAccepted ? 'Accepted ✓' : 'Accept order'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Order Card 1: FabIndia Retail Ltd. */}
+                      {(ordersFilterTab === 0 || ordersFilterTab === 1) && (
+                        <div className="bg-white border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-3">
+                          {/* Header */}
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />
+                                <span className="text-sm font-black text-[#1F1612]">FabIndia Retail Ltd.</span>
+                              </div>
+                              <p className="text-[11px] text-[#6D4C41] mt-0.5">New Delhi • Verified Corporate Buyer</p>
+                            </div>
+                            <span className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10px] font-bold px-2.5 py-0.5 rounded-full">
+                              In Production
+                            </span>
+                          </div>
+
+                          {/* Product & PO Info */}
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="text-[10.5px] text-[#8D6E63] font-mono font-medium">#PO-FAB-8821</span>
+                              <h3 className="text-xs font-black text-[#1F1612] leading-snug">
+                                120 × Woven Bamboo Fruit<br />Basket
+                              </h3>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-base font-black text-[#8C3A16]">₹33,600</span>
+                              <span className="text-[10px] font-semibold text-[#2E7D32] block leading-tight">
+                                40% Advance (₹13,440) in<br />Bank
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Production Progress Box */}
+                          <div className="bg-[#FFF8F4] border border-[#F3E5DC] rounded-xl p-2.5 space-y-1.5">
+                            <div className="flex items-center justify-between text-[11px]">
+                              <span className="font-bold text-[#4E342E]">Production Status</span>
+                              <span className="font-extrabold text-[#8C3A16]">
+                                {fabIndiaProgress} / 120 pcs done ({Math.round((fabIndiaProgress / 120) * 100)}%)
+                              </span>
+                            </div>
+                            <div className="w-full bg-[#E8D9CF] h-2 rounded-full overflow-hidden">
+                              <div
+                                className="bg-[#8C3A16] h-full rounded-full transition-all duration-300"
+                                style={{ width: `${(fabIndiaProgress / 120) * 100}%` }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between text-[10.5px]">
+                              <div className="flex items-center gap-1 font-semibold text-[#6D4C41]">
+                                <Clock className="w-3 h-3" />
+                                <span>Next: QC &amp; Packaging</span>
+                              </div>
+                              <span className="font-bold text-[#C53030]">Due in 4 days (28 Mar)</span>
+                            </div>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="grid grid-cols-2 gap-2.5">
+                            <button
+                              onClick={() => {
+                                setActiveScreenIndex(23);
+                                showToast('Opening Order #HS1048 Updation & Details');
+                              }}
+                              className="py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs active:scale-98"
+                            >
+                              Update Progress
+                            </button>
+                            <button
+                              onClick={() => setShowDispatchModal(true)}
+                              className="py-2.5 border border-[#D7CCC8] bg-[#FAF5F0] hover:bg-[#F3EAE3] text-[#2D2421] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
+                            >
+                              <Truck className="w-3.5 h-3.5 text-[#2D2421]" />
+                              <span>Dispatch Delivery</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Order Card 2: The Bombay Store */}
+                      {(ordersFilterTab === 0 || ordersFilterTab === 2) && (
+                        <div className="bg-white border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-3">
+                          {/* Header */}
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <CheckCircle2 className="w-4 h-4 text-[#2E7D32]" />
+                                <span className="text-sm font-black text-[#1F1612]">The Bombay Store</span>
+                              </div>
+                              <p className="text-[11px] text-[#6D4C41] mt-0.5">Mumbai • Retail Chain Buyer</p>
+                            </div>
+                            <span
+                              className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                isBombayStoreAccepted
+                                  ? 'bg-[#E8F5E9] text-[#2E7D32] border-[#C8E6C9]'
+                                  : 'bg-[#FFF3E0] text-[#E65100] border-[#FFE0B2]'
+                              }`}
+                            >
+                              {isBombayStoreAccepted ? 'In Production' : 'New order'}
+                            </span>
+                          </div>
+
+                          {/* Product & PO Info */}
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <span className="text-[10.5px] text-[#8D6E63] font-mono font-medium">#PO-TBS-4419</span>
+                              <h3 className="text-xs font-black text-[#1F1612] leading-snug">
+                                50 × Golden Cane Planter<br />Basket
+                              </h3>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-base font-black text-[#8C3A16]">₹21,000</span>
+                              <span className="text-[10px] font-semibold text-[#2E7D32] block leading-tight">
+                                Advance Escrow<br />Secured
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Material Procurement Status */}
+                          <div className="bg-[#FFF8F4] border border-[#F3E5DC] rounded-xl p-2 flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5 font-semibold text-[#4E342E]">
+                              <Package className="w-3.5 h-3.5 text-[#8C3A16]" />
+                              <span>Assam Cane #Grade-A Procured</span>
+                            </div>
+                            <span className="text-[10.5px] text-[#6D4C41] font-medium">Due: 05 April (16 days)</span>
+                          </div>
+
+                          {/* Action Row */}
+                          <div className="flex items-center justify-between pt-0.5">
+                            <button
+                              onClick={() => setShowPoSpecsModal(true)}
+                              className="flex items-center gap-1 text-xs font-bold text-[#8C3A16] hover:underline cursor-pointer"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#8C3A16]" />
+                              <span>View PO &amp; Specs</span>
+                            </button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  setActiveScreenIndex(24);
+                                  showToast('Opening Order Details');
+                                }}
+                                className="bg-[#8C3A16] hover:bg-[#772F10] text-white text-xs font-bold px-3 py-1.5 rounded-lg cursor-pointer transition-colors"
+                              >
+                                View Details
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setIsBombayStoreAccepted(true);
+                                  showToast('✅ Order #PO-TBS-4419 Accepted! 40% advance released.');
+                                }}
+                                className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+                                  isBombayStoreAccepted
+                                    ? 'bg-[#2E7D32] text-white'
+                                    : 'bg-[#8C3A16] hover:bg-[#772F10] text-white'
+                                }`}
+                              >
+                                {isBombayStoreAccepted ? 'Accepted ✓' : 'Accept order'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('orders')}
+                  </div>
+                )}
+
+                {/* SCREEN 23: ORDER DETAILS & UPDATION (MATCHING 'o2- order updation page.png') */}
+                {activeScreenIndex === 23 && (
+                  <div className="flex-1 flex flex-col bg-[#FDFBF9] overflow-hidden relative">
+                    {/* Top App Bar */}
+                    <div className="bg-white border-b border-[#EADFD6] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setActiveScreenIndex(22)}
+                          className="w-9 h-9 rounded-full border border-[#EADFD6] bg-white flex items-center justify-center text-[#2D2421] hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <ChevronLeft className="w-5 h-5 text-[#2D2421]" />
+                        </button>
+                        <div>
+                          <h1 className="text-base font-extrabold text-[#1F1612] leading-tight">Order Details</h1>
+                          <div className="flex items-center gap-1.5 text-xs text-[#8C3A16] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#8C3A16]" />
+                            <span>Artisan View</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Notification Bell with red dot */}
+                        <button
+                          onClick={() => showToast('🔔 2 buyer updates received for Order #HS1048')}
+                          className="w-9 h-9 rounded-full border border-[#EADFD6] bg-white flex items-center justify-center text-[#2D2421] relative hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <Bell className="w-4 h-4 text-[#2D2421]" />
+                          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#C53030]" />
+                        </button>
+
+                        {/* Language Selection Pill */}
+                        <button
+                          onClick={() => {
+                            const next = selectedLanguage.includes('Hindi') ? 'English' : 'Hindi (हिंदी)';
+                            setSelectedLanguage(next);
+                            showToast(`Language switched to ${next}`);
+                          }}
+                          className="border border-[#D7CCC8] rounded-full px-3 py-1 flex items-center gap-1.5 text-xs font-semibold text-[#2D2421] bg-white hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <span>{selectedLanguage.includes('Hindi') ? 'हिंदी' : 'English'}</span>
+                          <span className="text-[#8D6E63] text-[11px]">|</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Order Details Content */}
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 pb-28">
+                      {/* Audio Guide Available Banner */}
+                      <div className="bg-[#FFF5EE] border border-[#F3DFD5] rounded-2xl p-3 flex items-center justify-between gap-3 shadow-2xs">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => {
+                              setIsHS1048AudioPlaying(!isHS1048AudioPlaying);
+                              showToast(isHS1048AudioPlaying ? 'Audio guide paused' : '🔊 Playing voice walkthrough for Order #HS1048');
+                            }}
+                            className="w-10 h-10 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs hover:bg-[#772F10] transition-colors cursor-pointer"
+                          >
+                            <Volume2 className="w-5 h-5 text-white" />
+                          </button>
+                          <div>
+                            <span className="text-[10px] font-black tracking-wider text-[#8C3A16] uppercase block">
+                              AUDIO GUIDE AVAILABLE
+                            </span>
+                            <p className="text-xs text-[#2D2421] font-medium leading-snug">
+                              Tap to listen to this order in{' '}
+                              <span className="underline font-bold text-[#1F1612]">Hindi</span> /{' '}
+                              <span className="underline font-bold text-[#1F1612]">Assamese</span> /{' '}
+                              <span className="underline font-bold text-[#1F1612]">Gujarati</span>
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            setIsHS1048AudioPlaying(!isHS1048AudioPlaying);
+                            showToast(isHS1048AudioPlaying ? 'Audio paused' : '▶️ Playing Order #HS1048 audio guide');
+                          }}
+                          className="text-[#8C3A16] hover:opacity-80 transition-opacity p-1 cursor-pointer shrink-0"
+                        >
+                          {isHS1048AudioPlaying ? (
+                            <Pause className="w-6 h-6 text-[#8C3A16]" />
+                          ) : (
+                            <PlayCircle className="w-6 h-6 text-[#8C3A16]" />
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Main Order Card: #HS1048 */}
+                      <div className="bg-white border border-[#EADFD6] rounded-3xl p-3.5 shadow-2xs space-y-3">
+                        {/* Order Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-base font-black text-[#1F1612]">Order #HS1048</h2>
+                            <span className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" />
+                              B2B Confirmed
+                            </span>
+                          </div>
+                          <span className="text-xs font-semibold text-[#8D6E63]">B2B Bulk</span>
+                        </div>
+
+                        {/* Workshop Bamboo Basket Image Banner */}
+                        <div className="relative h-44 w-full rounded-2xl overflow-hidden shadow-2xs">
+                          <img
+                            src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&auto=format&fit=crop&q=80"
+                            alt="Handmade Bamboo Baskets"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                          {/* GI Tag Badge on top-right */}
+                          <div className="absolute top-2.5 right-2.5 bg-white/95 backdrop-blur-xs text-[#2E7D32] text-[10px] font-bold px-2.5 py-1 rounded-full shadow-xs flex items-center gap-1">
+                            <Sprout className="w-3 h-3 text-[#2E7D32]" />
+                            <span>GI Tag Cluster</span>
+                          </div>
+                          {/* Eco Bamboo Badge on bottom-left */}
+                          <div className="absolute bottom-2.5 left-2.5 bg-black/60 backdrop-blur-xs text-white text-[10px] font-medium px-2.5 py-1 rounded-md flex items-center gap-1.5">
+                            <Package className="w-3 h-3 text-white" />
+                            <span>100% Eco Bamboo</span>
+                          </div>
+                        </div>
+
+                        {/* Title & Description */}
+                        <div>
+                          <h3 className="text-base font-black text-[#1F1612] tracking-tight">
+                            Handmade Bamboo Baskets
+                          </h3>
+                          <p className="text-xs text-[#6D4C41] font-medium mt-0.5">
+                            Round open storage utility crafts with reinforced rims
+                          </p>
+                        </div>
+
+                        {/* 2x2 Information Grid */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {/* Buyer Box */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8D6E63] uppercase tracking-wide">
+                              <Store className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Buyer</span>
+                            </div>
+                            <p className="text-xs font-black text-[#1F1612] mt-1 leading-tight">
+                              Priya's Home Décor
+                            </p>
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-[#2E7D32] mt-1">
+                              <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" />
+                              <span>Verified B2B Buyer</span>
+                            </div>
+                          </div>
+
+                          {/* Quantity Box */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8D6E63] uppercase tracking-wide">
+                              <Package className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Quantity</span>
+                            </div>
+                            <p className="text-sm font-black text-[#1F1612] mt-0.5 leading-tight">
+                              50 pieces
+                            </p>
+                            <p className="text-[10px] font-medium text-[#8D6E63] mt-0.5">
+                              Batch size confirmed
+                            </p>
+                          </div>
+
+                          {/* Delivery Deadline Box */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8D6E63] uppercase tracking-wide">
+                              <Calendar className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Delivery Deadline</span>
+                            </div>
+                            <p className="text-xs font-black text-[#1F1612] mt-1 leading-tight">
+                              September 30
+                            </p>
+                            <p className="text-[10px] font-bold text-[#C53030] mt-0.5">
+                              14 days remaining
+                            </p>
+                          </div>
+
+                          {/* Escrow Secured Box */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-[#8D6E63] uppercase tracking-wide">
+                              <ShieldCheck className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Escrow Secured</span>
+                            </div>
+                            <p className="text-base font-black text-[#8C3A16] mt-0.5 leading-tight">
+                              ₹19,000
+                            </p>
+                            <p className="text-[10px] font-bold text-[#2E7D32] mt-0.5">
+                              100% Locked in Escrow
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Order Requirements Section */}
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <SlidersHorizontal className="w-4 h-4 text-[#8C3A16]" />
+                            <h3 className="text-sm font-black text-[#1F1612]">Order Requirements</h3>
+                          </div>
+                          <span className="text-xs font-medium text-[#8D6E63]">Standard Spec</span>
+                        </div>
+
+                        {/* 2x2 Spec Cards */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          {/* Material */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FAF5F0] border border-[#EADFD6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                              <Sprout className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#8D6E63] uppercase tracking-wide block">
+                                MATERIAL
+                              </span>
+                              <span className="text-xs font-black text-[#1F1612] leading-tight block">
+                                Natural Bamboo
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Color */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FAF5F0] border border-[#EADFD6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                              <Palette className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#8D6E63] uppercase tracking-wide block">
+                                COLOR
+                              </span>
+                              <span className="text-xs font-black text-[#1F1612] leading-tight block">
+                                Natural Finish
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Quantity */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FAF5F0] border border-[#EADFD6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                              <LayoutGrid className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#8D6E63] uppercase tracking-wide block">
+                                QUANTITY
+                              </span>
+                              <span className="text-xs font-black text-[#1F1612] leading-tight block">
+                                50 pieces
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Packaging */}
+                          <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FAF5F0] border border-[#EADFD6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                              <Package className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#8D6E63] uppercase tracking-wide block">
+                                PACKAGING
+                              </span>
+                              <span className="text-xs font-black text-[#1F1612] leading-tight block truncate">
+                                Standard Eco-
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Full-width Dispatch Handover Card */}
+                        <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FAF5F0] border border-[#EADFD6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                              <Truck className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <span className="text-[9px] font-bold text-[#8D6E63] uppercase tracking-wide block">
+                                DISPATCH HANDOVER
+                              </span>
+                              <span className="text-xs font-black text-[#1F1612] leading-tight">
+                                September 30 (Doorstep pickup by Delhivery B2B)
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => showToast('ℹ️ Logistics: Delhivery B2B pickup van scheduled for 30 Sept at your workshop')}
+                            className="text-[#8D6E63] hover:text-[#1F1612] p-1 cursor-pointer shrink-0"
+                          >
+                            <Info className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Production Progress Section */}
+                      <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-3xl p-3.5 space-y-3">
+                        {/* Progress Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Wrench className="w-4 h-4 text-[#8C3A16]" />
+                            <h3 className="text-sm font-black text-[#1F1612]">Production Progress</h3>
+                          </div>
+                          <span className="bg-[#8C3A16] text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-full">
+                            {Math.round((orderHS1048Count / 50) * 100)}% Complete
+                          </span>
+                        </div>
+
+                        {/* Big Stats Row */}
+                        <div className="flex items-baseline justify-between">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-3xl font-black text-[#1F1612]">{orderHS1048Count}</span>
+                            <span className="text-xs font-bold text-[#6D4C41]">/ 50 completed</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs font-bold text-[#8C3A16]">
+                            <span>⏳</span>
+                            <span>{Math.max(0, 50 - orderHS1048Count)} pieces left to craft</span>
+                          </div>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="w-full bg-[#EADFD6] h-2.5 rounded-full overflow-hidden">
+                          <div
+                            className="bg-[#8C3A16] h-full rounded-full transition-all duration-300"
+                            style={{ width: `${Math.min(100, (orderHS1048Count / 50) * 100)}%` }}
+                          />
+                        </div>
+
+                        {/* Quick Count Update Sub-card */}
+                        <div className="bg-white border border-[#EADFD6] rounded-2xl p-3 flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-black text-[#1F1612]">Quick Count Update</p>
+                            <p className="text-[10.5px] text-[#8D6E63]">Tap +/- to adjust pieces finished today</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => {
+                                if (orderHS1048Count > 0) {
+                                  setOrderHS1048Count(orderHS1048Count - 1);
+                                }
+                              }}
+                              className="w-9 h-9 rounded-xl bg-[#FAF5F0] border border-[#E0D7D2] flex items-center justify-center font-bold text-lg text-[#1F1612] hover:bg-[#F3EAE3] active:scale-95 transition-all cursor-pointer"
+                            >
+                              <Minus className="w-4 h-4 text-[#1F1612]" />
+                            </button>
+                            <span className="text-base font-black text-[#1F1612] px-2 min-w-[28px] text-center">
+                              {orderHS1048Count}
+                            </span>
+                            <button
+                              onClick={() => {
+                                if (orderHS1048Count < 50) {
+                                  setOrderHS1048Count(orderHS1048Count + 1);
+                                }
+                              }}
+                              className="w-9 h-9 rounded-xl bg-[#8C3A16] hover:bg-[#772F10] text-white flex items-center justify-center font-bold text-lg shadow-xs active:scale-95 transition-all cursor-pointer"
+                            >
+                              <Plus className="w-4 h-4 text-white" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Need help completing this order? Collaboration Card */}
+                      <div className="bg-[#FFF5EE] border border-[#F3DFD5] rounded-3xl p-4 space-y-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <Users className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-black text-[#1F1612] leading-tight">
+                              Need help completing this order?
+                            </h4>
+                            <p className="text-xs text-[#5D4037] mt-1 leading-relaxed">
+                              Your usual capacity is lower than this order quantity. You can team up with another artisan in your cluster to share workload and profit.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            onClick={() => setShowHS1048HelpModal(true)}
+                            className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-98"
+                          >
+                            <UserPlus className="w-3.5 h-3.5" />
+                            <span>Find an Artisan</span>
+                          </button>
+                          <button
+                            onClick={() => showToast('👍 Continuing alone. Capacity reserved for Ramu Kumar.')}
+                            className="flex-1 py-2.5 bg-white border border-[#D7CCC8] hover:bg-[#FAF5F0] text-[#2D2421] text-xs font-bold rounded-xl transition-all cursor-pointer active:scale-98 text-center"
+                          >
+                            Continue Alone
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Floating Voice Assistant Microphone Button */}
+                    <button
+                      onClick={() => showToast('🎙️ Voice Assistant: Say "Add 5 finished baskets" or "Report raw material delay"')}
+                      className="absolute bottom-24 right-4 z-20 w-12 h-12 rounded-full bg-[#8C3A16] hover:bg-[#772F10] text-white shadow-xl flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
+                      title="Voice Assistant"
+                    >
+                      <Mic className="w-5 h-5 text-white" />
+                    </button>
+
+                    {/* Sticky Bottom Action & Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] px-4 pt-2.5 pb-2 shadow-xs shrink-0">
+                      {/* Big Update Progress CTA */}
+                      <button
+                        onClick={() => {
+                          showToast(`✅ Order #HS1048 progress saved: ${orderHS1048Count}/50 completed (${Math.round((orderHS1048Count / 50) * 100)}%)!`);
+                          setActiveScreenIndex(22);
+                        }}
+                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all cursor-pointer active:scale-98"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-white" />
+                        <span>Update Progress</span>
+                      </button>
+                    </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('orders')}
+
+                    {/* COLLABORATE / FIND ARTISAN MODAL FOR ORDER #HS1048 */}
+                    {showHS1048HelpModal && (
+                      <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[320px] animate-in fade-in zoom-in-95">
+                          <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-base font-black text-[#1F1612]">Cluster Artisans</h3>
+                            <button
+                              onClick={() => setShowHS1048HelpModal(false)}
+                              className="w-7 h-7 rounded-full bg-[#FAF5F0] flex items-center justify-center text-[#7A685F]"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <p className="text-xs text-[#6D4C41] mb-3">
+                            Share remaining <b>{50 - orderHS1048Count} pieces</b> with verified cluster weavers:
+                          </p>
+
+                          <div className="space-y-2 mb-4">
+                            <div className="bg-[#FFFBF8] border border-[#EADFD6] rounded-2xl p-2.5 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs font-black text-[#1F1612]">Suresh Das</p>
+                                <p className="text-[10px] text-[#2E7D32] font-semibold">Available • 20 pcs capacity</p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setShowHS1048HelpModal(false);
+                                  showToast('Invited Suresh Das to split 15 pieces of Order #HS1048!');
+                                }}
+                                className="px-3 py-1 bg-[#8C3A16] text-white text-xs font-bold rounded-lg"
+                              >
+                                Invite
+                              </button>
+                            </div>
+
+                            <div className="bg-[#FFFBF8] border border-[#EADFD6] rounded-2xl p-2.5 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs font-black text-[#1F1612]">Bina Devi</p>
+                                <p className="text-[10px] text-[#2E7D32] font-semibold">Available • 15 pcs capacity</p>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setShowHS1048HelpModal(false);
+                                  showToast('Invited Bina Devi to split 10 pieces of Order #HS1048!');
+                                }}
+                                className="px-3 py-1 bg-[#8C3A16] text-white text-xs font-bold rounded-lg"
+                              >
+                                Invite
+                              </button>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setShowHS1048HelpModal(false)}
+                            className="w-full py-2.5 bg-[#FAF5F0] text-[#6D4C41] rounded-xl text-xs font-bold hover:bg-[#F3EAE3]"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SCREEN 24: ORDER REQUEST & SPECS (100% MATCHING 'o3 - order requset - reject page.png') */}
+                {activeScreenIndex === 24 && (
+                  <div className="flex-1 flex flex-col bg-[#FDFBF9] overflow-hidden relative">
+                    {/* Top App Bar */}
+                    <div className="bg-white border-b border-[#EADFD6] px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs">
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setActiveScreenIndex(22)}
+                          className="w-9 h-9 rounded-full border border-[#EADFD6] bg-white flex items-center justify-center text-[#2D2421] hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <ChevronLeft className="w-5 h-5 text-[#2D2421]" />
+                        </button>
+                        <div>
+                          <span className="font-extrabold text-[#8C3A16] text-base tracking-tight">HunarSangam</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Language Selector Pill */}
+                        <button
+                          onClick={() => {
+                            const nextLang = selectedLanguage === 'हिंदी' ? 'English' : 'हिंदी';
+                            setSelectedLanguage(nextLang);
+                            showToast(`🌐 Language set to ${nextLang}`);
+                          }}
+                          className="px-2.5 py-1 bg-white border border-[#EADFD6] rounded-full flex items-center gap-1 text-xs font-bold text-[#2D2421] hover:bg-[#FAF5F0] cursor-pointer shadow-2xs"
+                        >
+                          <Globe className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <span>{selectedLanguage.split('/')[0].trim()}</span>
+                          <ChevronDown className="w-3 h-3 text-[#6D4C41]" />
+                        </button>
+
+                        {/* Notification Bell with red dot */}
+                        <button
+                          onClick={() => showToast('🔔 1 new order request received from Heritage Handcrafts')}
+                          className="w-9 h-9 rounded-full border border-[#EADFD6] bg-white flex items-center justify-center text-[#2D2421] relative hover:bg-[#FAF5F0] transition-colors cursor-pointer"
+                        >
+                          <Bell className="w-4 h-4 text-[#2D2421]" />
+                          <span className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full bg-[#C53030]" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Order Request Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+                      {/* Section Header: Title & Inbox Icon */}
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h1 className="text-xl font-black text-[#1F1612] tracking-tight">Order Request</h1>
+                          <p className="text-xs text-[#6D4C41] mt-0.5 font-medium">You received a new order request</p>
+                        </div>
+                        <button
+                          onClick={() => showToast('📬 Inbox: 1 new purchase request pending review')}
+                          className="w-10 h-10 rounded-xl bg-[#FFF8F4] border border-[#EADFD6] text-[#8C3A16] flex items-center justify-center cursor-pointer hover:bg-[#FBECE2] transition-colors"
+                        >
+                          <Inbox className="w-5 h-5 text-[#8C3A16]" />
+                        </button>
+                      </div>
+
+                      {/* Audio Guide Banner */}
+                      <div className="bg-[#FFF5EE] border border-[#F3DFD5] rounded-2xl p-3 flex items-center justify-between shadow-2xs">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => {
+                              setIsOrderRequestAudioPlaying(!isOrderRequestAudioPlaying);
+                              showToast(
+                                isOrderRequestAudioPlaying
+                                  ? '⏸ Audio guide paused'
+                                  : '▶ Playing audio summary in your language...'
+                              );
+                            }}
+                            className="w-10 h-10 rounded-xl bg-[#8C3A16] hover:bg-[#772F10] text-white flex items-center justify-center shrink-0 cursor-pointer shadow-xs active:scale-95 transition-all"
+                          >
+                            {isOrderRequestAudioPlaying ? (
+                              <Pause className="w-5 h-5 text-white" />
+                            ) : (
+                              <Volume2 className="w-5 h-5 text-white" />
+                            )}
+                          </button>
+                          <div>
+                            <span className="text-[10px] font-black text-[#8C3A16] tracking-wider uppercase block">
+                              AUDIO GUIDE
+                            </span>
+                            <p className="text-xs font-semibold text-[#3D2C24] leading-snug mt-0.5">
+                              Tap to listen to this order proposal in your language
+                            </p>
+                          </div>
+                        </div>
+                        <span className="bg-[#F0E5DC] text-[#6D4C41] text-[11px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-2">
+                          28s
+                        </span>
+                      </div>
+
+                      {/* Buyer Profile Card: Heritage Handcrafts Pvt. Ltd. */}
+                      <div className="bg-white border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-2.5">
+                        <div className="flex items-center gap-3">
+                          <div className="w-11 h-11 rounded-full bg-[#FCECE3] flex items-center justify-center text-[#8C3A16] font-black text-sm shrink-0 border border-[#F5D8C7]">
+                            HH
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h2 className="text-sm font-black text-[#1F1612] leading-tight truncate">
+                              Heritage Handcrafts Pvt. Ltd.
+                            </h2>
+                            <div className="flex items-center gap-1.5 text-[11px] text-[#6D4C41] mt-0.5">
+                              <Building2 className="w-3 h-3 text-[#6D4C41] shrink-0" />
+                              <span>B2B Buyer</span>
+                              <span>•</span>
+                              <MapPin className="w-3 h-3 text-[#6D4C41] shrink-0" />
+                              <span>New Delhi</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="h-px bg-[#F0E4DC] w-full" />
+
+                        <div className="flex items-center justify-between pt-0.5">
+                          <span className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-[#2E7D32]" />
+                            <span>Verified B2B Buyer</span>
+                          </span>
+                          <div className="flex items-center gap-1 text-[11px] font-semibold text-[#6D4C41]">
+                            <Truck className="w-3.5 h-3.5 text-[#6D4C41]" />
+                            <span>14 Bulk Orders Placed</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Product Image Banner with Badges */}
+                      <div className="relative rounded-2xl overflow-hidden h-48 w-full border border-[#EADFD6] shadow-xs">
+                        <img
+                          src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=800&auto=format&fit=crop&q=80"
+                          alt="Bamboo Handwoven Basket"
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Top Left Floating Pill: Natural Eco Craft */}
+                        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-xs text-white text-[10.5px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm">
+                          <Sprout className="w-3 h-3 text-[#81C784]" />
+                          <span>Natural Eco Craft</span>
+                        </div>
+
+                        {/* Bottom Right Floating Button: Craft Specs */}
+                        <button
+                          onClick={() => setShowHeritageCraftSpecsModal(true)}
+                          className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-xs border border-[#EADFD6] text-[#8C3A16] text-[11.5px] font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 cursor-pointer hover:bg-white transition-all active:scale-95"
+                        >
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <span>Craft Specs</span>
+                        </button>
+                      </div>
+
+                      {/* Product Title & Subtitle */}
+                      <div>
+                        <h2 className="text-[17px] font-black text-[#1F1612] leading-snug">
+                          Bamboo Handwoven Basket
+                        </h2>
+                        <p className="text-xs text-[#6D4C41] font-medium mt-0.5">
+                          Assam Style Fine Split Bamboo Construction
+                        </p>
+                      </div>
+
+                      {/* Pricing & Quantity Grid */}
+                      <div className="space-y-2">
+                        {/* Row 1: Quantity and Unit Price */}
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <div className="bg-white border border-[#EADFD6] rounded-xl p-3 shadow-2xs">
+                            <div className="flex items-center gap-1 text-[10.5px] font-bold text-[#8D6E63]">
+                              <Package className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Quantity</span>
+                            </div>
+                            <span className="text-sm font-black text-[#1F1612] block mt-1">50 pieces</span>
+                          </div>
+                          <div className="bg-white border border-[#EADFD6] rounded-xl p-3 shadow-2xs">
+                            <div className="flex items-center gap-1 text-[10.5px] font-bold text-[#8D6E63]">
+                              <Tag className="w-3 h-3 text-[#8D6E63]" />
+                              <span>Unit Price</span>
+                            </div>
+                            <div className="mt-1">
+                              <span className="text-sm font-black text-[#1F1612]">₹450</span>
+                              <span className="text-xs text-[#8D6E63] font-medium"> / pc</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Row 2: Total Order Value (Peach Banner) */}
+                        <div className="bg-[#FFF0E6] border border-[#F5D8C7] rounded-xl p-3 flex items-center justify-between shadow-2xs">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-[#8C3A16]">
+                            <Receipt className="w-4 h-4 text-[#8C3A16]" />
+                            <span>Total Order Value</span>
+                          </div>
+                          <span className="text-xl font-black text-[#8C3A16]">₹22,500</span>
+                        </div>
+
+                        {/* Row 3: Delivery Deadline */}
+                        <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-xl p-2.5 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-[11.5px] font-bold text-[#8D6E63]">
+                            <Calendar className="w-3.5 h-3.5 text-[#8D6E63]" />
+                            <span>Delivery Deadline</span>
+                          </div>
+                          <span className="text-sm font-black text-[#1F1612]">28 Sept 2026</span>
+                        </div>
+                      </div>
+
+                      {/* "What the buyer needs" - Key Specifications */}
+                      <div className="bg-white border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-sm font-black text-[#1F1612]">What the buyer needs</h3>
+                            <p className="text-[11px] text-[#8D6E63] mt-0.5">Key specifications for batch production</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              showToast('🔊 Playing specifications audio walkthrough...');
+                            }}
+                            className="bg-[#FFF0E6] border border-[#F5D8C7] text-[#8C3A16] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 cursor-pointer hover:bg-[#FCE6D8] transition-colors"
+                          >
+                            <Volume2 className="w-3 h-3 text-[#8C3A16]" />
+                            <span>Listen</span>
+                          </button>
+                        </div>
+
+                        <div className="space-y-2.5 pt-1">
+                          {/* Spec 1 */}
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#E8F5E9] flex items-center justify-center shrink-0">
+                              <Sprout className="w-4 h-4 text-[#2E7D32]" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-[#1F1612]">Natural bamboo finish</h4>
+                              <p className="text-[11px] text-[#6D4C41]">Unbleached, chemical-free treatment</p>
+                            </div>
+                          </div>
+
+                          {/* Spec 2 */}
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FFF3E0] flex items-center justify-center shrink-0">
+                              <Layers className="w-4 h-4 text-[#E65100]" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-[#1F1612]">Traditional handwoven design</h4>
+                              <p className="text-[11px] text-[#6D4C41]">Authentic herringbone weave base</p>
+                            </div>
+                          </div>
+
+                          {/* Spec 3 */}
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#EFEBE9] flex items-center justify-center shrink-0">
+                              <SlidersHorizontal className="w-4 h-4 text-[#5D4037]" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-[#1F1612]">Medium size</h4>
+                              <p className="text-[11px] text-[#6D4C41]">12" diameter × 8" height with handles</p>
+                            </div>
+                          </div>
+
+                          {/* Spec 4 */}
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#FBE9E7] flex items-center justify-center shrink-0">
+                              <Package className="w-4 h-4 text-[#D84315]" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-[#1F1612]">50 pieces required</h4>
+                              <p className="text-[11px] text-[#6D4C41]">Complete single batch delivery</p>
+                            </div>
+                          </div>
+
+                          {/* Spec 5 */}
+                          <div className="flex items-start gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#E8F8F5] flex items-center justify-center shrink-0">
+                              <Truck className="w-4 h-4 text-[#1ABC9C]" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-bold text-[#1F1612]">Packed safely for delivery</h4>
+                              <p className="text-[11px] text-[#6D4C41]">Corrugated cartons with moisture barrier paper</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* "Can you complete this order?" Capacity Card */}
+                      <div className="bg-[#FFFBF8] border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-3">
+                        <div className="flex items-center gap-1.5">
+                          <HelpCircle className="w-4 h-4 text-[#8C3A16]" />
+                          <h3 className="text-sm font-black text-[#1F1612]">Can you complete this order?</h3>
+                        </div>
+
+                        {/* Breakdown Box */}
+                        <div className="bg-white border border-[#EADFD6] rounded-xl p-3 space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-semibold text-[#6D4C41]">
+                              ● Your Available Capacity: <strong className="text-[#8C3A16] font-black">30 pcs</strong>
+                            </span>
+                            <span className="font-semibold text-[#6D4C41]">
+                              Required: <strong className="text-[#1F1612] font-black">50 pcs</strong>
+                            </span>
+                          </div>
+
+                          {/* Split Progress Bar (60% workshop / 40% gap) */}
+                          <div className="w-full h-2.5 rounded-full overflow-hidden flex bg-[#E8DDD5]">
+                            <div className="h-full bg-[#8C3A16]" style={{ width: '60%' }} />
+                            <div className="h-full bg-[#D7CCC8]" style={{ width: '40%' }} />
+                          </div>
+
+                          <div className="flex items-center justify-between text-[10px] font-bold text-[#6D4C41]">
+                            <span>Your workshop (60%)</span>
+                            <span>Gap: 20 pieces</span>
+                          </div>
+                        </div>
+
+                        {/* Cluster Callout Note */}
+                        <div className="flex items-start gap-2 text-[11.5px] text-[#5D4037] leading-relaxed">
+                          <Users className="w-4 h-4 text-[#8C3A16] shrink-0 mt-0.5" />
+                          <p>
+                            Need extra hands? You can accept this entire order and invite a fellow weaver from your cluster to fulfill the remaining 20 pieces together.
+                          </p>
+                        </div>
+
+                        {/* Find Artisan Button */}
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(25);
+                            showToast('Opening Form Artisan Collective (Screen 25)');
+                          }}
+                          className="w-full py-2.5 bg-[#FAF0E8] hover:bg-[#F3E2D5] border border-[#E8DDD5] text-[#8C3A16] font-bold text-xs rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-2xs transition-all active:scale-98"
+                        >
+                          <Users className="w-4 h-4 text-[#8C3A16]" />
+                          <span>Find Artisan to Collaborate</span>
+                        </button>
+                      </div>
+
+                      {/* "Your Expected Earnings" Card */}
+                      <div className="bg-white border border-[#EADFD6] rounded-2xl p-3.5 shadow-xs space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10.5px] text-[#8D6E63] font-bold block">Your Expected Earnings</span>
+                            <span className="text-2xl font-black text-[#8C3A16] tracking-tight">₹22,500</span>
+                          </div>
+                          <div className="w-11 h-11 rounded-xl bg-[#E8F8F0] flex items-center justify-center text-[#2E7D32]">
+                            <Lock className="w-5 h-5 text-[#2E7D32]" />
+                          </div>
+                        </div>
+
+                        <div className="h-px bg-[#F0E4DC] w-full" />
+
+                        <div className="flex items-start gap-2 text-[11px] text-[#4E342E] leading-relaxed">
+                          <ShieldCheck className="w-4 h-4 text-[#2E7D32] shrink-0 mt-0.5" />
+                          <p>
+                            100% Escrow protected. Advance payment guaranteed by HunarSangam Trust Protocol upon order confirmation.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Primary Actions: Decline & Accept */}
+                      <div className="grid grid-cols-2 gap-3 pt-1">
+                        <button
+                          onClick={() => setShowDeclineConfirmModal(true)}
+                          className="py-3 border border-[#D7CCC8] bg-[#FAF5F0] hover:bg-[#F3EAE3] text-[#2D2421] text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all active:scale-98"
+                        >
+                          <X className="w-4 h-4 text-[#2D2421]" />
+                          <span>Decline</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOrderRequestAccepted(true);
+                            showToast('✅ Order #REQ-HH-1048 Accepted! ₹22,500 secured in Escrow.');
+                            setTimeout(() => {
+                              setActiveScreenIndex(23); // Optionally open Order Updation Screen
+                            }, 1200);
+                          }}
+                          className={`py-3 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 cursor-pointer shadow-xs transition-all active:scale-98 ${
+                            orderRequestAccepted
+                              ? 'bg-[#2E7D32]'
+                              : 'bg-[#8C3A16] hover:bg-[#772F10]'
+                          }`}
+                        >
+                          <Check className="w-4 h-4 text-white stroke-[2.5]" />
+                          <span>{orderRequestAccepted ? 'Accepted ✓' : 'Accept & Confirm Order'}</span>
+                        </button>
+                      </div>
+
+                      <div className="h-4" />
+                    </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('orders')}
+
+                    {/* MODAL 1: DECLINE CONFIRMATION MODAL */}
+                    {showDeclineConfirmModal && (
+                      <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[320px] animate-in fade-in zoom-in-95">
+                          <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                          <h3 className="text-base font-extrabold text-[#1F1612]">Decline Order Request?</h3>
+                          <p className="text-xs text-[#6D4C41] mt-0.5 mb-4">
+                            Please select a reason so the buyer can adjust their batch request:
+                          </p>
+
+                          <div className="space-y-2 mb-4">
+                            {[
+                              'Workshop capacity currently full',
+                              'Delivery deadline too tight (28 Sept)',
+                              'Specifications not aligned with craft tools',
+                            ].map((reason, rIdx) => (
+                              <button
+                                key={rIdx}
+                                onClick={() => {
+                                  setShowDeclineConfirmModal(false);
+                                  showToast(`Declined: ${reason}`);
+                                  setActiveScreenIndex(22);
+                                }}
+                                className="w-full p-2.5 text-left rounded-xl border border-[#EADFD6] hover:border-[#8C3A16] hover:bg-[#FFF8F4] text-xs font-semibold text-[#2D2421] transition-all cursor-pointer flex items-center justify-between"
+                              >
+                                <span>{reason}</span>
+                                <ChevronRight className="w-3.5 h-3.5 text-[#8C3A16]" />
+                              </button>
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={() => setShowDeclineConfirmModal(false)}
+                            className="w-full py-2.5 bg-[#FAF5F0] text-[#6D4C41] rounded-xl text-xs font-bold hover:bg-[#F3EAE3] cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MODAL 2: CRAFT SPECS DETAILS */}
+                    {showHeritageCraftSpecsModal && (
+                      <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[320px] animate-in fade-in zoom-in-95">
+                          <div className="flex items-center justify-between pb-3 border-b border-[#F0E4DC]">
+                            <div className="flex items-center gap-2">
+                              <SlidersHorizontal className="w-4 h-4 text-[#8C3A16]" />
+                              <h3 className="text-sm font-extrabold text-[#1F1612]">Craft &amp; Technical Specs</h3>
+                            </div>
+                            <button
+                              onClick={() => setShowHeritageCraftSpecsModal(false)}
+                              className="p-1 text-[#6D4C41] hover:bg-[#FAF5F0] rounded-full"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <div className="py-3 space-y-2.5 text-xs text-[#4E342E]">
+                            <div className="bg-[#FFF8F4] p-2.5 rounded-xl border border-[#F3E5DC]">
+                              <span className="font-bold text-[#8C3A16] block mb-1">Dimensions:</span>
+                              <p className="text-[11px] text-[#6D4C41]">
+                                Top Diameter: 12 inches (30.5 cm)<br />
+                                Base Diameter: 8.5 inches (21.5 cm)<br />
+                                Height: 8 inches (20 cm) + 4 inch handle arch
+                              </p>
+                            </div>
+                            <div className="bg-[#FFF8F4] p-2.5 rounded-xl border border-[#F3E5DC]">
+                              <span className="font-bold text-[#8C3A16] block mb-1">Raw Material:</span>
+                              <p className="text-[11px] text-[#6D4C41]">
+                                Assam Mature Split Bamboo (Bambusa tulda)<br />
+                                Seasoned &amp; moisture content below 12%
+                              </p>
+                            </div>
+                            <div className="bg-[#FFF8F4] p-2.5 rounded-xl border border-[#F3E5DC]">
+                              <span className="font-bold text-[#8C3A16] block mb-1">Weaving Pattern:</span>
+                              <p className="text-[11px] text-[#6D4C41]">
+                                2×2 Twill base with reinforced coiled rim
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setShowHeritageCraftSpecsModal(false)}
+                            className="w-full py-2.5 bg-[#8C3A16] text-white rounded-xl text-xs font-bold hover:bg-[#772F10] cursor-pointer"
+                          >
+                            Done
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* MODAL 3: CLUSTER COLLABORATION FIND ARTISAN */}
+                    {showHeritageCollaborateModal && (
+                      <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[320px] animate-in fade-in zoom-in-95">
+                          <div className="flex items-center justify-between pb-3 border-b border-[#F0E4DC]">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-[#8C3A16]" />
+                              <h3 className="text-sm font-extrabold text-[#1F1612]">Collaborate for 20 pcs Gap</h3>
+                            </div>
+                            <button
+                              onClick={() => setShowHeritageCollaborateModal(false)}
+                              className="p-1 text-[#6D4C41] hover:bg-[#FAF5F0] rounded-full"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+
+                          <p className="text-xs text-[#6D4C41] my-3">
+                            Invite verified weavers in your cluster to fulfill the remaining 20 units:
+                          </p>
+
+                          <div className="space-y-2 mb-4">
+                            <div className="p-3 bg-[#FFF8F4] border border-[#F3E5DC] rounded-xl flex items-center justify-between">
+                              <div>
+                                <h4 className="text-xs font-black text-[#1F1612]">Suresh Das</h4>
+                                <span className="text-[10px] font-semibold text-[#2E7D32]">
+                                  Available • 20 pcs capacity
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setShowHeritageCollaborateModal(false);
+                                  showToast('🤝 Invited Suresh Das! Split 20 pcs for ₹9,000.');
+                                }}
+                                className="px-3 py-1.5 bg-[#8C3A16] text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-[#772F10]"
+                              >
+                                Invite
+                              </button>
+                            </div>
+
+                            <div className="p-3 bg-[#FFF8F4] border border-[#F3E5DC] rounded-xl flex items-center justify-between">
+                              <div>
+                                <h4 className="text-xs font-black text-[#1F1612]">Bina Devi</h4>
+                                <span className="text-[10px] font-semibold text-[#2E7D32]">
+                                  Available • 15 pcs capacity
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setShowHeritageCollaborateModal(false);
+                                  showToast('🤝 Invited Bina Devi! Split 15 pcs for ₹6,750.');
+                                }}
+                                className="px-3 py-1.5 bg-[#8C3A16] text-white text-xs font-bold rounded-lg cursor-pointer hover:bg-[#772F10]"
+                              >
+                                Invite
+                              </button>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => setShowHeritageCollaborateModal(false)}
+                            className="w-full py-2.5 bg-[#FAF5F0] text-[#6D4C41] rounded-xl text-xs font-bold hover:bg-[#F3EAE3] cursor-pointer"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* SCREEN 25: FORM ARTISAN COLLECTIVE (matching 'o4- collaboration from oreder page with other artisan.png') */}
+                {activeScreenIndex === 25 && (
+                  <div className="flex-1 flex flex-col h-full bg-[#FAF7F4] overflow-hidden relative text-[#1F1612]">
+                    {/* Top App Bar */}
+                    <div className="bg-white border-b border-[#EADFD6] px-3.5 py-2.5 flex items-center justify-between z-10 shrink-0 shadow-2xs">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => setActiveScreenIndex(24)}
+                          className="w-8 h-8 rounded-full border border-[#EADFD6] flex items-center justify-center text-[#2D2421] hover:bg-[#F8EFE9] transition-all cursor-pointer"
+                        >
+                          <ChevronLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                          <h1 className="text-sm font-black text-[#1F1612] leading-tight">
+                            Form Artisan Collective
+                          </h1>
+                          <p className="text-[10.5px] font-bold text-[#8C3A16]">
+                            FabIndia PO #PO-FAB-9102 (400 pcs)
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Listen audio pill */}
+                      <button
+                        onClick={() => {
+                          setIsCollectiveAudioPlaying(!isCollectiveAudioPlaying);
+                          showToast(
+                            isCollectiveAudioPlaying
+                              ? '⏸ Collective audio guide paused'
+                              : '▶ Playing audio guide: FabIndia 400 pcs collective allocation'
+                          );
+                        }}
+                        className="bg-[#FCECE3] border border-[#F5D8C7] text-[#8C3A16] px-2.5 py-1 rounded-full flex items-center gap-1.5 cursor-pointer shadow-2xs hover:bg-[#F9DFD1] transition-all active:scale-95"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                        <span className="text-[10px] font-black tracking-widest">|||/</span>
+                        <span className="text-[10.5px] font-extrabold">Listen</span>
+                      </button>
+                    </div>
+
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3 pb-4">
+                      {/* CARD 1: TARGET CAPACITY */}
+                      {(() => {
+                        const ramuPcs = 150;
+                        const sunitaPcs = sunitaAllocated ? (voiceRebalanceTriggered ? 120 : 150) : 0;
+                        const birenPcs = birenAllocated ? (voiceRebalanceTriggered ? 130 : 100) : 0;
+                        const totalAllocated = ramuPcs + sunitaPcs + birenPcs;
+                        const isFull = totalAllocated >= 400;
+
+                        return (
+                          <div className="bg-white rounded-2xl border border-[#EADFD6] p-3.5 shadow-2xs space-y-3">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-9 h-9 rounded-xl bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32]">
+                                  <Users className="w-5 h-5 text-[#2E7D32]" />
+                                </div>
+                                <div>
+                                  <span className="text-[9.5px] font-extrabold text-[#7A685F] tracking-wider uppercase block">
+                                    TARGET CAPACITY
+                                  </span>
+                                  <span className="text-xl font-black text-[#1F1612] tracking-tight">
+                                    400 pcs
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <span
+                                  className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full text-white shadow-2xs ${
+                                    isFull ? 'bg-[#2E7D32]' : 'bg-[#B86B14]'
+                                  }`}
+                                >
+                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  {isFull ? '100% Filled' : `${Math.round((totalAllocated / 400) * 100)}% Filled`}
+                                </span>
+                                <span className="block text-[10px] font-extrabold text-[#2E7D32] mt-0.5">
+                                  {isFull ? 'Team Complete' : `Need ${400 - totalAllocated} pcs`}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Split Segmented Progress Bar */}
+                            <div className="w-full h-2.5 rounded-full overflow-hidden flex bg-[#E8DDD5]">
+                              {/* Ramu 150 pcs (37.5%) */}
+                              <div
+                                className="h-full bg-[#8C3A16] transition-all duration-300"
+                                style={{ width: `${(ramuPcs / 400) * 100}%` }}
+                              />
+                              {/* Sunita (150 or 120 pcs) */}
+                              {sunitaPcs > 0 && (
+                                <div
+                                  className="h-full bg-[#B86B14] transition-all duration-300 border-l border-white/40"
+                                  style={{ width: `${(sunitaPcs / 400) * 100}%` }}
+                                />
+                              )}
+                              {/* Biren (100 or 130 pcs) */}
+                              {birenPcs > 0 && (
+                                <div
+                                  className="h-full bg-[#2E5A36] transition-all duration-300 border-l border-white/40"
+                                  style={{ width: `${(birenPcs / 400) * 100}%` }}
+                                />
+                              )}
+                            </div>
+
+                            {/* Legend */}
+                            <div className="flex items-center justify-between text-[10.5px] text-[#6D4C41] font-semibold pt-0.5">
+                              <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#8C3A16]" />
+                                <span>Ramu ({ramuPcs})</span>
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#B86B14]" />
+                                <span>Sunita ({sunitaPcs})</span>
+                              </span>
+                              <span className="flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-[#2E5A36]" />
+                                <span>Biren ({birenPcs})</span>
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* CARD 2: LEAD ARTISAN (Ramu Kumar - You) */}
+                      <div className="bg-white rounded-2xl border border-[#F5D8C7] p-3.5 shadow-2xs space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <img
+                              src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=200&auto=format&fit=crop&q=80"
+                              alt="Ramu Kumar"
+                              className="w-11 h-11 rounded-xl object-cover border border-[#EADFD6]"
+                            />
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="text-sm font-black text-[#1F1612]">Ramu Kumar</h3>
+                                <span className="bg-[#FCECE3] text-[#8C3A16] text-[9.5px] font-black px-1.5 py-0.5 rounded-md">
+                                  You
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] font-medium text-[#7A685F]">
+                                Master Craftsman • Lead Coordinator
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] px-2 py-1 rounded-xl flex items-center gap-1 text-[10px] font-extrabold shadow-2xs">
+                            <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
+                            <span>Lead &amp; QC</span>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2.5">
+                          <div className="bg-[#FBF7F4] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <span className="text-[10px] font-semibold text-[#7A685F] block">
+                              Committed Quota
+                            </span>
+                            <span className="text-sm font-black text-[#1F1612] block">
+                              150 pcs
+                            </span>
+                            <span className="text-[10px] font-bold text-[#2E7D32] block">
+                              37.5% share
+                            </span>
+                          </div>
+                          <div className="bg-[#FBF7F4] border border-[#F0E4DA] rounded-xl p-2.5">
+                            <span className="text-[10px] font-semibold text-[#7A685F] block">
+                              Estimated Payout
+                            </span>
+                            <span className="text-sm font-black text-[#8C3A16] block">
+                              ₹47,600
+                            </span>
+                            <span className="text-[9.5px] font-medium text-[#7A685F] block">
+                              ₹42k craft + ₹5.6k QC fee
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SECTION: CLUSTER MATCH SUGGESTIONS */}
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-[#8C3A16]" />
+                          <h3 className="text-xs font-black text-[#1F1612]">
+                            Cluster Match Suggestions
+                          </h3>
+                        </div>
+                        <span className="text-[10.5px] font-semibold text-[#7A685F]">
+                          Assam &amp; Barabanki Guild
+                        </span>
+                      </div>
+
+                      {/* ARTISAN CARD 1: SUNITA DEVI */}
+                      <div
+                        className={`bg-white rounded-2xl border p-3.5 shadow-2xs space-y-2.5 transition-all ${
+                          sunitaAllocated ? 'border-[#8C3A16]/50 ring-1 ring-[#8C3A16]/10' : 'border-[#EADFD6]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <img
+                              src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80"
+                              alt="Sunita Devi"
+                              className="w-11 h-11 rounded-xl object-cover border border-[#EADFD6]"
+                            />
+                            <div>
+                              <h4 className="text-xs font-black text-[#1F1612]">Sunita Devi</h4>
+                              <p className="text-[10.5px] text-[#7A685F] flex items-center gap-1 font-medium">
+                                <MapPin className="w-3 h-3 text-[#8C3A16]" />
+                                <span>Barabanki Cluster (1.2 km away)</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Checkbox */}
+                          <button
+                            onClick={() => {
+                              setSunitaAllocated(!sunitaAllocated);
+                              showToast(
+                                !sunitaAllocated
+                                  ? 'Sunita Devi allocated to collective'
+                                  : 'Sunita Devi unallocated'
+                              );
+                            }}
+                            className={`w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                              sunitaAllocated
+                                ? 'bg-[#2E7D32] text-white'
+                                : 'border-2 border-[#D7CCC8] hover:border-[#8C3A16]'
+                            }`}
+                          >
+                            {sunitaAllocated && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </button>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex items-center gap-2">
+                          <span className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[9.5px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Check className="w-3 h-3 stroke-[2.5]" />
+                            GI Certified #431
+                          </span>
+                          <span className="bg-[#FFF3E0] border border-[#FFE0B2] text-[#E65100] text-[9.5px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-[#E65100] text-[#E65100]" />
+                            4.9 (18 Batches)
+                          </span>
+                        </div>
+
+                        {/* Available pill */}
+                        <div>
+                          <span className="bg-[#FCECE3] text-[#8C3A16] text-[10px] font-bold px-2 py-0.5 rounded-md inline-block">
+                            150 pcs available
+                          </span>
+                        </div>
+
+                        {/* Audio intro bar */}
+                        <button
+                          onClick={() => {
+                            setIsSunitaAudioPlaying(!isSunitaAudioPlaying);
+                            showToast(
+                              isSunitaAudioPlaying
+                                ? '⏸ Paused Sunita Devi intro'
+                                : "▶ Playing Sunita's Craft Intro (0:22)"
+                            );
+                          }}
+                          className="w-full bg-[#FAF2EC] hover:bg-[#F3E5DC] border border-[#EEDDD2] rounded-xl px-2.5 py-1.5 flex items-center justify-between cursor-pointer transition-all active:scale-98"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shadow-2xs">
+                              {isSunitaAudioPlaying ? (
+                                <span className="text-[10px] font-black">||</span>
+                              ) : (
+                                <Play className="w-3 h-3 fill-white translate-x-0.5" />
+                              )}
+                            </div>
+                            <span className="text-[11px] font-bold text-[#1F1612]">
+                              Sunita's Craft Intro
+                            </span>
+                          </div>
+                          <span className="text-[10.5px] font-semibold text-[#7A685F] font-mono">
+                            0 : 22
+                          </span>
+                        </button>
+
+                        <div className="h-px bg-[#F0E4DC] w-full" />
+
+                        {/* Bottom Row */}
+                        <div className="flex items-center justify-between text-xs pt-0.5">
+                          <span className="font-semibold text-[#1F1612]">
+                            Allocated: {sunitaAllocated ? (voiceRebalanceTriggered ? 120 : 150) : 0} pcs
+                          </span>
+                          <span className="font-black text-[#2E7D32]">
+                            {sunitaAllocated
+                              ? voiceRebalanceTriggered
+                                ? '₹33,600 direct escrow'
+                                : '₹42,000 direct escrow'
+                              : '₹0 (Paused)'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* ARTISAN CARD 2: BIREN KALITA */}
+                      <div
+                        className={`bg-white rounded-2xl border p-3.5 shadow-2xs space-y-2.5 transition-all ${
+                          birenAllocated ? 'border-[#8C3A16]/50 ring-1 ring-[#8C3A16]/10' : 'border-[#EADFD6]'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <img
+                              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80"
+                              alt="Biren Kalita"
+                              className="w-11 h-11 rounded-xl object-cover border border-[#EADFD6]"
+                            />
+                            <div>
+                              <h4 className="text-xs font-black text-[#1F1612]">Biren Kalita</h4>
+                              <p className="text-[10.5px] text-[#7A685F] flex items-center gap-1 font-medium">
+                                <MapPin className="w-3 h-3 text-[#8C3A16]" />
+                                <span>Kamrup Weavers Guild (3.5 km away)</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Checkbox */}
+                          <button
+                            onClick={() => {
+                              setBirenAllocated(!birenAllocated);
+                              showToast(
+                                !birenAllocated
+                                  ? 'Biren Kalita allocated to collective'
+                                  : 'Biren Kalita unallocated'
+                              );
+                            }}
+                            className={`w-5 h-5 rounded-md flex items-center justify-center cursor-pointer transition-all ${
+                              birenAllocated
+                                ? 'bg-[#2E7D32] text-white'
+                                : 'border-2 border-[#D7CCC8] hover:border-[#8C3A16]'
+                            }`}
+                          >
+                            {birenAllocated && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+                          </button>
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex items-center gap-2">
+                          <span className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[9.5px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Check className="w-3 h-3 stroke-[2.5]" />
+                            GI Certified #431
+                          </span>
+                          <span className="bg-[#FFF3E0] border border-[#FFE0B2] text-[#E65100] text-[9.5px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-[#E65100] text-[#E65100]" />
+                            4.8 (12 Batches)
+                          </span>
+                        </div>
+
+                        {/* Available pill */}
+                        <div>
+                          <span className="bg-[#FCECE3] text-[#8C3A16] text-[10px] font-bold px-2 py-0.5 rounded-md inline-block">
+                            150 pcs available
+                          </span>
+                        </div>
+
+                        <div className="h-px bg-[#F0E4DC] w-full" />
+
+                        {/* Bottom Row */}
+                        <div className="flex items-center justify-between text-xs pt-0.5">
+                          <span className="font-semibold text-[#1F1612]">
+                            Allocated: {birenAllocated ? (voiceRebalanceTriggered ? 130 : 100) : 0} pcs
+                          </span>
+                          <span className="font-black text-[#2E7D32]">
+                            {birenAllocated
+                              ? voiceRebalanceTriggered
+                                ? '₹36,400 direct escrow'
+                                : '₹28,000 direct escrow'
+                              : '₹0 (Paused)'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* VOICE COMMAND REBALANCE CARD */}
+                      <button
+                        onClick={() => {
+                          setVoiceRebalanceTriggered(!voiceRebalanceTriggered);
+                          showToast(
+                            !voiceRebalanceTriggered
+                              ? '🎙️ Voice Recognized: "Give Sunita 120 pieces and Biren 130 pieces"'
+                              : '🔄 Quotas reset to default 150 / 100 allocation'
+                          );
+                        }}
+                        className="w-full text-left bg-[#FFF5F0] hover:bg-[#FEEAE0] border border-[#F5D8C7] rounded-2xl p-3 flex items-center gap-3 cursor-pointer shadow-2xs transition-all active:scale-98"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs">
+                          <Mic className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-extrabold text-[#8C3A16] tracking-wider uppercase block">
+                            VOICE COMMAND REBALANCE
+                          </span>
+                          <span className="text-xs font-semibold text-[#1F1612] italic block">
+                            "Give Sunita 120 pieces and Biren 130 pieces"
+                          </span>
+                        </div>
+                      </button>
+
+                      <div className="h-2" />
+                    </div>
+
+                    {/* Fixed Bottom CTA Area */}
+                    <div className="bg-white border-t border-[#EADFD6] px-4 pt-2.5 pb-2 space-y-1.5 shrink-0">
+                      <button
+                        onClick={() => {
+                          setCollectiveLocked(true);
+                          showToast(
+                            '🎉 Collective Locked! Invites dispatched via WhatsApp & Voice calls to Sunita Devi & Biren Kalita.'
+                          );
+                        }}
+                        className={`w-full py-3 rounded-xl text-white text-xs font-black flex items-center justify-center gap-2 shadow-xs cursor-pointer transition-all active:scale-98 ${
+                          collectiveLocked
+                            ? 'bg-[#2E7D32]'
+                            : 'bg-[#8C3A16] hover:bg-[#772F10]'
+                        }`}
+                      >
+                        <span>{collectiveLocked ? 'Team Collective Locked ✓' : 'Send Team Invites & Lock Order'}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+
+                      <div className="flex items-center justify-center gap-1.5 text-[10px] text-[#6D4C41] font-semibold text-center">
+                        <MessageSquare className="w-3.5 h-3.5 text-[#2E7D32]" />
+                        <span>Artisans receive WhatsApp &amp; Voice call invites with audio confirmation</span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Navigation Bar (Unified with Home page) */}
+                    {renderUnifiedBottomNav('collaborate')}
+                  </div>
+                )}
+                {showOrderProgressModal && (
+                  <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[320px] animate-in fade-in zoom-in-95">
+                      <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                      <h3 className="text-base font-extrabold text-[#1F1612]">Update Craft Progress</h3>
+                      <p className="text-xs text-[#6D4C41] mt-0.5 mb-4">
+                        #PO-FAB-8821 • 120 × Woven Bamboo Fruit Basket
+                      </p>
+
+                      <div className="bg-[#FFF8F4] border border-[#F3E5DC] rounded-2xl p-3 mb-4 space-y-2">
+                        <div className="flex justify-between items-baseline">
+                          <span className="text-xs font-bold text-[#4E342E]">Units Completed:</span>
+                          <span className="text-sm font-black text-[#8C3A16]">
+                            {fabIndiaProgress} / 120 pcs ({Math.round((fabIndiaProgress / 120) * 100)}%)
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="120"
+                          value={fabIndiaProgress}
+                          onChange={(e) => setFabIndiaProgress(Number(e.target.value))}
+                          className="w-full accent-[#8C3A16] cursor-pointer"
+                        />
+                        <div className="flex justify-between text-[10px] text-[#8D6E63] font-medium">
+                          <span>0 pcs (Started)</span>
+                          <span>60 pcs (Midway)</span>
+                          <span>120 pcs (Ready)</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowOrderProgressModal(false)}
+                          className="flex-1 py-2.5 bg-[#FAF5F0] border border-[#EADFD6] rounded-xl text-xs font-bold text-[#6D4C41] hover:bg-[#F3EAE3] cursor-pointer"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowOrderProgressModal(false);
+                            showToast(`✅ Production progress updated to ${fabIndiaProgress} / 120 pcs!`);
+                          }}
+                          className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                        >
+                          Save Progress
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODAL 2: DISPATCH DELIVERY LOGISTICS */}
+                {showDispatchModal && (
+                  <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[330px] animate-in fade-in zoom-in-95">
+                      <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                      <div className="flex items-center gap-2 mb-1">
+                        <Truck className="w-4 h-4 text-[#8C3A16]" />
+                        <h3 className="text-base font-extrabold text-[#1F1612]">Schedule Dispatch</h3>
+                      </div>
+                      <p className="text-xs text-[#6D4C41] mb-3">
+                        Choose verified B2B pickup partner for FabIndia Retail PO #8821:
+                      </p>
+
+                      <div className="space-y-2 mb-4">
+                        {[
+                          { id: 'delhivery', title: 'Delhivery Surface B2B', estimate: '₹550 • 2 Days Delivery', tag: 'Fastest' },
+                          { id: 'indiapost', title: 'India Post (Speed Parcel)', estimate: '₹420 • 3-4 Days Delivery', tag: 'Economical' },
+                          { id: 'ondc', title: 'ONDC Logistics Open Network', estimate: '₹380 • 2-3 Days Delivery', tag: 'Govt. Subsidized' },
+                        ].map((opt) => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setSelectedLogistics(opt.id as any)}
+                            className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${
+                              selectedLogistics === opt.id
+                                ? 'bg-[#FFF8F4] border-[#8C3A16] ring-1 ring-[#8C3A16]'
+                                : 'bg-white border-[#EADFD6] hover:bg-[#FAF5F0]'
+                            }`}
+                          >
+                            <div>
+                              <p className="text-xs font-bold text-[#1F1612]">{opt.title}</p>
+                              <p className="text-[10px] text-[#6D4C41]">{opt.estimate}</p>
+                            </div>
+                            <span className="text-[9.5px] font-bold text-[#8C3A16] bg-[#FDECE8] px-2 py-0.5 rounded-md">
+                              {opt.tag}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowDispatchModal(false)}
+                          className="flex-1 py-2.5 bg-[#FAF5F0] border border-[#EADFD6] rounded-xl text-xs font-bold text-[#6D4C41] hover:bg-[#F3EAE3] cursor-pointer"
+                        >
+                          Close
+                        </button>
+                        <button
+                          onClick={() => {
+                            setShowDispatchModal(false);
+                            showToast('🚚 Pickup scheduled! Dispatch slip & barcode generated.');
+                          }}
+                          className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                        >
+                          Confirm Pickup
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODAL 3: PURCHASE ORDER SPECS */}
+                {showPoSpecsModal && (
+                  <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[330px] animate-in fade-in zoom-in-95 max-h-[85%] overflow-y-auto">
+                      <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                      <div className="flex items-center gap-2 mb-1">
+                        <FileText className="w-4 h-4 text-[#8C3A16]" />
+                        <h3 className="text-base font-extrabold text-[#1F1612]">Purchase Order Specs</h3>
+                      </div>
+                      <p className="text-[11px] text-[#8D6E63] font-mono">PO: #PO-TBS-4419</p>
+
+                      <div className="bg-[#FFFBF8] border border-[#F0E4DA] rounded-2xl p-3 my-3 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Buyer:</span>
+                          <span className="font-bold text-[#1F1612]">The Bombay Store, Mumbai</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Product:</span>
+                          <span className="font-bold text-[#1F1612]">50 × Golden Cane Planter Basket</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Material:</span>
+                          <span className="font-bold text-[#1F1612]">Grade-A Natural Assam Woven Cane</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Finish:</span>
+                          <span className="font-bold text-[#1F1612]">Clear Non-Toxic Water Repellent</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Escrow Status:</span>
+                          <span className="font-bold text-[#2E7D32]">100% Locked in Hunar Escrow</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-[#6D4C41]">Advance Term:</span>
+                          <span className="font-bold text-[#8C3A16]">40% on Acceptance (₹8,400)</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setShowPoSpecsModal(false)}
+                          className="flex-1 py-2.5 bg-[#FAF5F0] border border-[#EADFD6] rounded-xl text-xs font-bold text-[#6D4C41] hover:bg-[#F3EAE3] cursor-pointer"
+                        >
+                          Close
+                        </button>
+                        <button
+                          onClick={() => {
+                            setIsBombayStoreAccepted(true);
+                            setShowPoSpecsModal(false);
+                            showToast('✅ Accepted PO #PO-TBS-4419! 40% advance released.');
+                          }}
+                          className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                        >
+                          Accept Order
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* MODAL 4: CLUSTER CAPACITY COLLABORATION (FABINDIA 400 PCS) */}
+                {showCollaborateModal && (
+                  <div className="absolute inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-5 border border-[#E8DDD5] shadow-2xl w-full max-w-[330px] animate-in fade-in zoom-in-95">
+                      <div className="w-10 h-1 bg-[#EADFD6] rounded-full mx-auto mb-3" />
+                      <div className="flex items-center gap-2 mb-1">
+                        <Users className="w-4 h-4 text-[#8C3A16]" />
+                        <h3 className="text-base font-extrabold text-[#1F1612]">Cluster Guild Capacity</h3>
+                      </div>
+                      <p className="text-xs text-[#6D4C41] mb-3">
+                        FabIndia 400 pcs order pooled with verified cluster members:
+                      </p>
+
+                      <div className="space-y-2 mb-4">
+                        <div className="p-2.5 bg-[#FAF5F0] rounded-xl border border-[#EADFD6] flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-7 h-7 rounded-full bg-[#8C3A16] text-white flex items-center justify-center text-[10px] font-bold">
+                              RK
+                            </span>
+                            <div>
+                              <p className="text-xs font-bold text-[#1F1612]">Ramu Kumar (You)</p>
+                              <p className="text-[10px] text-[#6D4C41]">Capacity: 200 pcs (Lead)</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#2E7D32]">Confirmed</span>
+                        </div>
+
+                        <div className="p-2.5 bg-[#FAF5F0] rounded-xl border border-[#EADFD6] flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-7 h-7 rounded-full bg-[#5D4037] text-white flex items-center justify-center text-[10px] font-bold">
+                              SD
+                            </span>
+                            <div>
+                              <p className="text-xs font-bold text-[#1F1612]">Suresh Das</p>
+                              <p className="text-[10px] text-[#6D4C41]">Capacity: 120 pcs</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#2E7D32]">Available</span>
+                        </div>
+
+                        <div className="p-2.5 bg-[#FAF5F0] rounded-xl border border-[#EADFD6] flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-7 h-7 rounded-full bg-[#8D6E63] text-white flex items-center justify-center text-[10px] font-bold">
+                              BD
+                            </span>
+                            <div>
+                              <p className="text-xs font-bold text-[#1F1612]">Bina Devi</p>
+                              <p className="text-[10px] text-[#6D4C41]">Capacity: 80 pcs</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#2E7D32]">Available</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => {
+                            setShowCollaborateModal(false);
+                            setActiveScreenIndex(25);
+                            showToast('Opening Form Artisan Collective (Screen 25)');
+                          }}
+                          className="w-full py-2.5 bg-[#FFF5F0] hover:bg-[#FEEAE0] border border-[#F5D8C7] text-[#8C3A16] font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer transition-all"
+                        >
+                          <Users className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <span>Open Full Collective Studio (Screen 25)</span>
+                        </button>
+
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setShowCollaborateModal(false)}
+                            className="flex-1 py-2.5 bg-[#FAF5F0] border border-[#EADFD6] rounded-xl text-xs font-bold text-[#6D4C41] hover:bg-[#F3EAE3] cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => {
+                              setShowCollaborateModal(false);
+                              showToast('🤝 Cluster Team formed! 400 pcs FabIndia PO accepted cooperatively.');
+                            }}
+                            className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#772F10] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                          >
+                            Form Guild &amp; Accept
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

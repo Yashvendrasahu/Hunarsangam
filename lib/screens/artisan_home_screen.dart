@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../models/onboarding_state.dart';
 import '../add_product/add_product_flow.dart';
+import 'artisan_orders_screen.dart';
 
 /// Primary Artisan Home Dashboard matching 'Artisan Home section.png'
 /// Provides real-time order tracking, AI voice assistant, product management,
@@ -118,6 +119,17 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
           setState(() {
             _currentNavIndex = 0;
             _productsFlowInitialStep = 0;
+          });
+        },
+      );
+    }
+
+    if (_currentNavIndex == 2) {
+      return ArtisanOrdersScreen(
+        artisanName: widget.state?.artisanName.isNotEmpty ?? false ? widget.state!.artisanName : 'Ramu Kumar',
+        onNavigateTab: (index) {
+          setState(() {
+            _currentNavIndex = index;
           });
         },
       );
@@ -259,31 +271,89 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
           // Right Icons: Language, Notification Bell, Avatar
           Row(
             children: [
-              // Language pill
+              // Quick-Switch Language Toggle (EN | हिं)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 9.0, vertical: 4.5),
+                padding: const EdgeInsets.all(2.5),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF3E7DF),
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: BorderRadius.circular(20.0),
                   border: Border.all(color: const Color(0xFFE5D5CB)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      _selectedLanguage,
-                      style: const TextStyle(
-                        fontSize: 12.0,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF4A372D),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedLanguage = 'English';
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('🌐 Switched language to English'),
+                            duration: Duration(seconds: 1),
+                            backgroundColor: Color(0xFF8C3A16),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                        decoration: BoxDecoration(
+                          color: _selectedLanguage != 'हिंदी' && _selectedLanguage != 'Hindi'
+                              ? const Color(0xFF8C3A16)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(14.0),
+                        ),
+                        child: Text(
+                          'EN',
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            fontWeight: FontWeight.w800,
+                            color: _selectedLanguage != 'हिंदी' && _selectedLanguage != 'Hindi'
+                                ? Colors.white
+                                : const Color(0xFF6B584E),
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 2.0),
-                    const Icon(Icons.arrow_drop_down, size: 16.0, color: Color(0xFF7B665C)),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _selectedLanguage = 'हिंदी';
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('🌐 भाषा बदलकर हिंदी कर दी गई'),
+                            duration: Duration(seconds: 1),
+                            backgroundColor: Color(0xFF8C3A16),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 3.0),
+                        decoration: BoxDecoration(
+                          color: _selectedLanguage == 'हिंदी' || _selectedLanguage == 'Hindi'
+                              ? const Color(0xFF8C3A16)
+                              : Colors.transparent,
+                          borderRadius: BorderRadius.circular(14.0),
+                        ),
+                        child: Text(
+                          'हिं',
+                          style: TextStyle(
+                            fontSize: 11.0,
+                            fontWeight: FontWeight.w800,
+                            color: _selectedLanguage == 'हिंदी' || _selectedLanguage == 'Hindi'
+                                ? Colors.white
+                                : const Color(0xFF6B584E),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              const SizedBox(width: 10.0),
+              const SizedBox(width: 8.0),
 
               // Notification bell with red dot
               Stack(
