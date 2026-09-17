@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import '../models/onboarding_state.dart';
-import 'artisan_products_screen.dart';
+import '../add_product/add_product_flow.dart';
 
 /// Primary Artisan Home Dashboard matching 'Artisan Home section.png'
 /// Provides real-time order tracking, AI voice assistant, product management,
@@ -105,12 +105,18 @@ class _ArtisanHomeScreenState extends State<ArtisanHomeScreen> {
   @override
   Widget build(BuildContext context) {
     if (_currentNavIndex == 1) {
-      return ArtisanProductsScreen(
-        state: widget.state,
-        initialFlowStep: _productsFlowInitialStep,
+      return AddProductFlow(
+        initialStep: _productsFlowInitialStep,
+        currentLanguage: _selectedLanguage,
         onNavigateTab: (index) {
           setState(() {
             _currentNavIndex = index;
+            _productsFlowInitialStep = 0;
+          });
+        },
+        onFlowComplete: () {
+          setState(() {
+            _currentNavIndex = 0;
             _productsFlowInitialStep = 0;
           });
         },

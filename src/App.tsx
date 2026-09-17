@@ -57,185 +57,162 @@ import {
   SlidersHorizontal,
   Image as LucideImage,
   Clock,
+  Ear,
+  MoveHorizontal,
+  MoveVertical,
+  Scale,
+  Calculator,
+  TrendingUp,
+  Info,
+  QrCode,
+  Share2,
+  Wallet,
+  Send,
+  Download,
+  Link,
+  Tag,
+  Shield,
 } from 'lucide-react';
 
 const DART_FILES: Record<string, { path: string; language: string; content: string }> = {
-  'artisan_products_screen.dart': {
-    path: 'lib/screens/artisan_products_screen.dart',
+  'digital_visiting_card_screen.dart': {
+    path: 'lib/screens/digital_visiting_card_screen.dart',
     language: 'dart',
-    content: `// lib/screens/artisan_products_screen.dart
+    content: `// lib/screens/digital_visiting_card_screen.dart
+// Artisan Digital Visiting Card & Verified B2B Identity Passport
 import 'package:flutter/material.dart';
-import '../models/onboarding_state.dart';
 
-class ArtisanProductItem {
-  final String id;
-  final String title;
-  final String subtitle;
-  final String statusBadge;
-  final bool isOndcReady;
-  final bool isDraft;
-  final String size;
-  final int price;
-  final String unit;
-  final int moq;
-  final String moqUnit;
-  final int views;
-  final int inquiries;
-  final int inStock;
-  final String imageUrl;
-  final String craftEmoji;
-  final List<Color> gradientColors;
+class DigitalVisitingCardScreen extends StatefulWidget {
+  final VoidCallback? onBack;
+  final VoidCallback? onShareWhatsApp;
+  final VoidCallback? onDownloadPdf;
+  final VoidCallback? onCopyLink;
+  final VoidCallback? onAddToWallet;
+  final VoidCallback? onVoiceRecordStory;
+  final VoidCallback? onShareCard;
 
-  const ArtisanProductItem({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.statusBadge,
-    this.isOndcReady = true,
-    this.isDraft = false,
-    required this.size,
-    required this.price,
-    this.unit = 'piece',
-    required this.moq,
-    this.moqUnit = 'pcs',
-    required this.views,
-    required this.inquiries,
-    required this.inStock,
-    required this.imageUrl,
-    required this.craftEmoji,
-    required this.gradientColors,
+  const DigitalVisitingCardScreen({
+    super.key,
+    this.onBack,
+    this.onShareWhatsApp,
+    this.onDownloadPdf,
+    this.onCopyLink,
+    this.onAddToWallet,
+    this.onVoiceRecordStory,
+    this.onShareCard,
   });
-}
-
-class ArtisanProductsScreen extends StatefulWidget {
-  final OnboardingState? state;
-  final Function(int)? onNavigateTab;
-
-  const ArtisanProductsScreen({
-    Key? key,
-    this.state,
-    this.onNavigateTab,
-  }) : super(key: key);
 
   @override
-  State<ArtisanProductsScreen> createState() => _ArtisanProductsScreenState();
+  State<DigitalVisitingCardScreen> createState() => _DigitalVisitingCardScreenState();
 }
 
-class _ArtisanProductsScreenState extends State<ArtisanProductsScreen> {
-  int _selectedFilterIndex = 0;
-  String _selectedLanguage = 'English';
-  int _currentNavIndex = 1; // Products tab active
+enum VisitingCardTemplate { phoneCard, stallStandee, packagingTag }
 
-  final List<String> _filters = [
-    'All (8)',
-    'Published (6)',
-    '🟢 ONDC Synced (5)',
-    'Drafts (2)',
-  ];
-
-  final List<ArtisanProductItem> _products = const [
-    ArtisanProductItem(
-      id: 'prod_1',
-      title: 'Handmade Woven Bamboo Fruit Basket',
-      subtitle: 'GI Tag: Assam Cane & Bamboo Work (GI-429)',
-      statusBadge: 'Active • ONDC Ready',
-      isOndcReady: true,
-      size: '12.4" × 6.2"',
-      price: 280,
-      unit: 'piece',
-      moq: 20,
-      moqUnit: 'pcs',
-      views: 480,
-      inquiries: 8,
-      inStock: 140,
-      imageUrl: 'https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80',
-      craftEmoji: '🧺',
-      gradientColors: [Color(0xFF8B5A2B), Color(0xFFD2B48C)],
-    ),
-    ArtisanProductItem(
-      id: 'prod_2',
-      title: 'Assam Golden Cane Planter Basket',
-      subtitle: 'Natural Cane Weave • Water Resistant Finish',
-      statusBadge: 'Active • ONDC Ready',
-      isOndcReady: true,
-      size: '14" × 10"',
-      price: 420,
-      unit: 'piece',
-      moq: 15,
-      moqUnit: 'pcs',
-      views: 310,
-      inquiries: 4,
-      inStock: 65,
-      imageUrl: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80',
-      craftEmoji: '🪴',
-      gradientColors: [Color(0xFFA0522D), Color(0xFFE9967A)],
-    ),
-    ArtisanProductItem(
-      id: 'prod_3',
-      title: 'Hand-plaited Bamboo Storage Box with Lid',
-      subtitle: 'Durable Storage • Naturally Treated Cane',
-      statusBadge: 'Active • HunarSangam Live',
-      isOndcReady: false,
-      size: '10" × 8"',
-      price: 350,
-      unit: 'piece',
-      moq: 25,
-      moqUnit: 'pcs',
-      views: 290,
-      inquiries: 3,
-      inStock: 90,
-      imageUrl: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&auto=format&fit=crop&q=80',
-      craftEmoji: '📦',
-      gradientColors: [Color(0xFF5C4033), Color(0xFF8B4513)],
-    ),
-    ArtisanProductItem(
-      id: 'prod_4',
-      title: 'Miniature Bamboo Tea Coaster Set (6 pcs)',
-      subtitle: 'Listing incomplete • Add clear white studio background',
-      statusBadge: 'Draft (Need Photo Enhancer)',
-      isOndcReady: false,
-      isDraft: true,
-      size: '4" dia',
-      price: 180,
-      unit: 'set',
-      moq: 50,
-      moqUnit: 'sets',
-      views: 0,
-      inquiries: 0,
-      inStock: 200,
-      imageUrl: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&auto=format&fit=crop&q=80',
-      craftEmoji: '🪵',
-      gradientColors: [Color(0xFF708090), Color(0xFFD3D3D3)],
-    ),
-  ];
+class _DigitalVisitingCardScreenState extends State<DigitalVisitingCardScreen> {
+  VisitingCardTemplate _selectedTemplate = VisitingCardTemplate.phoneCard;
+  bool _isPlayingAudio = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFDFBF9),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Cluster & Profile Overview Card
-              _buildClusterHeaderCard(),
-              const SizedBox(height: 14.0),
-              _buildAddProductButton(),
-              const SizedBox(height: 10.0),
-              _buildSearchVoiceBar(),
-              const SizedBox(height: 12.0),
-              _buildFilterChipsRow(),
-              const SizedBox(height: 16.0),
-              ..._products.map((item) => _buildProductCard(item)).toList(),
-            ],
-          ),
+        child: Column(
+          children: [
+            // Top App Bar
+            _buildTopBar(),
+            // Scrollable Passport Content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                child: Column(
+                  children: [
+                    _buildIdentityBanner(),
+                    const SizedBox(height: 12.0),
+                    _buildVoiceStoryCTA(),
+                    const SizedBox(height: 14.0),
+                    _buildDigitalCardHero(),
+                    const SizedBox(height: 20.0),
+                    _buildQuickSharingSection(),
+                    const SizedBox(height: 22.0),
+                    _buildFormatsSection(),
+                    const SizedBox(height: 18.0),
+                    _buildPrimaryCTA(),
+                  ],
+                ),
+              ),
+            ),
+            _buildBottomNav(),
+          ],
         ),
       ),
     );
   }
 }`,
+  },
+  'add_product_flow.dart': {
+    path: 'lib/add_product/add_product_flow.dart',
+    language: 'dart',
+    content: `// lib/add_product/add_product_flow.dart
+// Master Coordinator for the 10-screen Artisan "Add Product" Flow
+// Orchestrates: Catalog -> Camera -> Coin AR -> Dimensions -> Voice Specs -> AI Draft -> Fair Price -> Bulk Capacity -> Final Preview -> Published ONDC
+import 'package:flutter/material.dart';
+import 'models/product_draft.dart';
+import 'screens/product_catalog_screen.dart';
+import 'screens/camera_capture_screen.dart';
+import 'screens/coin_detector_ar_screen.dart';
+import 'screens/dimension_review_screen.dart';
+import 'screens/voice_description_screen.dart';
+import 'screens/ai_draft_preview_screen.dart';
+import 'screens/fair_pricing_screen.dart';
+import 'screens/bulk_capacity_screen.dart';
+import 'screens/product_final_preview_screen.dart';
+import 'screens/catalog_published_screen.dart';`,
+  },
+  'product_catalog_screen.dart': {
+    path: 'lib/add_product/screens/product_catalog_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/product_catalog_screen.dart - Screen 1 (ar--p1-Artisan Product Catalog.png)`,
+  },
+  'coin_detector_ar_screen.dart': {
+    path: 'lib/add_product/screens/coin_detector_ar_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/coin_detector_ar_screen.dart - Screen 3 (p3 — Camera-First Add Photo with 10 rupes.png)`,
+  },
+  'dimension_review_screen.dart': {
+    path: 'lib/add_product/screens/dimension_review_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/dimension_review_screen.dart - Screen 4 (p4— photo and dimension review.png)`,
+  },
+  'voice_description_screen.dart': {
+    path: 'lib/add_product/screens/voice_description_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/voice_description_screen.dart - Screen 5 (p5-desciption all about product with raw materila cost voice serach.png)`,
+  },
+  'ai_draft_preview_screen.dart': {
+    path: 'lib/add_product/screens/ai_draft_preview_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/ai_draft_preview_screen.dart - Screen 6 (p6-decsiption review.png)`,
+  },
+  'fair_pricing_screen.dart': {
+    path: 'lib/add_product/screens/fair_pricing_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/fair_pricing_screen.dart - Screen 7 (p7— Fair Pricing Assistant.png)`,
+  },
+  'bulk_capacity_screen.dart': {
+    path: 'lib/add_product/screens/bulk_capacity_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/bulk_capacity_screen.dart - Screen 8 (p8-voice based piese in day asking.png)`,
+  },
+  'product_final_preview_screen.dart': {
+    path: 'lib/add_product/screens/product_final_preview_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/product_final_preview_screen.dart - Screen 9 (p9-final preview ar.png)`,
+  },
+  'catalog_published_screen.dart': {
+    path: 'lib/add_product/screens/catalog_published_screen.dart',
+    language: 'dart',
+    content: `// lib/add_product/screens/catalog_published_screen.dart - Screen 10 (p10 — Product Finalized & ONDC Ready.png)`,
   },
   'login_screen.dart': {
     path: 'lib/screens/login_screen.dart',
@@ -593,6 +570,7 @@ export default function App() {
   const [dimensionUnit, setDimensionUnit] = useState<'inches' | 'cm'>('inches');
   const [isArActive, setIsArActive] = useState<boolean>(false);
   const [activeLangTab, setActiveLangTab] = useState<'en' | 'hi' | 'as'>('en');
+  const [selectedCardTemplate, setSelectedCardTemplate] = useState<'phone' | 'standee' | 'hangtag'>('phone');
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -654,8 +632,9 @@ export default function App() {
     { idx: 15, label: '📜 15. Description & GI' },
     { idx: 16, label: '⚖️ 16. Fair Pricing' },
     { idx: 17, label: '🏭 17. Capacity Intake' },
-    { idx: 18, label: '👓 18. 3D & AR Preview' },
-    { idx: 19, label: '🎉 19. ONDC Finalized' },
+    { idx: 18, label: '👓 18. Preview Product' },
+    { idx: 19, label: '🎉 19. Catalog Published' },
+    { idx: 20, label: '🪪 20. Profile (Visiting Card)' },
   ];
 
   return (
@@ -2106,6 +2085,8 @@ export default function App() {
                               setHomeBottomTab(tab.tabIdx);
                               if (tab.tabIdx === 1) {
                                 setActiveScreenIndex(10);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(20);
                               } else {
                                 showToast(`Switched to ${tab.label} tab`);
                               }
@@ -2575,7 +2556,7 @@ export default function App() {
                         { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
                         { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
                         { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
-                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
                       ].map((tab) => {
                         const IconComp = tab.icon;
                         const isSel = tab.tabIdx === 1;
@@ -2587,7 +2568,7 @@ export default function App() {
                                 setActiveScreenIndex(9);
                                 setHomeBottomTab(0);
                               } else if (tab.tabIdx === 4) {
-                                setActiveScreenIndex(7);
+                                setActiveScreenIndex(20);
                               } else {
                                 showToast(`Switched to ${tab.label} tab`);
                               }
@@ -2762,407 +2743,1228 @@ export default function App() {
                   </div>
                 )}
 
-                {/* 14. SCREEN 13: PHOTO & DIMENSION REVIEW (matching photo and dimension review.png) */}
+                {/* 14. SCREEN 13: PHOTO & DIMENSION REVIEW (matching p4— photo and dimension review.png 100%) */}
                 {activeScreenIndex === 13 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
+                    {/* Header matching p4— photo and dimension review.png */}
+                    <div className="px-4 py-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
                       <button
-                        onClick={() => setActiveScreenIndex(12)}
+                        onClick={() => setActiveScreenIndex(11)}
                         className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
                       >
                         <ArrowLeft className="w-4 h-4" />
                       </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Step 2 of 5: Dimensions &amp; Scale</h2>
-                      <div className="w-4" />
+                      <div className="text-center">
+                        <span className="text-[9.5px] font-black text-[#8C3A16] tracking-wider uppercase block">
+                          STEP 2 OF 2 • DIMENSION TOOL
+                        </span>
+                        <h2 className="text-xs font-black text-[#2D2421]">₹10 Coin Size Detector</h2>
+                      </div>
+                      <button
+                        onClick={() => showToast('मदद (Voice Guidance Activated)')}
+                        className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FBF2EB] border border-[#EADFD6] text-[#8C3A16] text-[11px] font-bold shadow-2xs"
+                      >
+                        <Volume2 className="w-3.5 h-3.5" />
+                        <span>मदद</span>
+                      </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* Success extraction badge */}
-                      <div className="bg-[#EDF7ED] border border-[#C8E6C9] rounded-2xl p-3 flex items-center gap-2.5">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-700 shrink-0" />
-                        <div>
-                          <p className="text-xs font-black text-emerald-900">99.2% Dimension Accuracy</p>
-                          <p className="text-[10px] text-emerald-700 font-semibold">Extracted against ₹10 reference coin</p>
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+                      {/* Dual Photo Gallery matching screenshot */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {/* Left: Top-Down with ₹10 Coin & AR Corner Brackets */}
+                        <div className="relative h-40 rounded-2xl overflow-hidden border border-[#EADFD6] bg-[#FAF3ED]">
+                          <img
+                            src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                            alt="Coin Calibration"
+                            className="w-full h-full object-cover"
+                          />
+                          {/* AR White Corner Brackets */}
+                          <div className="absolute top-2.5 left-2.5 w-4 h-4 border-t-2 border-l-2 border-white rounded-tl-xs drop-shadow-md" />
+                          <div className="absolute top-2.5 right-2.5 w-4 h-4 border-t-2 border-r-2 border-white rounded-tr-xs drop-shadow-md" />
+                          <div className="absolute bottom-2.5 left-2.5 w-4 h-4 border-b-2 border-l-2 border-white rounded-bl-xs drop-shadow-md" />
+                          <div className="absolute bottom-2.5 right-2.5 w-4 h-4 border-b-2 border-r-2 border-white rounded-br-xs drop-shadow-md" />
+
+                          {/* ₹10 Coin Indicator Graphic */}
+                          <div className="absolute bottom-3 right-3 w-7 h-7 rounded-full bg-[#D4AF37]/90 border-2 border-white flex items-center justify-center text-[8px] font-black text-[#5C4033] shadow-md">
+                            ₹10
+                          </div>
+                        </div>
+
+                        {/* Right: Studio Beauty Shot */}
+                        <div className="relative h-40 rounded-2xl overflow-hidden border border-[#EADFD6] bg-[#FAF3ED]">
+                          <img
+                            src="https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80"
+                            alt="Studio Perspective"
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </div>
 
-                      {/* Dimension Display Cards */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-3 shadow-2xs">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-xs font-extrabold text-[#2D2421]">Auto-Extracted Dimensions:</h3>
-                          <div className="flex bg-[#F4ECE5] p-0.5 rounded-lg text-[10px] font-bold">
-                            <button
-                              onClick={() => setDimensionUnit('inches')}
-                              className={`px-2 py-0.5 rounded-md ${dimensionUnit === 'inches' ? 'bg-[#8C3A16] text-white' : 'text-[#7A685F]'}`}
-                            >
-                              Inches
-                            </button>
-                            <button
-                              onClick={() => setDimensionUnit('cm')}
-                              className={`px-2 py-0.5 rounded-md ${dimensionUnit === 'cm' ? 'bg-[#8C3A16] text-white' : 'text-[#7A685F]'}`}
-                            >
-                              cm
-                            </button>
+                      {/* Retake Photo Button (Wide Pill Button matching screenshot) */}
+                      <button
+                        onClick={() => {
+                          setActiveScreenIndex(11);
+                          showToast('Opening camera to retake photo...');
+                        }}
+                        className="w-full py-2 bg-[#FBF2EB] hover:bg-[#F3E5DA] text-[#221C19] border border-[#EADFD6] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Retake Photo</span>
+                      </button>
+
+                      {/* Zero-Typing Voice Correction Card matching screenshot */}
+                      <div className="bg-[#FDF6F0] rounded-2xl p-3 border border-[#EADFD6] flex items-center justify-between gap-2.5">
+                        <div className="w-10 h-10 rounded-full bg-[#8C3A16] flex items-center justify-center text-white shrink-0 shadow-xs">
+                          <Mic className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-black text-[#221C19]">Zero-Typing Voice Correction</h4>
+                          <p className="text-[10.5px] text-[#7A685F] leading-snug">
+                            Say: <span className="font-extrabold text-[#8C3A16]">"ऊंचाई 6 इंच करो"</span> or tap values to fine-tune.
+                          </p>
+                        </div>
+                        <Ear className="w-5 h-5 text-[#8C3A16] shrink-0 opacity-80" />
+                      </div>
+
+                      {/* Computer Vision Output Card matching screenshot */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-3.5 border border-[#EADFD6] space-y-3 shadow-2xs">
+                        {/* Header Row */}
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-[9.5px] font-black text-[#1E824C] tracking-wide uppercase block">
+                              COMPUTER VISION OUTPUT
+                            </span>
+                            <h3 className="text-sm font-black text-[#221C19]">Detected Dimensions</h3>
+                          </div>
+                          <div className="bg-[#D4EFDF] text-[#1E824C] px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                            <span>Auto-Calculated</span>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                            <p className="text-[10px] text-[#7A685F] font-semibold">Length / Top Width</p>
-                            <p className="text-sm font-black text-[#8C3A16]">{dimensionUnit === 'inches' ? '12.4 in' : '31.5 cm'}</p>
+                        {/* 3 Metric Boxes in Row: Diameter, Height, Est. Weight */}
+                        <div className="grid grid-cols-3 gap-2">
+                          {/* Box 1: Diameter */}
+                          <div className="bg-[#FBF2EB] p-2 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                            <div className="flex items-center justify-between text-[#4A372D]">
+                              <span className="text-[10px] font-bold">Diameter</span>
+                              <MoveHorizontal className="w-3 h-3" />
+                            </div>
+                            <div className="my-1">
+                              <span className="text-sm font-black text-[#221C19]">12.4</span>
+                              <span className="text-[10px] font-bold text-[#7A685F]"> in</span>
+                            </div>
+                            <span className="text-[9.5px] text-[#7A685F]">31.5 cm</span>
                           </div>
-                          <div className="bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                            <p className="text-[10px] text-[#7A685F] font-semibold">Height</p>
-                            <p className="text-sm font-black text-[#8C3A16]">{dimensionUnit === 'inches' ? '6.2 in' : '15.7 cm'}</p>
+
+                          {/* Box 2: Height */}
+                          <div className="bg-[#FBF2EB] p-2 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                            <div className="flex items-center justify-between text-[#4A372D]">
+                              <span className="text-[10px] font-bold">Height</span>
+                              <MoveVertical className="w-3 h-3" />
+                            </div>
+                            <div className="my-1">
+                              <span className="text-sm font-black text-[#221C19]">6.2</span>
+                              <span className="text-[10px] font-bold text-[#7A685F]"> in</span>
+                            </div>
+                            <span className="text-[9.5px] text-[#7A685F]">15.7 cm</span>
                           </div>
-                          <div className="bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                            <p className="text-[10px] text-[#7A685F] font-semibold">Base Diameter</p>
-                            <p className="text-sm font-black text-[#8C3A16]">{dimensionUnit === 'inches' ? '8.0 in' : '20.3 cm'}</p>
-                          </div>
-                          <div className="bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                            <p className="text-[10px] text-[#7A685F] font-semibold">Estimated Weight</p>
-                            <p className="text-sm font-black text-[#2D2421]">~240 grams</p>
+
+                          {/* Box 3: Est. Weight */}
+                          <div className="bg-[#FBF2EB] p-2 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                            <div className="flex items-center justify-between text-[#4A372D]">
+                              <span className="text-[10px] font-bold">Est. Weight</span>
+                              <Scale className="w-3 h-3" />
+                            </div>
+                            <div className="my-1">
+                              <span className="text-sm font-black text-[#221C19]">~420</span>
+                              <span className="text-[10px] font-bold text-[#7A685F]"> g</span>
+                            </div>
+                            <span className="text-[9.5px] font-bold text-[#1E824C]">Light Cane</span>
                           </div>
                         </div>
 
-                        <div className="bg-[#F0FDF4] p-2 rounded-xl border border-[#DCFCE7] text-[10.5px] font-semibold text-emerald-800 flex items-center gap-1.5">
-                          <Package className="w-3.5 h-3.5" />
-                          <span>ONDC Shipping Category: <b>Small Volumetric Standard Box</b></span>
+                        {/* Recommended Packaging Box Row matching screenshot */}
+                        <div className="bg-[#FBF2EB] rounded-xl p-2.5 border border-[#EADFD6] flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-[#F3E3D6] flex items-center justify-center text-[#8C3A16] shrink-0">
+                            <Package className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-[10px] font-bold text-[#4A372D]">Recommended Packaging Box</span>
+                              <span className="bg-[#FFE5D6] text-[#8C3A16] text-[8px] font-black px-1.5 py-0.5 rounded-sm">
+                                B2B Ready
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-black text-[#221C19]">14 × 14 × 8 in Corrugated Carton.</p>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Confirm & Next CTA */}
+                      {/* Accept Dimensions & Proceed CTA Button matching screenshot */}
                       <button
                         onClick={() => {
                           setActiveScreenIndex(14);
-                          showToast('Dimensions confirmed!');
+                          showToast('Dimensions accepted! Moving to Voice Description.');
                         }}
                         className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
                       >
-                        <span>Confirm Dimensions &amp; Voice Describe</span>
+                        <span>Accept Dimensions &amp; Proceed</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
+                    </div>
+
+                    {/* Bottom Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(7);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 15. SCREEN 14: RAW MATERIAL & VOICE INTAKE (matching p5-desciption all about product with raw materila cost  voice serach.png) */}
+                {/* 15. SCREEN 14: CREATE PRODUCT VOICE INPUT (matching p5-desciption all about product with raw materila cost  voice serach.png 100%) */}
                 {activeScreenIndex === 14 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
+                    {/* Header matching p5 */}
+                    <div className="px-4 py-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
                       <button
                         onClick={() => setActiveScreenIndex(13)}
                         className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
                       >
                         <ArrowLeft className="w-4 h-4" />
                       </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Step 3 of 5: Voice &amp; Raw Material</h2>
-                      <div className="w-4" />
+                      <div className="flex-1 ml-2">
+                        <div className="flex items-center gap-1.5">
+                          <h2 className="text-xs font-black text-[#221C19]">Create Product</h2>
+                          <span className="bg-[#FFE8DC] text-[#8C3A16] text-[8.5px] font-black px-1.5 py-0.5 rounded-sm tracking-wide">
+                            VOICE-FIRST
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-[#7A685F] font-medium block">
+                          Step 1 of 2 • Voice Input
+                        </span>
+                      </div>
+                      <div className="px-2.5 py-1 rounded-full bg-[#FBF2EB] border border-[#EADFD6] text-[#221C19] text-[11px] font-bold flex items-center gap-1">
+                        <span>English</span>
+                        <span className="text-[8px]">▼</span>
+                      </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* Voice Intake Banner */}
-                      <div className="bg-[#FAF5F0] rounded-2xl p-3 border border-[#E5D5CB]">
-                        <div className="flex items-center gap-2 text-xs font-extrabold text-[#8C3A16] mb-1.5">
-                          <Mic className="w-4 h-4 animate-pulse" />
-                          <span>Voice Story Transcription</span>
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+                      {/* Card 1: Tell us about your product */}
+                      <div className="bg-[#FDF6F0] rounded-2xl p-3 border border-[#EADFD6] flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-[#FFE8DC] flex items-center justify-center text-[#8C3A16] shrink-0 mt-0.5">
+                          <Mic className="w-4 h-4" />
                         </div>
-                        <div className="bg-white rounded-xl p-2.5 border border-[#EADFD6] text-[11px] text-[#4A372D] font-medium leading-relaxed italic">
-                          "मैंने असमिया भोला बैम्बू और जाटी बैम्बू से यह फ्रूट बास्केट बनाई है। इसमें 2 बैम्बू पोल्स लगे, फिनिशिंग में नेचुरल वॉर्निश की 2 कोटिंग है।"
-                        </div>
-                      </div>
-
-                      {/* AI Extracted Raw Material Cost Breakdown */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-2.5 shadow-2xs">
-                        <h3 className="text-xs font-extrabold text-[#2D2421]">Extracted Raw Material Cost:</h3>
-                        <div className="space-y-1.5 text-xs text-[#4A372D]">
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Assam Jati Bamboo Pole (2 pcs)</span>
-                            <span className="font-bold">₹80.00</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Cane Plaiting Strips (1 bundle)</span>
-                            <span className="font-bold">₹30.00</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Herbal Eco-Varnish Polish</span>
-                            <span className="font-bold">₹15.00</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Sandpaper &amp; Tools Depreciation</span>
-                            <span className="font-bold">₹10.00</span>
-                          </div>
-                          <div className="border-t border-[#F0E6DE] pt-1.5 flex justify-between font-black text-[#8C3A16]">
-                            <span>Total Raw Material Cost:</span>
-                            <span>₹{rawMaterialCost}.00</span>
-                          </div>
-                        </div>
-
-                        <div className="bg-[#E0F2FE] p-2 rounded-xl border border-[#BAE6FD] text-[10.5px] font-bold text-[#0369A1] flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5" />
-                          <span>Crafting Time: <b>3.5 hours</b> per unit by master artisan</span>
+                        <div>
+                          <h3 className="text-xs font-black text-[#221C19]">Tell us about your product</h3>
+                          <p className="text-[10.5px] text-[#7A685F] leading-snug mt-0.5">
+                            Speak naturally in Hindi, Bengali, Tamil, English, or your local dialect. AI handles the cataloging.
+                          </p>
                         </div>
                       </div>
 
-                      {/* CTA */}
-                      <button
-                        onClick={() => {
-                          setActiveScreenIndex(15);
-                          showToast('Generating AI Description & GI-Tag...');
-                        }}
-                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
-                      >
-                        <span>Generate Smart Description &amp; GI-Tag</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
+                      {/* Card 2: EXAMPLE PROMPT */}
+                      <div className="bg-[#FAF1EA] rounded-2xl p-3 border border-[#EADFD6] space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-5 h-5 rounded-full bg-[#F1DFD5] flex items-center justify-center text-[#8C3A16]">
+                              <Volume2 className="w-3 h-3" />
+                            </div>
+                            <span className="text-[9.5px] font-black text-[#8C3A16] tracking-wider uppercase">
+                              EXAMPLE PROMPT
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => showToast('Playing example audio prompt...')}
+                            className="text-[10px] font-bold text-[#8C3A16] hover:underline"
+                          >
+                            Tap to listen ▷
+                          </button>
+                        </div>
+                        <p className="text-[11px] italic text-[#4A372D] leading-relaxed">
+                          “I weave natural bamboo fruit baskets with double rim borders. Diameter 12 inches, wholesale price 250 rupees per piece.”
+                        </p>
+                      </div>
+
+                      {/* Card 3: Big White Studio Recording Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-4 border border-[#EADFD6] flex flex-col items-center space-y-3.5 shadow-2xs">
+                        {/* Live Recording Status Pill */}
+                        <div className="flex items-center gap-1.5 bg-[#FBF2EB] border border-[#F3D5C5] px-3 py-1 rounded-full">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" />
+                          <span className="text-[10.5px] font-black text-[#8C3A16]">Recording Live (0:12)</span>
+                        </div>
+
+                        {/* Concentric Circle Glowing Mic */}
+                        <div className="relative my-2 flex items-center justify-center">
+                          <div className="w-36 h-36 rounded-full bg-[#F7ECE4]/60 flex items-center justify-center animate-pulse">
+                            <div className="w-28 h-28 rounded-full bg-[#F0DDD0] flex items-center justify-center">
+                              <button
+                                onClick={() => showToast('Microphone active. Speaking...')}
+                                className="w-20 h-20 rounded-full bg-[#A84318] text-white flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                              >
+                                <Mic className="w-9 h-9" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Sound Waveform Equalizer */}
+                        <div className="flex items-center gap-1 h-6">
+                          <div className="w-1 h-3 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-5 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-3.5 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-6 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-4 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-5.5 bg-[#8C3A16] rounded-full animate-pulse" />
+                          <div className="w-1 h-3 bg-[#8C3A16] rounded-full animate-pulse" />
+                        </div>
+
+                        {/* Real-time Transcription Box */}
+                        <div className="w-full bg-[#FBF4EE] rounded-xl p-3 border border-[#EADFD6] space-y-1 text-left">
+                          <div className="flex items-center gap-1.5 text-[#1E824C]">
+                            <Radio className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-bold text-[#4A372D]">Real-time Transcription</span>
+                          </div>
+                          <p className="text-[11.5px] text-[#221C19] leading-snug">
+                            “ ...natural bamboo fruit basket with double rim...{' '}
+                            <span className="bg-[#FFE2D4] text-[#8C3A16] font-black px-1.5 py-0.5 rounded-sm">
+                              250 rupees wholesale
+                            </span>{' '}
+                            ...”
+                          </p>
+                        </div>
+
+                        {/* Done Recording CTA */}
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(15);
+                            showToast('Voice description processed! Opening AI Draft Preview.');
+                          }}
+                          className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Done Recording</span>
+                        </button>
+                      </div>
+
+                      {/* Footer Hint */}
+                      <p className="text-center text-[10.5px] text-[#7A685F] font-medium">
+                        💡 Zero typing needed • Speak in your natural rhythm
+                      </p>
+                    </div>
+
+                    {/* Bottom Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(7);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 16. SCREEN 15: AI DESCRIPTION REVIEW & GI-TAG (matching p6-decsiption review.png) */}
+                {/* 16. SCREEN 15: AI DRAFT PREVIEW & REVIEW (matching p6-decsiption review.png 100%) */}
                 {activeScreenIndex === 15 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
+                    {/* Header matching p6 */}
+                    <div className="px-4 py-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
                       <button
                         onClick={() => setActiveScreenIndex(14)}
                         className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
                       >
                         <ArrowLeft className="w-4 h-4" />
                       </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Step 4 of 5: AI Description &amp; GI Tag</h2>
-                      <div className="w-4" />
+                      <div className="flex items-center gap-1.5">
+                        <h2 className="text-xs font-black text-[#221C19]">Product Preview</h2>
+                        <div className="bg-[#D4EFDF] text-[#1E824C] px-2 py-0.5 rounded-full text-[9.5px] font-extrabold flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" />
+                          <span>AI Generated • Verified</span>
+                        </div>
+                      </div>
+                      <div className="px-2.5 py-1 rounded-full bg-[#FBF2EB] border border-[#EADFD6] text-[#221C19] text-[11px] font-bold flex items-center gap-1">
+                        <span>English</span>
+                        <span className="text-[8px]">▼</span>
+                      </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* Product Verified Header */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-2 shadow-2xs">
-                        <h3 className="text-xs font-black text-[#2D2421]">
-                          Authentic Handcrafted Assam Cane &amp; Bamboo Fruit Basket
-                        </h3>
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+                      {/* Step Indicator with Dual Progress Bars */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10.5px] font-extrabold text-[#8C3A16]">
+                          Step 2 of 2 • Review &amp; Confirm
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-5 h-1 bg-[#1E824C] rounded-full" />
+                          <div className="w-5 h-1 bg-[#8C3A16] rounded-full" />
+                        </div>
+                      </div>
 
-                        {/* GI & Eco Badges */}
-                        <div className="flex flex-wrap gap-1.5">
-                          <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
-                            GI-429 Verified
+                      {/* Card 1: AI Craft Draft Ready */}
+                      <div className="bg-[#FDF6F0] rounded-2xl p-3 border border-[#EADFD6] flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-[#FFE8DC] flex items-center justify-center text-[#8C3A16] shrink-0 mt-0.5">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-xs font-black text-[#221C19]">AI Craft Draft Ready</h3>
+                          <p className="text-[10.5px] text-[#7A685F] leading-snug mt-0.5">
+                            Here is what AI created from your voice note. Tap any item to edit with voice.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Card 2: Input Voice Clip Player */}
+                      <div className="bg-[#FAF1EA] rounded-2xl p-3 border border-[#EADFD6] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-[#221C19]">
+                            <Mic className="w-3.5 h-3.5 text-[#8C3A16]" />
+                            <span className="text-[10.5px] font-extrabold">Input Voice Clip</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setActiveScreenIndex(14);
+                              showToast('Opening voice recorder to re-record...');
+                            }}
+                            className="flex items-center gap-1 text-[10.5px] font-bold text-[#8C3A16] hover:underline"
+                          >
+                            <RefreshCw className="w-3 h-3" />
+                            <span>Re-record</span>
+                          </button>
+                        </div>
+                        <div className="bg-white rounded-xl p-2 border border-[#EADFD6] flex items-center justify-between gap-2">
+                          <button className="w-7 h-7 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0">
+                            <Play className="w-3.5 h-3.5 fill-current ml-0.5" />
+                          </button>
+                          <div className="flex items-center gap-0.5 shrink-0">
+                            <div className="w-0.5 h-3.5 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-5 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-2.5 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-6 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-4 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-4.5 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-3 bg-[#8C3A16] rounded-full" />
+                            <div className="w-0.5 h-2 bg-[#8C3A16] rounded-full" />
+                          </div>
+                          <span className="text-[10px] italic text-[#4A372D] truncate flex-1">
+                            "Handmade bamboo basket..."
                           </span>
-                          <span className="text-[9.5px] font-bold text-[#8C3A16] bg-[#FAF3EE] border border-[#EADFD6] px-2 py-0.5 rounded-md">
-                            100% Biodegradable
-                          </span>
-                          <span className="text-[9.5px] font-bold text-blue-800 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md">
-                            Food Safe
-                          </span>
+                          <span className="text-[10px] font-bold text-[#221C19] shrink-0">0:14</span>
+                        </div>
+                      </div>
+
+                      {/* Card 3: Product Card (Photo + Badges + Title & Description) */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] overflow-hidden space-y-3 shadow-2xs">
+                        {/* Image Container with Badges */}
+                        <div className="relative h-44 bg-[#FAF3ED]">
+                          <img
+                            src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                            alt="Bamboo Basket"
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Badges Top Left & Right */}
+                          <div className="absolute top-2 left-2 bg-black/65 backdrop-blur-xs text-white px-2 py-0.5 rounded-lg text-[9px] font-bold flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+                            <span>AI Cataloged</span>
+                          </div>
+                          <div className="absolute top-2 left-28 bg-[#D4EFDF] text-[#1E824C] px-2 py-0.5 rounded-lg text-[9px] font-black flex items-center gap-1">
+                            <ShieldCheck className="w-2.5 h-2.5" />
+                            <span>GI Cluster Verified</span>
+                          </div>
+                          {/* Change Photo Button */}
+                          <button
+                            onClick={() => {
+                              setActiveScreenIndex(11);
+                              showToast('Opening camera to change photo...');
+                            }}
+                            className="absolute bottom-2 right-2 bg-black/65 backdrop-blur-xs text-white px-2.5 py-1 rounded-xl text-[9.5px] font-bold flex items-center gap-1 hover:bg-black/80"
+                          >
+                            <Camera className="w-3 h-3" />
+                            <span>Change Photo</span>
+                          </button>
                         </div>
 
-                        {/* Language Tabs for Description */}
-                        <div className="flex border-b border-[#F0E6DE] pt-2">
-                          {[
-                            { id: 'en', label: 'English' },
-                            { id: 'hi', label: 'हिन्दी' },
-                            { id: 'as', label: 'অসমীয়া' },
-                          ].map((t) => (
+                        <div className="p-3 pt-0 space-y-3">
+                          {/* Title with Voice Edit Mic */}
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="text-sm font-black text-[#221C19] leading-tight">
+                              Handmade Woven Bamboo Fruit Basket
+                            </h3>
                             <button
-                              key={t.id}
-                              onClick={() => setActiveLangTab(t.id as any)}
-                              className={`px-3 py-1 text-[10.5px] font-bold transition-all border-b-2 ${
-                                activeLangTab === t.id
-                                  ? 'border-[#8C3A16] text-[#8C3A16]'
-                                  : 'border-transparent text-[#7A685F]'
-                              }`}
+                              onClick={() => showToast('Say new product title...')}
+                              className="w-7 h-7 rounded-full bg-[#FFE8DC] text-[#8C3A16] flex items-center justify-center shrink-0 hover:bg-[#F3D5C5]"
                             >
-                              {t.label}
+                              <Mic className="w-3.5 h-3.5" />
                             </button>
-                          ))}
-                        </div>
+                          </div>
 
-                        <p className="text-[11px] text-[#4A372D] leading-relaxed pt-1">
-                          {activeLangTab === 'en' &&
-                            'Handwoven by master artisan Ramu Kumar in Assam cluster. Made from seasoned mature Jati bamboo with natural water-resistant polish. Traditional lattice weave pattern ensures high durability, strength, and ventilation for storing fruits and table decor.'}
-                          {activeLangTab === 'hi' &&
-                            'असम क्लस्टर में उस्ताद कारीगर रामू कुमार द्वारा हाथ से बुनी गई प्रामाणिक बास्केट। पके हुए जाटी बांस से बनी, जिसमें प्राकृतिक जल-रोधी फिनिश है। फल रखने और मेज की सजावट के लिए अत्यधिक टिकाऊ।'}
-                          {activeLangTab === 'as' &&
-                            'অসমৰ বিশিষ্ট শিল্পী ৰামু কুমাৰৰ দ্বাৰা হস্তনিৰ্মিত বাঁহৰ ফলৰ পাচি। পকা জাতি বাঁহেৰে নিৰ্মিত আৰু প্ৰাকৃতিক পানী প্ৰতিৰোধী।' }
-                        </p>
+                          {/* Description with Voice Edit Mic */}
+                          <div className="bg-[#FBF4EE] rounded-xl p-2.5 border border-[#EADFD6] flex items-start gap-2">
+                            <p className="text-[10.5px] text-[#4A372D] leading-relaxed flex-1">
+                              Handcrafted from 100% natural treated Assam bamboo with traditional lattice weave, double rim reinforcement, and food-safe finish. Ideal for dining storage, eco-friendly gift hampers, and artisanal home decor.
+                            </p>
+                            <button
+                              onClick={() => showToast('Say new description...')}
+                              className="w-6 h-6 rounded-full bg-[#FFE8DC] text-[#8C3A16] flex items-center justify-center shrink-0 hover:bg-[#F3D5C5]"
+                            >
+                              <Mic className="w-3 h-3" />
+                            </button>
+                          </div>
+
+                          {/* Extracted Specifications Grid */}
+                          <div className="space-y-2 pt-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-black text-[#221C19]">Extracted Specifications</span>
+                              <button
+                                onClick={() => showToast('Tap any tile to edit with voice')}
+                                className="flex items-center gap-1 text-[10px] font-bold text-[#8C3A16]"
+                              >
+                                <Mic className="w-3 h-3" />
+                                <span>Tap tile to speak</span>
+                              </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              {/* Tile 1: Category */}
+                              <div className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-[#7A685F]">
+                                  <span className="text-[10px] font-bold">Category</span>
+                                  <Layers className="w-3 h-3" />
+                                </div>
+                                <span className="text-[11.5px] font-black text-[#221C19] my-1">
+                                  Home &amp; Kitchen / Dining
+                                </span>
+                                <button
+                                  onClick={() => showToast('Say new Category...')}
+                                  className="flex items-center gap-1 text-[9.5px] font-bold text-[#8C3A16]"
+                                >
+                                  <Mic className="w-2.5 h-2.5" />
+                                  <span>Tap to edit</span>
+                                </button>
+                              </div>
+
+                              {/* Tile 2: Material */}
+                              <div className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-[#7A685F]">
+                                  <span className="text-[10px] font-bold">Material</span>
+                                  <Palette className="w-3 h-3" />
+                                </div>
+                                <span className="text-[11.5px] font-black text-[#221C19] my-1">
+                                  100% Natural River Bamboo
+                                </span>
+                                <button
+                                  onClick={() => showToast('Say new Material...')}
+                                  className="flex items-center gap-1 text-[9.5px] font-bold text-[#8C3A16]"
+                                >
+                                  <Mic className="w-2.5 h-2.5" />
+                                  <span>Tap to edit</span>
+                                </button>
+                              </div>
+
+                              {/* Tile 3: Dimensions */}
+                              <div className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-[#7A685F]">
+                                  <span className="text-[10px] font-bold">Dimensions</span>
+                                  <SlidersHorizontal className="w-3 h-3" />
+                                </div>
+                                <div>
+                                  <span className="text-[11.5px] font-black text-[#221C19] block">
+                                    12" L × 12" W × 6" H
+                                  </span>
+                                  <span className="text-[9px] text-[#7A685F]">(Estimated via voice)</span>
+                                </div>
+                                <button
+                                  onClick={() => showToast('Say new Dimensions...')}
+                                  className="flex items-center gap-1 text-[9.5px] font-bold text-[#8C3A16] mt-1"
+                                >
+                                  <Mic className="w-2.5 h-2.5" />
+                                  <span>Tap to edit</span>
+                                </button>
+                              </div>
+
+                              {/* Tile 4: Finish & Color */}
+                              <div className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex flex-col justify-between">
+                                <div className="flex items-center justify-between text-[#7A685F]">
+                                  <span className="text-[10px] font-bold">Finish &amp; Color</span>
+                                  <Palette className="w-3 h-3" />
+                                </div>
+                                <span className="text-[11.5px] font-black text-[#221C19] my-1">
+                                  Natural Golden Honey / Unvarnished
+                                </span>
+                                <button
+                                  onClick={() => showToast('Say new Finish & Color...')}
+                                  className="flex items-center gap-1 text-[9.5px] font-bold text-[#8C3A16]"
+                                >
+                                  <Mic className="w-2.5 h-2.5" />
+                                  <span>Tap to edit</span>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* AI Search Keywords */}
-                      <div className="bg-white rounded-2xl p-3 border border-[#EADFD6] space-y-1.5">
-                        <h4 className="text-[11px] font-extrabold text-[#2D2421]">ONDC Search Keywords:</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {['#bamboobasket', '#handicrafts', '#GIcrafted', '#ecofriendly', '#ONDCkitchen'].map((kw) => (
-                            <span key={kw} className="text-[10px] font-bold text-[#8C3A16] bg-[#FAF4F0] px-2 py-0.5 rounded-md border border-[#EADFD6]">
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* CTA */}
+                      {/* Primary CTA: Looks Good — Continue → */}
                       <button
                         onClick={() => {
                           setActiveScreenIndex(16);
-                          showToast('Opening Fair Pricing Assistant...');
+                          showToast('Catalog draft approved! Opening Fair Pricing Assistant.');
                         }}
                         className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
                       >
-                        <span>Proceed to Fair Pricing Assistant</span>
+                        <span>Looks Good — Continue</span>
                         <ArrowRight className="w-4 h-4" />
                       </button>
+
+                      {/* Secondary CTA: Edit Whole Card With Voice */}
+                      <button
+                        onClick={() => showToast('Listening to full voice review...')}
+                        className="w-full py-2.5 bg-[#FAF1EA] hover:bg-[#F3E3D6] text-[#8C3A16] border border-[#EADFD6] rounded-2xl text-xs font-black flex items-center justify-center gap-1.5 transition-all"
+                      >
+                        <Mic className="w-3.5 h-3.5" />
+                        <span>Edit Whole Card With Voice</span>
+                      </button>
+
+                      {/* Footer text */}
+                      <p className="text-center text-[10px] text-[#7A685F] font-medium">
+                        Zero typing required • Instant B2B cataloging
+                      </p>
+                    </div>
+
+                    {/* Bottom Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(7);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 17. SCREEN 16: FAIR PRICING ASSISTANT (matching Fair Pricing Assistant.png) */}
+                {/* 17. SCREEN 16: FAIR PRICING ASSISTANT (matching p7— Fair Pricing Assistant.png 100%) */}
                 {activeScreenIndex === 16 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
                     {/* Header */}
-                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
+                    <div className="px-3.5 pt-2 pb-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
                       <button
                         onClick={() => setActiveScreenIndex(15)}
                         className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
                       >
                         <ArrowLeft className="w-4 h-4" />
                       </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Step 5 of 5: Fair Pricing Assistant</h2>
-                      <div className="w-4" />
+
+                      <div className="text-center">
+                        <h2 className="text-sm font-black text-[#221C19] leading-tight">Know Your Fair Price</h2>
+                        <span className="text-[10.5px] font-extrabold text-[#8C3A16] block">
+                          Step 3 of 3 • Price Intelligence
+                        </span>
+                      </div>
+
+                      {/* Listen Button */}
+                      <button
+                        onClick={() => showToast('Playing audio price guide...')}
+                        className="flex items-center gap-1 bg-[#FAF1EA] border border-[#EADFD6] rounded-full px-2.5 py-1 text-[#8C3A16] hover:bg-[#F3E3D6] active:scale-95 transition-all shadow-2xs"
+                      >
+                        <Volume2 className="w-3.5 h-3.5 text-[#8C3A16]" />
+                        <span className="text-[11px] font-bold">Listen</span>
+                      </button>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* Formula Banner */}
-                      <div className="bg-[#EDF7ED] border border-[#C8E6C9] rounded-2xl p-3 text-[11px] font-semibold text-emerald-900 leading-tight">
-                        💡 <b>HunarSangam Fair Pricing Formula</b> ensures you earn fair master artisan wages (₹{(artisanLaborHours * hourlyWageRate).toFixed(0)}) + full material cost recovery.
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+                      {/* Card 1: AI Cost & Wage Calculator Banner */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-3 border border-[#EADFD6] space-y-1.5 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-xl bg-[#FAF1EA] text-[#8C3A16] flex items-center justify-center font-bold">
+                              <Calculator className="w-4 h-4" />
+                            </div>
+                            <h3 className="text-xs font-black text-[#221C19]">AI Cost &amp; Wage Calculator</h3>
+                          </div>
+                          <span className="bg-[#E8F5E9] text-[#2E7D32] px-2 py-0.5 rounded-full text-[9.5px] font-black">
+                            Active
+                          </span>
+                        </div>
+                        <p className="text-[10.5px] text-[#5A483E] leading-snug">
+                          Ensuring you never sell below fair living wage while staying competitive for bulk B2B buyers.
+                        </p>
                       </div>
 
-                      {/* Cost Breakdown Card */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-2 shadow-2xs">
-                        <h3 className="text-xs font-extrabold text-[#2D2421]">Base Production Cost:</h3>
-                        <div className="space-y-1 text-xs text-[#4A372D]">
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Raw Material Cost</span>
-                            <span className="font-bold">₹{rawMaterialCost}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Artisan Labor (3.5h @ ₹45/h)</span>
-                            <span className="font-bold">₹{(artisanLaborHours * hourlyWageRate).toFixed(0)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-[11px]">Overhead &amp; Eco-Packaging</span>
-                            <span className="font-bold">₹{overheadCost.toFixed(0)}</span>
-                          </div>
-                          <div className="border-t border-[#F0E6DE] pt-1.5 flex justify-between font-black text-[#8C3A16]">
-                            <span>Minimum Cost to Make:</span>
-                            <span>₹{(rawMaterialCost + artisanLaborHours * hourlyWageRate + overheadCost).toFixed(0)}</span>
-                          </div>
+                      {/* Card 2: Product Reference Strip */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-2.5 border border-[#EADFD6] flex items-center gap-2.5 shadow-2xs">
+                        <img
+                          src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                          alt="Product"
+                          className="w-16 h-12 rounded-lg object-cover border border-[#EADFD6] shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <span className="text-[9.5px] font-bold text-[#1E824C] flex items-center gap-0.5">
+                            <Check className="w-3 h-3 text-[#1E824C]" />
+                            <span>GI Certified • Assam Bamboo</span>
+                          </span>
+                          <p className="text-xs font-black text-[#221C19] truncate leading-tight mt-0.5">
+                            Handmade Woven Bamboo Fr...
+                          </p>
+                          <p className="text-[9.5px] text-[#7A685F]">Cluster Code: ASM-KAM-42</p>
                         </div>
                       </div>
 
-                      {/* Recommended Pricing Tiers */}
+                      {/* Section Header: Interactive Cost Breakdown */}
+                      <div className="flex items-center justify-between pt-0.5">
+                        <div className="flex items-center gap-1.5">
+                          <SlidersHorizontal className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <h3 className="text-xs font-black text-[#221C19]">Interactive Cost Breakdown</h3>
+                        </div>
+                        <span className="text-[10px] font-bold text-[#7A685F]">Tap card to edit</span>
+                      </div>
+
+                      {/* 4 Cost Breakdown Cards */}
                       <div className="space-y-2">
-                        <div className="bg-white rounded-2xl p-3 border-2 border-[#8C3A16] flex items-center justify-between shadow-xs">
-                          <div>
-                            <p className="text-xs font-black text-[#2D2421]">Retail / ONDC Direct Buyer</p>
-                            <p className="text-[10px] font-bold text-emerald-700">Artisan Profit Margin: 45%</p>
+                        {/* 1. Raw Materials */}
+                        <div
+                          onClick={() => showToast('Editing Raw Materials cost...')}
+                          className="bg-[#FFFDFB] rounded-2xl p-2.5 border border-[#EADFD6] flex items-center justify-between cursor-pointer hover:border-[#8C3A16] transition-all shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#FAF1EA] text-[#8C3A16] flex items-center justify-center shrink-0">
+                              <Package className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#221C19]">Raw Materials</h4>
+                              <p className="text-[10px] text-[#7A685F]">Treated Assam Cane ₹55 • Polish ₹30</p>
+                            </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-base font-black text-[#8C3A16]">₹{retailPrice}</p>
-                            <p className="text-[9px] text-[#7A685F]">per piece</p>
+                            <span className="text-sm font-black text-[#221C19]">₹85</span>
+                            <span className="block text-[9.5px] font-bold text-[#8C3A16]">Adjust ✎</span>
                           </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-3 border border-[#EADFD6] flex items-center justify-between">
-                          <div>
-                            <p className="text-xs font-black text-[#2D2421]">Wholesale Bulk (MOQ: {wholesaleMoq} pcs)</p>
-                            <p className="text-[10px] font-bold text-blue-700">Artisan Profit Margin: 25%</p>
+                        {/* 2. Artisan Labor & Time (Green Benchmark Highlight) */}
+                        <div
+                          onClick={() => showToast('Artisan Labor benchmark rate')}
+                          className="bg-[#FFFDFB] rounded-2xl p-2.5 border-1.5 border-[#1E824C] flex items-center justify-between cursor-pointer shadow-xs"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#E8F8F0] text-[#1E824C] flex items-center justify-center shrink-0">
+                              <User className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-black text-[#221C19]">Artisan Labor &amp; Time</h4>
+                                <span className="bg-[#E8F5E9] text-[#1E824C] px-1.5 py-0.2 rounded text-[8.5px] font-black">
+                                  Benchmark
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-[#7A685F]">3.5 hours weaving @ ₹34/hr benchmark</p>
+                            </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-base font-black text-[#2D2421]">₹{wholesalePrice}</p>
-                            <p className="text-[9px] text-[#7A685F]">per piece</p>
+                            <span className="text-sm font-black text-[#1E824C]">₹120</span>
+                            <span className="block text-[9.5px] font-bold text-[#1E824C]">Fair rate</span>
+                          </div>
+                        </div>
+
+                        {/* 3. Cluster Overhead */}
+                        <div
+                          onClick={() => showToast('Editing Cluster Overhead...')}
+                          className="bg-[#FFFDFB] rounded-2xl p-2.5 border border-[#EADFD6] flex items-center justify-between cursor-pointer hover:border-[#8C3A16] transition-all shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#FAF1EA] text-[#8C3A16] flex items-center justify-center shrink-0">
+                              <Layers className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#221C19]">Cluster Overhead</h4>
+                              <p className="text-[10px] text-[#7A685F]">Tools, shared shed &amp; transport</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-sm font-black text-[#221C19]">₹25</span>
+                            <span className="block text-[9.5px] font-bold text-[#8C3A16]">Adjust ✎</span>
+                          </div>
+                        </div>
+
+                        {/* 4. Fair Profit (20%) */}
+                        <div
+                          onClick={() => showToast('Fair Profit is automated at 20%')}
+                          className="bg-[#FFFDFB] rounded-2xl p-2.5 border border-[#EADFD6] flex items-center justify-between cursor-pointer shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#FAF1EA] text-[#8C3A16] flex items-center justify-center shrink-0">
+                              <TrendingUp className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h4 className="text-xs font-black text-[#221C19]">Fair Profit (20%)</h4>
+                                <span className="bg-[#FAF1EA] text-[#8C3A16] px-1.5 py-0.2 rounded text-[8.5px] font-bold">
+                                  Reinvest
+                                </span>
+                              </div>
+                              <p className="text-[10px] text-[#7A685F]">Artisan growth &amp; tool maintenance</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-sm font-black text-[#8C3A16]">₹50</span>
+                            <span className="block text-[9.5px] font-bold text-[#7A685F]">Automated</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* CTA */}
-                      <button
-                        onClick={() => {
-                          setActiveScreenIndex(17);
-                          showToast('Pricing saved! Setting capacity...');
-                        }}
-                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
-                      >
-                        <span>Set Production Capacity &amp; Lead Time</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
+                      {/* Voice Adjustment Bar */}
+                      <div className="bg-[#FAF1EA] rounded-full p-1 pl-3.5 pr-1 border border-[#EADFD6] flex items-center justify-between gap-2 shadow-2xs">
+                        <span className="text-[10.5px] font-bold text-[#5A483E] truncate">
+                          Say "Increase labor to 150 rupees" or tap to...
+                        </span>
+                        <button
+                          onClick={() => showToast('Listening: "Increase labor to..."')}
+                          className="w-7 h-7 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shrink-0 shadow-xs active:scale-95 transition-all"
+                        >
+                          <Mic className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Total Production Cost & Recommended Base Price Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-3 border border-[#EADFD6] space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold text-[#7A685F] block">Total Production Cost</span>
+                            <span className="text-base font-black text-[#221C19]">₹230</span>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-[10.5px] font-black text-[#8C3A16] block">
+                              Recommended Base Price
+                            </span>
+                            <div>
+                              <span className="text-xl font-black text-[#8C3A16]">₹280</span>
+                              <span className="text-[10.5px] text-[#7A685F]"> / piece</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Fair Wage Certified Badge */}
+                        <div className="bg-[#EDF7ED] border border-[#C8E6C9] rounded-xl p-2.5 flex items-start gap-2">
+                          <ShieldCheck className="w-4 h-4 text-[#1E824C] shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-[10.5px] font-black text-[#1E824C] leading-tight">
+                              Fair Wage Certified • ₹780/day artisan income
+                            </p>
+                            <p className="text-[9.5px] text-[#2E7D32] leading-tight mt-0.5">
+                              Meets Indian Handicraft Living Standard Benchmark
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Market Benchmark Comparison Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-3 border border-[#EADFD6] space-y-2.5 shadow-2xs">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black text-[#221C19]">Market Benchmark Comparison</h3>
+                          <Info className="w-3.5 h-3.5 text-[#7A685F]" />
+                        </div>
+                        <p className="text-[10px] text-[#7A685F] leading-tight">
+                          Transparency check against local middlemen and urban commercial retail margins.
+                        </p>
+
+                        {/* Tri-color progress track */}
+                        <div className="h-2 rounded-full overflow-hidden flex bg-[#EADFD6]">
+                          <div className="w-1/4 bg-[#C0392B]" />
+                          <div className="w-1/3 bg-[#1E824C]" />
+                          <div className="flex-1 bg-[#D5C7BD]" />
+                        </div>
+
+                        {/* Row 1: Local Middleman Offer */}
+                        <div className="flex items-center justify-between pt-1">
+                          <div className="flex items-center gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-[#C0392B]" />
+                            <span className="text-[11px] font-bold text-[#221C19]">Local Middleman Offer</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-[#C0392B]">₹160</span>
+                            <span className="bg-[#FDEDEC] text-[#C0392B] px-1.5 py-0.2 rounded text-[8.5px] font-bold">
+                              Exploitative
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Row 2: HunarSangam Living Wage (Green Highlight Card) */}
+                        <div className="bg-[#E8F8F0] border border-[#A3E4D7] rounded-xl p-2.5 flex items-center justify-between">
+                          <div className="flex items-start gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-[#1E824C] mt-1 shrink-0" />
+                            <div>
+                              <span className="text-[11px] font-black text-[#1E824C] block">
+                                HunarSangam Living Wage
+                              </span>
+                              <span className="text-[9.5px] text-[#5A483E]">Direct artisan empowerment</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-[#1E824C]">₹250 – ₹280</span>
+                            <div className="bg-[#2E7D32] text-white px-2 py-1 rounded-lg text-[8.5px] font-black text-center leading-tight">
+                              Fair &amp;<br />Viable
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Row 3: Retail Metro Market Price */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-start gap-1.5">
+                            <div className="w-2 h-2 rounded-full bg-[#9E8E84] mt-1 shrink-0" />
+                            <div>
+                              <span className="text-[11px] font-bold text-[#221C19] block">
+                                Retail Metro Market Price
+                              </span>
+                              <span className="text-[9.5px] text-[#7A685F]">Delhi, Mumbai lifestyle stores</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-black text-[#221C19] block">₹650 – ₹850</span>
+                            <span className="text-[8.5px] font-bold text-[#1E824C]">Healthy B2B buyer margin</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom Action CTAs */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <button
+                          onClick={() => showToast('Opening custom pricing slider...')}
+                          className="px-4 py-2.5 bg-white border border-[#221C19] rounded-xl text-xs font-bold text-[#221C19] hover:bg-[#F3E7DF] active:scale-95 transition-all shadow-2xs"
+                        >
+                          Custom
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(17);
+                            showToast('Fair price of ₹280 locked! Opening Production Capacity.');
+                          }}
+                          className="flex-1 py-2.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-md active:scale-98 transition-all"
+                        >
+                          <span>Lock Fair Price (₹280) &amp; Proceed</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Footer note */}
+                      <p className="text-center text-[9px] text-[#5A483E] font-medium flex items-center justify-center gap-1 pb-1">
+                        <ShieldCheck className="w-3 h-3 text-[#1E824C]" />
+                        <span>Verified against Ministry of Textiles &amp; Handicraft Fair Wage Index</span>
+                      </p>
+                    </div>
+
+                    {/* Bottom Navigation Bar (5 tabs) */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(7);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 18. SCREEN 17: VOICE CAPACITY INTAKE (matching p8-voice based piese in day asking.png) */}
+                {/* 18. SCREEN 17: VOICE CAPACITY INTAKE (matching p8-voice based piese in day asking.png 100%) */}
                 {activeScreenIndex === 17 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
-                    {/* Header */}
-                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
-                      <button
-                        onClick={() => setActiveScreenIndex(16)}
-                        className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                      </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Production Capacity</h2>
-                      <div className="w-4" />
+                    {/* Header matching p8 */}
+                    <div className="px-3.5 pt-2 pb-2.5 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setActiveScreenIndex(16)}
+                          className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
+                        >
+                          <ArrowLeft className="w-4 h-4" />
+                        </button>
+                        <div>
+                          <h2 className="text-sm font-black text-[#221C19] leading-tight">Bulk Record</h2>
+                          <span className="text-[10.5px] font-semibold text-[#7A685F]">
+                            Product: Assam Cane Basket
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1 bg-[#FAF1EA] border border-[#EADFD6] rounded-full px-2.5 py-1 text-[#8C3A16] shadow-2xs">
+                        <span className="text-[11px] font-bold">English ▾</span>
+                      </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* Voice Bubble Question */}
-                      <div className="bg-[#FAF5F0] rounded-2xl p-3 border border-[#E5D5CB] flex items-start gap-2.5">
-                        <Mic className="w-5 h-5 text-[#8C3A16] shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-xs font-black text-[#8C3A16]">
-                            "Ramu ji, how many pieces can your workshop make in a day or week?"
-                          </p>
-                          <p className="text-[10px] text-[#6B5A51] mt-1 italic">
-                            Transcribed: "हम दिन में 5 बास्केट बना सकते हैं, और हफ्ते में 30 बास्केट तक तैयार हो सकती हैं।"
-                          </p>
+                    <div className="flex-1 overflow-y-auto p-3.5 space-y-3">
+                      {/* Product Overview Card matching p8 */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-2.5 border-1.5 border-[#E5D5CB] space-y-2 shadow-2xs">
+                        <div className="flex items-start gap-2.5">
+                          <div className="relative rounded-xl overflow-hidden shrink-0 w-16 h-16 bg-[#FAF3ED]">
+                            <img
+                              src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                              alt="Woven Bamboo Basket"
+                              className="w-full h-full object-cover"
+                            />
+                            <div className="absolute bottom-1 left-1 bg-[#1E824C] text-white px-1.5 py-0.2 rounded text-[7.5px] font-black">
+                              GI CRAFT
+                            </div>
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-xs font-black text-[#221C19] truncate">Woven Bamboo Basket</h3>
+                            <p className="text-[10px] text-[#7A685F]">Assam Golden Cane • Hand-plaited</p>
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <span className="bg-[#FAF1EA] border border-[#E5D5CB] text-[#8C3A16] px-1.5 py-0.5 rounded-md text-[9.5px] font-black">
+                                🏷️ ₹280/pc
+                              </span>
+                              <span className="bg-[#FAF1EA] border border-[#E5D5CB] text-[#4A372D] px-1.5 py-0.5 rounded-md text-[9.5px] font-bold">
+                                📦 Min: 20 pcs
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="border-t border-[#F0E6DE] pt-1.5 flex items-center justify-between text-[10px]">
+                          <span className="text-[#5A483E] flex items-center gap-1">
+                            <Volume2 className="w-3 h-3 text-[#8C3A16]" />
+                            <span>Artisan audio note included (0:24)</span>
+                          </span>
+                          <span className="font-extrabold text-[#1E824C]">Ready for Bulk Quotations</span>
                         </div>
                       </div>
 
-                      {/* Capacity Cards */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-2.5 shadow-2xs">
-                        <div className="flex justify-between items-center bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                          <span className="text-xs font-bold text-[#2D2421]">Daily Production Rate</span>
-                          <span className="text-xs font-black text-[#8C3A16]">{dailyCapacity} units / day</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                          <span className="text-xs font-bold text-[#2D2421]">Weekly Workshop Output</span>
-                          <span className="text-xs font-black text-[#8C3A16]">{weeklyCapacity} units / week</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                          <span className="text-xs font-bold text-[#2D2421]">Ready Stock on Hand</span>
-                          <span className="text-xs font-black text-emerald-800">{readyStock} units</span>
-                        </div>
-                        <div className="flex justify-between items-center bg-[#FAF4F0] p-2.5 rounded-xl border border-[#EADFD6]">
-                          <span className="text-xs font-bold text-[#2D2421]">ONDC Logistics Pickup</span>
-                          <span className="text-xs font-black text-[#2D2421]">Majuli (785104) ✓</span>
+                      {/* Main Question Card matching p8 */}
+                      <div className="bg-[#FFFDFB] rounded-2xl p-3 border border-[#EADFD6] shadow-2xs">
+                        <div className="flex items-start gap-2">
+                          <Sparkles className="w-4 h-4 text-[#8C3A16] shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <p className="text-xs font-black text-[#221C19] leading-snug">
+                              How many pieces you made in 1 day ( 8 hours work )
+                            </p>
+                            <div className="h-0.5 bg-[#EADFD6] w-full mt-2" />
+                          </div>
                         </div>
                       </div>
 
-                      {/* CTA */}
-                      <button
-                        onClick={() => {
-                          setActiveScreenIndex(18);
-                          showToast('Generating 3D / AR Preview...');
-                        }}
-                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
-                      >
-                        <span>Preview Product in 3D / AR</span>
-                        <ArrowRight className="w-4 h-4" />
-                      </button>
+                      {/* Try Saying Suggestions */}
+                      <div className="space-y-1.5">
+                        <span className="text-[10.5px] font-bold text-[#7A685F]">Try saying :</span>
+                        <div
+                          onClick={() => showToast('Selected: "10 pieces 1 day"')}
+                          className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex items-center justify-between cursor-pointer hover:border-[#8C3A16] transition-all shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Mic className="w-3.5 h-3.5 text-[#8C3A16]" />
+                            <span className="text-xs font-semibold text-[#221C19]">Say: "10 pieces 1 day "</span>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#7A685F] -rotate-45" />
+                        </div>
+                        <div
+                          onClick={() => showToast('Selected: "10–20 pieces in 1 day"')}
+                          className="bg-[#FFFDFB] p-2.5 rounded-xl border border-[#EADFD6] flex items-center justify-between cursor-pointer hover:border-[#8C3A16] transition-all shadow-2xs"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Mic className="w-3.5 h-3.5 text-[#8C3A16]" />
+                            <span className="text-xs font-semibold text-[#221C19]">Say: "10–20 pieces in 1 day "</span>
+                          </div>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#7A685F] -rotate-45" />
+                        </div>
+                      </div>
+
+                      {/* Concentric Live Voice Recording Studio Card matching p8 */}
+                      <div className="bg-[#FFFDFB] rounded-3xl p-4 border border-[#EADFD6] text-center space-y-3.5 shadow-xs">
+                        {/* Recording Live Badge */}
+                        <div className="inline-flex items-center gap-1.5 bg-[#FFE8DC] px-3 py-1 rounded-full">
+                          <span className="w-2 h-2 rounded-full bg-[#8C3A16] animate-ping" />
+                          <span className="w-2 h-2 rounded-full bg-[#8C3A16]" />
+                          <span className="text-[10px] font-black text-[#8C3A16]">Recording Live (0:12)</span>
+                        </div>
+
+                        {/* Glowing Concentric Circles Mic */}
+                        <div className="flex items-center justify-center py-1">
+                          <div className="w-28 h-28 rounded-full bg-[#FAF1EA] flex items-center justify-center">
+                            <div className="w-22 h-22 rounded-full bg-[#F3E3D6] flex items-center justify-center">
+                              <button
+                                onClick={() => showToast('Recording toggled')}
+                                className="w-16 h-16 rounded-full bg-[#8C3A16] text-white flex items-center justify-center shadow-lg active:scale-95 transition-all"
+                              >
+                                <Mic className="w-7 h-7" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Equalizer waveform bars */}
+                        <div className="flex items-center justify-center gap-1 h-6">
+                          <div className="w-1 h-3 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-5 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-2 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-6 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-4 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-5 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-3 bg-[#8C3A16] rounded-full" />
+                          <div className="w-1 h-2 bg-[#8C3A16] rounded-full" />
+                        </div>
+
+                        {/* Real-time Transcription Box */}
+                        <div className="bg-[#FBF4EE] rounded-2xl p-3 border border-[#EADFD6] text-left space-y-1">
+                          <div className="flex items-center gap-1.5 text-[#1E824C]">
+                            <Volume2 className="w-3.5 h-3.5 text-[#1E824C]" />
+                            <span className="text-[10px] font-black text-[#221C19]">Real-time Transcription</span>
+                          </div>
+                          <p className="text-xs font-semibold text-[#221C19] leading-snug">
+                            “I made 15 pieces in day 1 work house of 8 house”
+                          </p>
+                        </div>
+
+                        {/* Save and Submit Product Button */}
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(18);
+                            showToast('Production capacity recorded! Opening 3D / AR Preview.');
+                          }}
+                          className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Save and Submit Product</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Navigation Bar (5 tabs) */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 7 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(7);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 19. SCREEN 18: FINAL 3D & AR PREVIEW (matching p9-final preview ar.png) */}
+                {/* 19. SCREEN 18: FINAL PRODUCT PREVIEW (Matching p9-final preview ar.png) */}
                 {activeScreenIndex === 18 && (
                   <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
                     {/* Header */}
@@ -3173,103 +3975,885 @@ export default function App() {
                       >
                         <ArrowLeft className="w-4 h-4" />
                       </button>
-                      <h2 className="text-xs font-black text-[#2D2421]">Final 3D &amp; AR Buyer Preview</h2>
-                      <div className="w-4" />
+                      <h2 className="text-sm font-extrabold text-[#221C19]">Preview Product</h2>
+                      <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+                        <span>Active Listing</span>
+                      </div>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                      {/* 3D AR Viewer Card */}
-                      <div className="relative h-48 rounded-3xl overflow-hidden bg-neutral-900 border border-[#EADFD6] flex items-center justify-center shadow-md">
-                        <img
-                          src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
-                          alt="3D AR Basket"
-                          className={`w-full h-full object-cover transition-transform duration-700 ${isArActive ? 'scale-110 rotate-12' : ''}`}
-                        />
-                        <div className="absolute inset-0 bg-black/30" />
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 pb-6">
+                      {/* Product Catalog Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] overflow-hidden shadow-2xs">
+                        {/* Photo with verified badges */}
+                        <div className="relative h-44 w-full bg-[#F3E7DF] overflow-hidden flex items-center justify-center">
+                          <img
+                            src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                            alt="Handmade Woven Bamboo Fruit Basket"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute top-2.5 left-2.5 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <span>Verified Dimensions</span>
+                          </div>
+                          <div className="absolute bottom-2.5 right-2.5 bg-black/70 backdrop-blur-xs text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                            <span className="w-3.5 h-3.5 rounded-full bg-amber-400 text-black text-[9px] font-black flex items-center justify-center">₹</span>
+                            <span>Verified with ₹10 coin</span>
+                          </div>
+                        </div>
 
-                        <button
-                          onClick={() => {
-                            setIsArActive(!isArActive);
-                            showToast(isArActive ? 'Standard View' : '360° AR Rotate View activated');
-                          }}
-                          className="absolute bottom-3 bg-[#8C3A16] hover:bg-[#783011] text-white text-[11px] font-extrabold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md active:scale-95 transition-all"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>{isArActive ? 'Reset View' : '360° Rotate in AR Room'}</span>
-                        </button>
+                        {/* Card Content */}
+                        <div className="p-3.5 space-y-2.5">
+                          <p className="text-[10px] font-extrabold tracking-wider text-[#A0522D] uppercase">
+                            PRODUCT CATALOG SUMMARY
+                          </p>
+                          <h3 className="text-base font-extrabold text-[#221C19] leading-snug">
+                            Handmade Woven Bamboo Fruit Basket
+                          </h3>
+
+                          {/* Specs Box */}
+                          <div className="bg-[#FBF4EE] rounded-xl p-2.5 border border-[#EADFD6] space-y-1.5">
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-[#7A685F] font-medium">Wholesale Unit Price</span>
+                              <span className="font-black text-[#8C3A16] text-sm">
+                                ₹280 <span className="text-[11px] font-semibold text-[#221C19]">/ pc</span>
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                              <span className="text-[#7A685F] font-medium">Specifications</span>
+                              <span className="font-bold text-[#221C19] text-[11.5px]">
+                                12.4" W × 6.2" H, Wt: 420g
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center text-[11px] pt-1 border-t border-[#EFE5DC]">
+                              <span className="font-bold text-emerald-700 flex items-center gap-1">
+                                <TrendingUp className="w-3 h-3" /> Capacity: 15 pcs / day
+                              </span>
+                              <span className="font-medium text-[#7A685F] flex items-center gap-1">
+                                <Clock className="w-3 h-3" /> Lead: 5 – 7 days
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Verified Listing Details */}
-                      <div className="bg-white rounded-2xl p-3.5 border border-[#EADFD6] space-y-2 shadow-2xs">
-                        <h3 className="text-xs font-black text-[#2D2421]">Handmade Woven Bamboo Fruit Basket</h3>
-                        <p className="text-[11px] text-[#8C3A16] font-bold">GI Tag: Assam Cane &amp; Bamboo (GI-429)</p>
-
-                        <div className="flex items-center justify-between pt-1">
-                          <div>
-                            <span className="text-sm font-black text-[#8C3A16]">₹399</span>
-                            <span className="text-[10px] text-[#7A685F]"> (Retail)</span>
-                          </div>
-                          <span className="text-[10px] font-bold text-[#6B5A51] bg-[#F4ECE5] px-2 py-0.5 rounded-md">
-                            Wholesale: ₹280 (MOQ: 20 pcs)
+                      {/* Distribution Channels Activated Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] p-3.5 shadow-2xs space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black text-[#221C19]">Distribution Channels Activated</h3>
+                          <span className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            3 Active
                           </span>
                         </div>
 
-                        <p className="text-[10px] text-[#7A685F] border-t border-[#F0E6DE] pt-2">
-                          🚚 Express ONDC Logistics enabled • 3-5 days delivery across India
+                        <div className="space-y-2.5 pt-1">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#FFE8DC] flex items-center justify-center text-[#A84318] shrink-0">
+                              <Store className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-xs font-extrabold text-[#221C19]">HunarSangam Marketplace</p>
+                              <p className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Live • Instant Quotations enabled
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32] shrink-0">
+                              <Globe className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-xs font-extrabold text-[#221C19]">ONDC Handicraft Registry</p>
+                              <p className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Synced • Pan-India open network
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-xl bg-[#F5EBE1] flex items-center justify-center text-[#7C3F24] shrink-0">
+                              <Share2 className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-xs font-extrabold text-[#221C19]">Direct WhatsApp Catalog</p>
+                              <p className="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Link ready to share with buyers
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Product Description Box */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] p-3.5 shadow-2xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black text-[#221C19]">Product Description</h3>
+                          <button
+                            onClick={() => showToast('Playing audio description: "Handcrafted from 100% natural treated Assam bamboo..."')}
+                            className="w-6 h-6 rounded-full bg-[#FAF3EE] text-[#8C3A16] flex items-center justify-center hover:bg-[#F2E5DC]"
+                          >
+                            <Volume2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <p className="text-[11px] text-[#5A463B] leading-relaxed">
+                          Handcrafted from 100% natural treated Assam bamboo with traditional lattice weave, double rim reinforcement, and food-safe finish. Ideal for dining storage, eco-friendly gift hampers, and artisanal home decor.
                         </p>
                       </div>
 
-                      {/* Publish CTA */}
+                      {/* WhatsApp Share Preview Note */}
+                      <div className="bg-[#F0FDF4] border border-[#DCFCE7] rounded-xl p-2.5 px-3 flex items-center gap-2 text-[10.5px] text-emerald-800 italic">
+                        <MessageSquare className="w-3.5 h-3.5 text-emerald-600 shrink-0 not-italic" />
+                        <span className="truncate">Preview: "Namaste! View my new verified craft catalog on HunarSangam..."</span>
+                      </div>
+
+                      {/* Submit & Publish CTA */}
                       <button
                         onClick={() => {
                           setActiveScreenIndex(19);
-                          showToast('🎉 Successfully Published to ONDC Network!');
+                          showToast('🎉 Craft submitted & published on ONDC!');
                         }}
-                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all"
+                        className="w-full py-3.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all"
                       >
-                        <Sparkles className="w-4 h-4" />
-                        <span>Publish &amp; Sync to ONDC Network 🚀</span>
+                        <Upload className="w-4 h-4" />
+                        <span>Submit &amp; publish product</span>
                       </button>
+                    </div>
+
+                    {/* Bottom Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                                setHomeBottomTab(0);
+                              } else if (tab.tabIdx === 1) {
+                                setActiveScreenIndex(10);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(20);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                {/* 20. SCREEN 19: PRODUCT FINALIZED & ONDC READY CELEBRATION (matching p10   Product Finalized & ONDC Ready.png) */}
+                {/* 20. SCREEN 19: PRODUCT FINALIZED & ONDC READY CELEBRATION (matching p10 — Product Finalized & ONDC Ready.png) */}
                 {activeScreenIndex === 19 && (
-                  <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden p-5 justify-between">
-                    <div className="pt-6 text-center space-y-3">
-                      <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto shadow-md">
-                        <CheckCircle2 className="w-9 h-9 text-emerald-700" />
-                      </div>
-                      <h2 className="text-base font-black text-[#2D2421]">Product Finalized &amp; ONDC Ready! 🎉</h2>
-                      <p className="text-xs text-[#6B5A51] leading-relaxed max-w-[260px] mx-auto">
-                        Your craft is now live across Open Network buyer apps (Paytm, Mystore, Pincode, Craftsvilla).
-                      </p>
-
-                      <div className="bg-white rounded-2xl p-3 border border-[#EADFD6] text-left space-y-1.5 shadow-2xs">
-                        <p className="text-[11px] font-black text-[#8C3A16]">ONDC Product ID: ONDC-HNRSNG-ASM-429-01</p>
-                        <p className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
-                          <Check className="w-3 h-3 text-emerald-700" /> WhatsApp Orders &amp; Buyer Inquiries Enabled
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2 pb-2">
-                      <button
-                        onClick={() => showToast('WhatsApp Catalog QR & Link copied!')}
-                        className="w-full py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-xs font-extrabold flex items-center justify-center gap-2 shadow-xs"
-                      >
-                        <MessageSquare className="w-4 h-4" /> Share WhatsApp Catalog Link
-                      </button>
+                  <div className="flex-1 flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
+                    {/* Header */}
+                    <div className="px-4 py-3 border-b border-[#EADFD6] bg-[#FFFDFB] flex items-center justify-between shrink-0">
                       <button
                         onClick={() => {
                           setActiveScreenIndex(10);
-                          showToast('Returned to My Products Catalog');
+                          showToast('Navigating back to Products Catalog');
                         }}
-                        className="w-full py-3 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black shadow-md"
+                        className="p-1 rounded-full hover:bg-[#F3E7DF] text-[#4A3228]"
                       >
-                        Return to My Products Catalog
+                        <X className="w-4 h-4" />
                       </button>
+                      <h2 className="text-sm font-extrabold text-[#221C19]">Catalog Published!</h2>
+                      <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+                        <span>Active Listing</span>
+                      </div>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5 pb-6">
+                      {/* Top Success Banner */}
+                      <div className="bg-[#E8F5E9] border border-[#C8E6C9] rounded-2xl p-4 text-center space-y-1.5 shadow-2xs">
+                        <div className="w-11 h-11 rounded-full bg-[#2E7D32] text-white flex items-center justify-center mx-auto shadow-xs">
+                          <Check className="w-6 h-6 stroke-[3]" />
+                        </div>
+                        <p className="text-[10px] font-black tracking-wider text-[#2E7D32] uppercase pt-1">
+                          B2B READY • ONDC SYNCED
+                        </p>
+                        <h2 className="text-base font-black text-[#1B5E20] tracking-tight">
+                          Your Craft is Live &amp; Verified!
+                        </h2>
+                        <p className="text-[11.5px] text-[#2E7D32] leading-snug">
+                          Handmade Woven Bamboo Fruit Basket is now discoverable by verified B2B buyers across India.
+                        </p>
+                      </div>
+
+                      {/* ONDC Network Ready Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] p-3.5 shadow-2xs space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#221C19]">
+                            <Globe className="w-4 h-4 text-[#2E7D32]" />
+                            <span>ONDC Network Ready</span>
+                          </div>
+                          <span className="bg-[#E8F5E9] text-[#2E7D32] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            Pan-India Reach
+                          </span>
+                        </div>
+
+                        <div className="h-px bg-[#EADFD6] w-full" />
+
+                        {/* GI Tagged Authenticity */}
+                        <div className="flex items-center gap-2">
+                          <Award className="w-4 h-4 text-[#8C3A16] shrink-0" />
+                          <div>
+                            <p className="text-[10px] font-bold text-[#7A685F]">GI Tagged Craft Authenticity</p>
+                            <p className="text-[11.5px] font-black text-[#221C19]">
+                              Assam Cane &amp; Bamboo Crafts (GI Reg #431)
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="h-px bg-[#EADFD6] w-full" />
+
+                        {/* Digital Listing ID + QR Code */}
+                        <div className="flex items-center justify-between pt-0.5">
+                          <div>
+                            <p className="text-[10px] text-[#7A685F] font-medium">Listing Digital ID</p>
+                            <p className="text-sm font-black text-[#8C3A16]">#HS-BAM-8842</p>
+                          </div>
+                          <button
+                            onClick={() => showToast('ONDC Verified QR Code generated!')}
+                            className="px-2.5 py-1 bg-white border border-[#E5D5CB] hover:bg-[#FAF3EE] rounded-xl text-xs font-bold text-[#4A372D] flex items-center gap-1.5 shadow-2xs"
+                          >
+                            <QrCode className="w-3.5 h-3.5 text-[#4A372D]" />
+                            <span>QR Code</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Product Catalog Summary Card */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] overflow-hidden shadow-2xs">
+                        <div className="relative h-40 w-full bg-[#F3E7DF] overflow-hidden flex items-center justify-center">
+                          <img
+                            src="https://images.unsplash.com/photo-1590402494682-cd3fb53b1f70?w=600&auto=format&fit=crop&q=80"
+                            alt="Handmade Woven Bamboo Fruit Basket"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = 'none';
+                            }}
+                          />
+                          <div className="absolute top-2 left-2 bg-black/70 backdrop-blur-xs text-white text-[9.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <span>Verified Dimensions</span>
+                          </div>
+                          <div className="absolute bottom-2 right-2 bg-black/70 backdrop-blur-xs text-white text-[9.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="w-3 h-3 rounded-full bg-amber-400 text-black text-[8px] font-black flex items-center justify-center">₹</span>
+                            <span>Verified with ₹10 coin</span>
+                          </div>
+                        </div>
+
+                        <div className="p-3 space-y-2">
+                          <h3 className="text-sm font-extrabold text-[#221C19]">
+                            Handmade Woven Bamboo Fruit Basket
+                          </h3>
+
+                          <div className="flex justify-between items-baseline text-xs">
+                            <span className="font-black text-[#8C3A16] text-sm">
+                              ₹280 <span className="text-[10.5px] font-semibold text-[#221C19]">/ pc</span>
+                            </span>
+                            <span className="font-semibold text-[#4A372D] text-[11px]">
+                              12.4" W × 6.2" H, Wt: 420g
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center text-[10.5px] pt-1 border-t border-[#EFE5DC]">
+                            <span className="font-bold text-emerald-700">
+                              📈 Capacity: 15 pcs / day
+                            </span>
+                            <span className="font-medium text-[#7A685F]">
+                              ⏱️ Lead: 5 – 7 days
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Distribution Channels Activated Card (with Green Checkmark circles) */}
+                      <div className="bg-[#FFFDFB] rounded-2xl border border-[#EADFD6] p-3.5 shadow-2xs space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black text-[#221C19]">Distribution Channels Activated</h3>
+                          <span className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            3 Active
+                          </span>
+                        </div>
+
+                        <div className="space-y-2 pt-1">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-[#FFE8DC] flex items-center justify-center text-[#A84318] shrink-0">
+                                <Store className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <p className="text-[11.5px] font-extrabold text-[#221C19]">HunarSangam Marketplace</p>
+                                <p className="text-[9.5px] text-emerald-700 font-semibold">Live • Instant Quotations enabled</p>
+                              </div>
+                            </div>
+                            <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-[#E8F5E9] flex items-center justify-center text-[#2E7D32] shrink-0">
+                                <Globe className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <p className="text-[11.5px] font-extrabold text-[#221C19]">ONDC Handicraft Registry</p>
+                                <p className="text-[9.5px] text-emerald-700 font-semibold">Synced • Pan-India open network</p>
+                              </div>
+                            </div>
+                            <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <div className="w-7 h-7 rounded-lg bg-[#F5EBE1] flex items-center justify-center text-[#7C3F24] shrink-0">
+                                <Share2 className="w-3.5 h-3.5" />
+                              </div>
+                              <div>
+                                <p className="text-[11.5px] font-extrabold text-[#221C19]">Direct WhatsApp Catalog</p>
+                                <p className="text-[9.5px] text-emerald-700 font-semibold">Link ready to share with buyers</p>
+                              </div>
+                            </div>
+                            <div className="w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs">
+                              <Check className="w-2.5 h-2.5 stroke-[3]" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* WhatsApp Direct Share Button */}
+                      <button
+                        onClick={() => showToast('💬 WhatsApp Catalog Card copied & ready to share!')}
+                        className="w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Share Catalog Card on WhatsApp</span>
+                      </button>
+
+                      {/* Action Buttons */}
+                      <div className="space-y-2 pt-1">
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(9);
+                            setHomeBottomTab(0);
+                            showToast('Returned to Artisan Dashboard');
+                          }}
+                          className="w-full py-3.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black shadow-md flex items-center justify-center gap-1.5 active:scale-98 transition-all"
+                        >
+                          <span>Go to Artisan Dashboard</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setActiveScreenIndex(11);
+                            showToast('Opening Voice-First Product Capture Flow');
+                          }}
+                          className="w-full py-2.5 bg-[#FBF4EE] hover:bg-[#F2E5DC] text-[#8C3A16] border border-[#EADFD6] rounded-2xl text-xs font-bold flex items-center justify-center gap-1.5 active:scale-98 transition-all"
+                        >
+                          <Mic className="w-3.5 h-3.5" />
+                          <span>+ Add Another Craft (Voice)</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Navigation Bar */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 1;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                                setHomeBottomTab(0);
+                              } else if (tab.tabIdx === 1) {
+                                setActiveScreenIndex(10);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(20);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* 21. SCREEN 20: DIGITAL VISITING CARD & ARTISAN PROFILE SECTION (100% matching profile section - Digital Visiting Card.png) */}
+                {activeScreenIndex === 20 && (
+                  <div className="flex flex-col h-full bg-[#FDFBF9] overflow-hidden">
+                    {/* Top App Bar */}
+                    <div className="bg-[#FFFDFB] border-b border-[#EADFD6] px-4 py-2.5 flex items-center justify-between z-10 shrink-0">
+                      <div className="flex items-center gap-2.5">
+                        <button
+                          onClick={() => setActiveScreenIndex(9)}
+                          className="p-1 rounded-full text-[#221C19] hover:bg-[#F3E7DF] active:scale-95 transition-all"
+                        >
+                          <ArrowLeft className="w-5 h-5" />
+                        </button>
+                        <div>
+                          <h2 className="text-sm font-black text-[#221C19] leading-tight">Digital Visiting Card</h2>
+                          <div className="flex items-center gap-1 text-[10.5px] text-[#2E7D32] font-bold">
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#2E7D32]" />
+                            <span>Official GI Identity</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Audio Listen Pill */}
+                        <button
+                          onClick={() => {
+                            setIsPlayingAudio(!isPlayingAudio);
+                            showToast(
+                              isPlayingAudio
+                                ? 'Audio stopped'
+                                : '🎙️ Playing audio artisan passport introduction in English'
+                            );
+                          }}
+                          className="px-2.5 py-1 bg-[#FDF2EB] border border-[#F3DFD5] text-[#8C3A16] rounded-full flex items-center gap-1.5 text-xs font-bold shadow-2xs hover:bg-[#F8E5D8] active:scale-95 transition-all"
+                        >
+                          <Volume2 className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <span className="flex items-center gap-0.5 text-[#8C3A16]">
+                            <span className="w-0.5 h-2 bg-[#8C3A16] rounded-full animate-pulse" />
+                            <span className="w-0.5 h-3 bg-[#8C3A16] rounded-full animate-pulse delay-75" />
+                            <span className="w-0.5 h-1.5 bg-[#8C3A16] rounded-full animate-pulse delay-150" />
+                            <span className="w-0.5 h-2.5 bg-[#8C3A16] rounded-full" />
+                          </span>
+                          <span>Listen</span>
+                        </button>
+
+                        {/* Language Dropdown */}
+                        <button
+                          onClick={() => showToast('Language: English (Tap to change)')}
+                          className="flex items-center gap-0.5 text-xs font-bold text-[#4A3228] hover:text-[#8C3A16] px-1 py-0.5"
+                        >
+                          <span>English</span>
+                          <span className="text-[9px]">▾</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Scrollable Passport Content */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
+                      {/* Verified Artisan Identity B2B Banner */}
+                      <div className="bg-[#FFF6F0] border border-[#FBE0D2] rounded-2xl p-3.5 flex items-start gap-3 shadow-2xs">
+                        <div className="w-9 h-9 rounded-xl bg-[#F9EDE6] text-[#A84318] flex items-center justify-center shrink-0">
+                          <ShieldCheck className="w-5 h-5 text-[#A84318]" />
+                        </div>
+                        <div>
+                          <h3 className="text-xs font-black text-[#221C19] leading-snug">
+                            Your Verified Artisan Identity for B2B Buyers
+                          </h3>
+                          <p className="text-[11px] text-[#6B584E] leading-relaxed mt-1">
+                            Share via WhatsApp, print at craft melas, or show your QR passport directly at domestic and
+                            export exhibitions.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Add Your Craft Story by Voice CTA */}
+                      <button
+                        onClick={() => {
+                          setActiveScreenIndex(4);
+                          showToast('🎙️ Voice Assistant ready to record your craft story');
+                        }}
+                        className="w-full py-3 px-4 bg-[#8C140E] hover:bg-[#78100B] text-white rounded-2xl flex items-center justify-center gap-2.5 shadow-md active:scale-98 transition-all"
+                      >
+                        <div className="w-7 h-7 rounded-full bg-[#FDF0EB] text-[#8C140E] flex items-center justify-center shrink-0 shadow-2xs">
+                          <Mic className="w-4 h-4 text-[#8C140E]" />
+                        </div>
+                        <span className="text-xs font-black tracking-wide">Add your craft story by voice</span>
+                      </button>
+
+                      {/* Central Digital Visiting Card (Artisan Passport) */}
+                      <div className="bg-[#FFFDFB] rounded-3xl border border-[#E8DDD5] overflow-hidden shadow-xs">
+                        {/* Brown Header Bar */}
+                        <div className="h-1.5 bg-[#8C4421] w-full" />
+
+                        <div className="p-4 space-y-3.5">
+                          {/* Top Brand & GI Badge */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-base font-black text-[#8C3A16] tracking-tight">HunarSangam</span>
+                              <span className="text-[9.5px] font-bold text-[#7A5A4A] bg-[#F7EFE9] px-2 py-0.5 rounded-md">
+                                Artisan
+                              </span>
+                            </div>
+                            <div className="bg-[#E8F5E9] text-[#2E7D32] border border-[#C8E6C9] text-[10.5px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5 text-[#2E7D32]" />
+                              <span>GI Reg #431 – Assam Cane</span>
+                            </div>
+                          </div>
+
+                          {/* Artisan Avatar & Info */}
+                          <div className="flex items-center gap-3">
+                            <div className="relative shrink-0">
+                              <img
+                                src="https://images.unsplash.com/photo-1544816155-12df9643f363?w=300&auto=format&fit=crop&q=80"
+                                alt="Ramu Kumar"
+                                className="w-14 h-14 rounded-2xl object-cover border border-[#E8DDD5]"
+                                onError={(e) => {
+                                  (e.target as HTMLElement).style.display = 'none';
+                                }}
+                              />
+                              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#2E7D32] rounded-full flex items-center justify-center text-white ring-2 ring-white">
+                                <Check className="w-2.5 h-2.5 stroke-[3]" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="text-sm font-black text-[#221C19]">Ramu Kumar</h3>
+                                <span className="bg-[#FDF2EB] text-[#A84318] border border-[#F5D8CA] text-[9.5px] font-black px-1.5 py-0.5 rounded-md">
+                                  GI Certified
+                                </span>
+                              </div>
+                              <p className="text-[11px] font-medium text-[#6B584E] mt-0.5">
+                                Master Craftsman • 3rd Gen Weaver
+                              </p>
+                              <p className="text-[10.5px] text-[#7A685F] flex items-center gap-1 mt-0.5">
+                                <MapPin className="w-3 h-3 text-[#8C3A16]" />
+                                <span>Assam &amp; Barabanki Weavers Guild</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Merit & Wage Badges */}
+                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                            <span className="bg-[#FDF4EE] border border-[#F0DFD3] text-[#7A4A28] text-[9.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span>🏆</span> National Merit Awardee 2019
+                            </span>
+                            <span className="bg-[#E8F5E9] border border-[#C8E6C9] text-[#2E7D32] text-[9.5px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                              <span>🌱</span> Fair Wage Certified
+                            </span>
+                          </div>
+
+                          {/* QR Code Container */}
+                          <div className="border border-dashed border-[#DCCEC4] rounded-2xl p-4 bg-white text-center space-y-3">
+                            <div className="w-36 h-36 mx-auto bg-white p-2 rounded-xl flex items-center justify-center relative shadow-2xs">
+                              <svg viewBox="0 0 100 100" className="w-full h-full">
+                                <rect width="100" height="100" fill="white" />
+                                {/* Top-Left Finder */}
+                                <rect x="6" y="6" width="26" height="26" rx="4" fill="#8C3A16" />
+                                <rect x="11" y="11" width="16" height="16" rx="2" fill="white" />
+                                <rect x="15" y="15" width="8" height="8" rx="1" fill="#221C19" />
+                                {/* Top-Right Finder */}
+                                <rect x="68" y="6" width="26" height="26" rx="4" fill="#8C3A16" />
+                                <rect x="73" y="11" width="16" height="16" rx="2" fill="white" />
+                                <rect x="77" y="15" width="8" height="8" rx="1" fill="#221C19" />
+                                {/* Bottom-Left Finder */}
+                                <rect x="6" y="68" width="26" height="26" rx="4" fill="#8C3A16" />
+                                <rect x="11" y="73" width="16" height="16" rx="2" fill="white" />
+                                <rect x="15" y="77" width="8" height="8" rx="1" fill="#221C19" />
+                                {/* Decorative Data Dots */}
+                                <rect x="36" y="8" width="8" height="6" rx="1" fill="#221C19" />
+                                <rect x="48" y="8" width="14" height="6" rx="1" fill="#8C3A16" />
+                                <rect x="36" y="18" width="12" height="6" rx="1" fill="#221C19" />
+                                <rect x="52" y="18" width="10" height="10" rx="1" fill="#221C19" />
+                                <rect x="8" y="36" width="10" height="6" rx="1" fill="#221C19" />
+                                <rect x="22" y="36" width="10" height="10" rx="1" fill="#8C3A16" />
+                                <rect x="8" y="48" width="12" height="12" rx="1" fill="#221C19" />
+                                <rect x="68" y="36" width="12" height="8" rx="1" fill="#221C19" />
+                                <rect x="84" y="36" width="10" height="12" rx="1" fill="#8C3A16" />
+                                <rect x="72" y="48" width="10" height="10" rx="1" fill="#221C19" />
+                                <rect x="36" y="68" width="14" height="8" rx="1" fill="#8C3A16" />
+                                <rect x="54" y="68" width="8" height="12" rx="1" fill="#221C19" />
+                                <rect x="36" y="80" width="10" height="14" rx="1" fill="#221C19" />
+                                <rect x="50" y="84" width="14" height="10" rx="1" fill="#8C3A16" />
+                                <rect x="68" y="68" width="26" height="26" rx="4" fill="#221C19" />
+                                <rect x="74" y="74" width="14" height="14" rx="2" fill="white" />
+                                <rect x="78" y="78" width="6" height="6" rx="1" fill="#8C3A16" />
+                              </svg>
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-[#8C3A16] text-white flex items-center justify-center text-xs shadow-md ring-2 ring-white font-bold">
+                                  🌿
+                                </div>
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <p className="text-xs font-black text-[#221C19] leading-tight">
+                                Scan to view live catalog, audio story &amp; verified bulk pricing
+                              </p>
+                              <p className="text-[10px] text-[#7A685F]">
+                                Instant B2B Buyer direct connect via HunarSangam
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* 3 Metrics Bar */}
+                          <div className="bg-[#FDF5EE] rounded-2xl p-2.5 grid grid-cols-3 divide-x divide-[#EADFD6] text-center">
+                            <div>
+                              <p className="text-xs font-black text-[#8C3A16]">8 Types</p>
+                              <p className="text-[9.5px] text-[#7A685F] font-medium">Verified Crafts</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-[#221C19]">250 pcs/mo</p>
+                              <p className="text-[9.5px] text-[#7A685F] font-medium">Bulk Capacity</p>
+                            </div>
+                            <div>
+                              <p className="text-xs font-black text-[#2E7D32]">100%</p>
+                              <p className="text-[9.5px] text-[#7A685F] font-medium">On-Time Dispatch</p>
+                            </div>
+                          </div>
+
+                          {/* Card ID & GI Tag */}
+                          <div className="flex items-center justify-between text-[10px] pt-1 border-t border-[#F0E6DE]">
+                            <span className="font-mono font-bold text-[#6B584E]">🪪 ID: HS-IND-AS-0431-RK</span>
+                            <span className="font-bold text-[#2E7D32] flex items-center gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5" /> Govt. GI Verified
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* QUICK SHARING Section */}
+                      <div className="space-y-2.5">
+                        <p className="text-[10.5px] font-black tracking-wider text-[#6B584E] uppercase">
+                          QUICK SHARING
+                        </p>
+
+                        {/* WhatsApp Button */}
+                        <button
+                          onClick={() => showToast('📲 Opening WhatsApp with Digital Visiting Card preview...')}
+                          className="w-full py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white rounded-2xl text-xs font-black flex items-center justify-center gap-2 shadow-xs active:scale-98 transition-all"
+                        >
+                          <Send className="w-4 h-4 fill-white rotate-45 -mt-0.5" />
+                          <span>Share on WhatsApp</span>
+                        </button>
+
+                        {/* PDF / Copy Link */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            onClick={() => showToast('📄 Downloading high-res PDF card for printing...')}
+                            className="py-2.5 bg-[#FFF5EE] border border-[#EADFD6] hover:bg-[#FBEBE0] text-[#4A3228] font-bold text-[11px] rounded-2xl flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all"
+                          >
+                            <Download className="w-3.5 h-3.5 text-[#8C3A16]" />
+                            <span>Download PDF / Print</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText('https://hunarsangam.in/artisan/ramu-kumar-gi431');
+                              showToast('🔗 Profile link copied: hunarsangam.in/artisan/ramu-kumar-gi431');
+                            }}
+                            className="py-2.5 bg-[#FFF5EE] border border-[#EADFD6] hover:bg-[#FBEBE0] text-[#4A3228] font-bold text-[11px] rounded-2xl flex items-center justify-center gap-1.5 shadow-2xs active:scale-98 transition-all"
+                          >
+                            <Link className="w-3.5 h-3.5 text-[#8C3A16]" />
+                            <span>Copy Profile Link</span>
+                          </button>
+                        </div>
+
+                        {/* Add to Wallet */}
+                        <button
+                          onClick={() => showToast('🪪 Added Artisan Passport to Apple / Google Wallet!')}
+                          className="w-full py-2.5 bg-white border border-[#EADFD6] hover:bg-[#FAF3EE] text-[#4A3228] font-bold text-xs rounded-2xl flex items-center justify-center gap-2 shadow-2xs active:scale-98 transition-all"
+                        >
+                          <Wallet className="w-3.5 h-3.5 text-[#8C3A16]" />
+                          <span>Add to Apple / Google Wallet</span>
+                        </button>
+                      </div>
+
+                      {/* Visiting Card Formats Section */}
+                      <div className="space-y-2.5 pt-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-xs font-black text-[#221C19]">Visiting Card Formats</h3>
+                          <span className="text-[10.5px] font-bold text-[#8C3A16]">3 Templates Ready</span>
+                        </div>
+
+                        {/* Option 1: Digital Phone Card */}
+                        <button
+                          onClick={() => setSelectedCardTemplate('phone')}
+                          className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                            selectedCardTemplate === 'phone'
+                              ? 'bg-[#FFFBF8] border-[#8C3A16] ring-1 ring-[#8C3A16]'
+                              : 'bg-white border-[#EADFD6]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                selectedCardTemplate === 'phone'
+                                  ? 'bg-[#8C3A16] text-white'
+                                  : 'bg-[#FDF4EE] text-[#8C3A16]'
+                              }`}
+                            >
+                              <Smartphone className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#221C19]">Digital Phone Card</h4>
+                              <p className="text-[10.5px] text-[#7A685F]">
+                                Optimized for WhatsApp status &amp; direct phone scans
+                              </p>
+                            </div>
+                          </div>
+                          {selectedCardTemplate === 'phone' && (
+                            <div className="w-5 h-5 rounded-full bg-[#8C3A16] text-white flex items-center justify-center">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </div>
+                          )}
+                        </button>
+
+                        {/* Option 2: Printable Stall Standee */}
+                        <button
+                          onClick={() => setSelectedCardTemplate('standee')}
+                          className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                            selectedCardTemplate === 'standee'
+                              ? 'bg-[#FFFBF8] border-[#8C3A16] ring-1 ring-[#8C3A16]'
+                              : 'bg-white border-[#EADFD6]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                selectedCardTemplate === 'standee'
+                                  ? 'bg-[#8C3A16] text-white'
+                                  : 'bg-[#FDF4EE] text-[#8C3A16]'
+                              }`}
+                            >
+                              <Store className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#221C19]">Printable Stall Standee (A4 QR)</h4>
+                              <p className="text-[10.5px] text-[#7A685F]">
+                                For Shilp Melas, Dastkar exhibitions &amp; trade desks
+                              </p>
+                            </div>
+                          </div>
+                          {selectedCardTemplate === 'standee' ? (
+                            <div className="w-5 h-5 rounded-full bg-[#8C3A16] text-white flex items-center justify-center">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold text-[#8C3A16] bg-[#FDF4EE] px-2 py-0.5 rounded-md">
+                              Print A4
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Option 3: Packaging Hang Tag */}
+                        <button
+                          onClick={() => setSelectedCardTemplate('hangtag')}
+                          className={`w-full p-3 rounded-2xl border text-left flex items-center justify-between transition-all ${
+                            selectedCardTemplate === 'hangtag'
+                              ? 'bg-[#FFFBF8] border-[#8C3A16] ring-1 ring-[#8C3A16]'
+                              : 'bg-white border-[#EADFD6]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                                selectedCardTemplate === 'hangtag'
+                                  ? 'bg-[#8C3A16] text-white'
+                                  : 'bg-[#FDF4EE] text-[#8C3A16]'
+                              }`}
+                            >
+                              <Tag className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-black text-[#221C19]">Packaging Hang Tag (Mini QR)</h4>
+                              <p className="text-[10.5px] text-[#7A685F]">
+                                Attach with dispatched cane &amp; bamboo handicraft lots
+                              </p>
+                            </div>
+                          </div>
+                          {selectedCardTemplate === 'hangtag' ? (
+                            <div className="w-5 h-5 rounded-full bg-[#8C3A16] text-white flex items-center justify-center">
+                              <Check className="w-3 h-3 stroke-[3]" />
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold text-[#8C3A16] bg-[#FDF4EE] px-2 py-0.5 rounded-md">
+                              Batch (50)
+                            </span>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* Share Digital Card Now Primary Button */}
+                      <button
+                        onClick={() => showToast('🚀 Sharing Digital Visiting Card via Native Share Drawer...')}
+                        className="w-full py-3.5 bg-[#8C3A16] hover:bg-[#783011] text-white rounded-2xl text-xs font-black shadow-md flex items-center justify-center gap-2 active:scale-98 transition-all"
+                      >
+                        <Share2 className="w-4 h-4" />
+                        <span>Share Digital Card Now</span>
+                      </button>
+                    </div>
+
+                    {/* Bottom Navigation Bar (5 tabs matching Home & Products sections) */}
+                    <div className="bg-white border-t border-[#EADFD6] py-1.5 px-3 flex items-center justify-around z-10 shrink-0">
+                      {[
+                        { label: 'Home', icon: Store, tabIdx: 0, screenIdx: 9 },
+                        { label: 'Products', icon: Palette, tabIdx: 1, screenIdx: 10 },
+                        { label: 'Orders', icon: FileText, tabIdx: 2, screenIdx: 10 },
+                        { label: 'Collaborate', icon: Users, tabIdx: 3, screenIdx: 10 },
+                        { label: 'Profile', icon: User, tabIdx: 4, screenIdx: 20 },
+                      ].map((tab) => {
+                        const IconComp = tab.icon;
+                        const isSel = tab.tabIdx === 4;
+                        return (
+                          <button
+                            key={tab.label}
+                            onClick={() => {
+                              if (tab.tabIdx === 0) {
+                                setActiveScreenIndex(9);
+                                setHomeBottomTab(0);
+                              } else if (tab.tabIdx === 1) {
+                                setActiveScreenIndex(10);
+                              } else if (tab.tabIdx === 4) {
+                                setActiveScreenIndex(20);
+                              } else {
+                                showToast(`Switched to ${tab.label} tab`);
+                              }
+                            }}
+                            className={`flex flex-col items-center px-2 py-1 rounded-xl transition-all ${
+                              isSel ? 'bg-[#F8E5D8] text-[#8C3A16] font-extrabold' : 'text-[#7A685F]'
+                            }`}
+                          >
+                            <IconComp className="w-4 h-4 mb-0.5" />
+                            <span className="text-[9.5px]">{tab.label}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
