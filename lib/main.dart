@@ -12,6 +12,26 @@ import 'screens/craft_selection_screen.dart';
 import 'screens/profile_photo_screen.dart';
 import 'screens/profile_preview_screen.dart';
 import 'screens/artisan_home_screen.dart';
+import 'models/buyer_onboarding_model.dart';
+import 'screens/buyer_onboarding_step1_screen.dart';
+import 'screens/buyer_onboarding_step2_screen.dart';
+import 'screens/buyer_onboarding_step3_screen.dart';
+import 'screens/buyer_profile_confirmation_screen.dart';
+import 'screens/buyer_home_screen.dart';
+import 'screens/buyer_discover_screen.dart';
+import 'screens/buyer_search_screen.dart';
+import 'screens/buyer_search_results_screen.dart';
+import 'screens/buyer_featured_artisans_screen.dart';
+import 'screens/buyer_artisan_profile_screen.dart';
+import 'screens/buyer_business_sourcing_screen.dart';
+import 'screens/buyer_requirements_screen.dart';
+import 'screens/buyer_voice_requirement_screen.dart';
+import 'screens/buyer_requirement_review_screen.dart';
+import 'screens/buyer_reference_image_screen.dart';
+import 'screens/buyer_review_match_screen.dart';
+import 'screens/buyer_matched_artisans_screen.dart';
+import 'screens/buyer_compare_artisans_screen.dart';
+import 'screens/buyer_selected_artisan_screen.dart';
 
 void main() {
   runApp(const HunarSangamApp());
@@ -50,8 +70,11 @@ class OnboardingFlowCoordinator extends StatefulWidget {
 
 class _OnboardingFlowCoordinatorState extends State<OnboardingFlowCoordinator> {
   OnboardingState _state = const OnboardingState();
+  BuyerOnboardingModel _buyerModel = const BuyerOnboardingModel();
   final PageController _pageController = PageController();
   int _currentFlowIndex = 0;
+  int _buyerStep = 0; // 0: not in buyer flow, 1: Step 1, 2: Step 2, 3: Step 3, 4: Confirmation, 5: Home, 6: Discover (d1), 7: Search (d2), 8: Results (d3), 9: Featured (d4), 10: Profile (d5), 11: Sourcing (d6)
+  String _buyerSearchQuery = 'Bamboo fruit baskets';
   bool _isLoggedIn = false;
   bool _showingLoginScreen = false;
 
@@ -59,6 +82,16 @@ class _OnboardingFlowCoordinatorState extends State<OnboardingFlowCoordinator> {
     setState(() {
       _state = newState;
     });
+  }
+
+  void _handleRoleContinue() {
+    if (_state.selectedRole == UserRole.buyer) {
+      setState(() {
+        _buyerStep = 1;
+      });
+    } else {
+      _nextPage();
+    }
   }
 
   void _navigateToPage(int pageIndex) {
@@ -147,6 +180,238 @@ class _OnboardingFlowCoordinatorState extends State<OnboardingFlowCoordinator> {
       );
     }
 
+    // Buyer Registration Flow - Steps 1, 2, 3
+    if (_buyerStep == 1) {
+      return BuyerOnboardingStep1Screen(
+        initialModel: _buyerModel,
+        onBack: () => setState(() => _buyerStep = 0),
+        onContinue: (updated) => setState(() {
+          _buyerModel = updated;
+          _buyerStep = 2;
+        }),
+      );
+    }
+
+    if (_buyerStep == 2) {
+      return BuyerOnboardingStep2Screen(
+        model: _buyerModel,
+        onBack: () => setState(() => _buyerStep = 1),
+        onContinue: (updated) => setState(() {
+          _buyerModel = updated;
+          _buyerStep = 3;
+        }),
+      );
+    }
+
+    if (_buyerStep == 3) {
+      return BuyerOnboardingStep3Screen(
+        model: _buyerModel,
+        onBack: () => setState(() => _buyerStep = 2),
+        onEditStep1: () => setState(() => _buyerStep = 1),
+        onEditStep2: () => setState(() => _buyerStep = 2),
+        onCreateProfile: () => setState(() => _buyerStep = 4),
+      );
+    }
+
+    // Buyer Profile Confirmation Screen (matching bulk buyer profile confirmation after register.png)
+    if (_buyerStep == 4) {
+      return BuyerProfileConfirmationScreen(
+        model: _buyerModel,
+        onGoToDashboard: () => setState(() => _buyerStep = 5),
+        onViewProfile: () => setState(() => _buyerStep = 3),
+        onBack: () => setState(() => _buyerStep = 3),
+      );
+    }
+
+    // Bulk Buyer Home Dashboard Screen (matching home - bulk buyer.png)
+    if (_buyerStep == 5) {
+      return BuyerHomeScreen(
+        model: _buyerModel,
+        onLogout: () => setState(() {
+          _buyerStep = 0;
+          _isLoggedIn = false;
+        }),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenSearch: () => setState(() => _buyerStep = 7),
+        onTabChange: (idx) {
+          if (idx == 1) setState(() => _buyerStep = 6);
+        },
+      );
+    }
+
+    // Screen d1: Bulk Buyer Discover Screen (matching d1 - bulk- Discover.png)
+    if (_buyerStep == 6) {
+      return BuyerDiscoverScreen(
+        model: _buyerModel,
+        onBack: () => setState(() => _buyerStep = 5),
+        onOpenSearch: () => setState(() => _buyerStep = 7),
+        onOpenFeaturedArtisans: () => setState(() => _buyerStep = 9),
+        onOpenArtisanProfile: () => setState(() => _buyerStep = 10),
+        onOpenBusinessSourcing: () => setState(() => _buyerStep = 11),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+        },
+      );
+    }
+
+    // Screen d2: Bulk Buyer Search & Voice Search Screen (matching d2 - bulk— Search.png)
+    if (_buyerStep == 7) {
+      return BuyerSearchScreen(
+        onBack: () => setState(() => _buyerStep = 6),
+        onSelectQuery: (query) => setState(() {
+          _buyerSearchQuery = query;
+          _buyerStep = 8;
+        }),
+        onVoiceSearch: () => setState(() {
+          _buyerSearchQuery = 'Bamboo fruit baskets';
+          _buyerStep = 8;
+        }),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+          if (idx == 1) setState(() => _buyerStep = 6);
+        },
+      );
+    }
+
+    // Screen d3: Bulk Buyer Search Results Screen (matching d3 - bulk — Search Results.png)
+    if (_buyerStep == 8) {
+      return BuyerSearchResultsScreen(
+        searchQuery: _buyerSearchQuery,
+        onBack: () => setState(() => _buyerStep = 7),
+        onViewArtisanProfile: () => setState(() => _buyerStep = 10),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+          if (idx == 1) setState(() => _buyerStep = 6);
+        },
+      );
+    }
+
+    // Screen d4: Featured Master Artisans Screen (matching d4 - bulk — Featured Artisans - pagr from discover page flow.png)
+    if (_buyerStep == 9) {
+      return BuyerFeaturedArtisansScreen(
+        onBack: () => setState(() => _buyerStep = 6),
+        onOpenArtisanProfile: () => setState(() => _buyerStep = 10),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+          if (idx == 1) setState(() => _buyerStep = 6);
+        },
+      );
+    }
+
+    // Screen d5: Public Artisan Profile Screen (matching d5 bulk — Public Artisan Profile.png)
+    if (_buyerStep == 10) {
+      return BuyerArtisanProfileScreen(
+        onBack: () => setState(() => _buyerStep = 6),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+          if (idx == 1) setState(() => _buyerStep = 6);
+        },
+      );
+    }
+
+    // Screen d6: Popular Business Sourcing Screen (matching d6 bulk— Popular Business Sourcing.png)
+    if (_buyerStep == 11) {
+      return BuyerBusinessSourcingScreen(
+        onBack: () => setState(() => _buyerStep = 6),
+        onTabChange: (idx) {
+          if (idx == 0) setState(() => _buyerStep = 5);
+          if (idx == 1) setState(() => _buyerStep = 6);
+          if (idx == 2) setState(() => _buyerStep = 12);
+        },
+      );
+    }
+
+    // Screen r1: Buyer Bulk Requirements Dashboard (matching r1-bulk — Requirements.png)
+    if (_buyerStep == 12) {
+      return BuyerRequirementsScreen(
+        onBack: () => setState(() => _buyerStep = 5),
+        onPostRequirement: () => setState(() => _buyerStep = 13),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r2: Voice Post Bulk Requirement (matching r2- bulk — Voice Post Bulk Requirement.png)
+    if (_buyerStep == 13) {
+      return BuyerVoiceRequirementScreen(
+        onBack: () => setState(() => _buyerStep = 12),
+        onReviewAndSubmit: () => setState(() => _buyerStep = 14),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r3: Create Bulk Requirement Review (matching r3-bulk — Create Bulk Requirement review.png)
+    if (_buyerStep == 14) {
+      return BuyerRequirementReviewScreen(
+        onBack: () => setState(() => _buyerStep = 13),
+        onContinue: () => setState(() => _buyerStep = 15),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r4: Reference Image Upload (matching r4- bulk — Reference Image.png)
+    if (_buyerStep == 15) {
+      return BuyerReferenceImageScreen(
+        onBack: () => setState(() => _buyerStep = 14),
+        onContinue: () => setState(() => _buyerStep = 16),
+        onSkip: () => setState(() => _buyerStep = 16),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r5: Review & Match (matching r5-bulk — Find Artisan Matches.png)
+    if (_buyerStep == 16) {
+      return BuyerReviewMatchScreen(
+        onBack: () => setState(() => _buyerStep = 15),
+        onPublishAndFind: () => setState(() => _buyerStep = 17),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r6: Matched Artisans (matching r6-bulk — Artisan Match & Comparison.png)
+    if (_buyerStep == 17) {
+      return BuyerMatchedArtisansScreen(
+        onBack: () => setState(() => _buyerStep = 16),
+        onCompare: () => setState(() => _buyerStep = 18),
+        onViewArtisan: (id) => setState(() => _buyerStep = 19),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r7: Compare Artisans (matching r7-bulk ai artisan matching in bulk side.png)
+    if (_buyerStep == 18) {
+      return BuyerCompareArtisansScreen(
+        onBack: () => setState(() => _buyerStep = 17),
+        onSelectArtisan: (id) => setState(() => _buyerStep = 19),
+        onMessageArtisans: () => setState(() => _buyerStep = 19),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
+    // Screen r8: Selected Artisan (matching r8-bulk — Selected Artisan.png)
+    if (_buyerStep == 19) {
+      return BuyerSelectedArtisanScreen(
+        onBack: () => setState(() => _buyerStep = 17),
+        onSelectAndReviewOrder: () => setState(() => _buyerStep = 12),
+        onMessageArtisan: () => setState(() => _buyerStep = 12),
+        onOpenRequirements: () => setState(() => _buyerStep = 12),
+        onOpenDiscover: () => setState(() => _buyerStep = 6),
+        onOpenHome: () => setState(() => _buyerStep = 5),
+      );
+    }
+
     return PageView(
       controller: _pageController,
       physics: const NeverScrollableScrollPhysics(),
@@ -174,7 +439,7 @@ class _OnboardingFlowCoordinatorState extends State<OnboardingFlowCoordinator> {
           state: _state,
           onStateChanged: _updateState,
           onBack: _previousPage,
-          onContinue: _nextPage,
+          onContinue: _handleRoleContinue,
         ),
 
         // Screen 3: Step 1 of 5 - Create Account (with 'Already have account' login link)
